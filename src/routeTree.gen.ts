@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as OverRouteImport } from './routes/over'
 import { Route as OfferteRouteImport } from './routes/offerte'
 import { Route as LoginRouteImport } from './routes/login'
@@ -16,6 +17,11 @@ import { Route as DienstenRouteImport } from './routes/diensten'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OverRoute = OverRouteImport.update({
   id: '/over',
   path: '/over',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
   '/over': typeof OverRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
   '/over': typeof OverRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
   '/over': typeof OverRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
 }
 export interface FileRouteTypes {
@@ -80,9 +89,17 @@ export interface FileRouteTypes {
     | '/login'
     | '/offerte'
     | '/over'
+    | '/sitemap.xml'
     | '/restauratie/vw-t2'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/diensten' | '/login' | '/offerte' | '/over' | '/restauratie/vw-t2'
+  to:
+    | '/'
+    | '/diensten'
+    | '/login'
+    | '/offerte'
+    | '/over'
+    | '/sitemap.xml'
+    | '/restauratie/vw-t2'
   id:
     | '__root__'
     | '/'
@@ -90,6 +107,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/offerte'
     | '/over'
+    | '/sitemap.xml'
     | '/restauratie/vw-t2'
   fileRoutesById: FileRoutesById
 }
@@ -99,11 +117,19 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OfferteRoute: typeof OfferteRoute
   OverRoute: typeof OverRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   RestauratieVwT2Route: typeof RestauratieVwT2Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/over': {
       id: '/over'
       path: '/over'
@@ -155,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OfferteRoute: OfferteRoute,
   OverRoute: OverRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   RestauratieVwT2Route: RestauratieVwT2Route,
 }
 export const routeTree = rootRouteImport
