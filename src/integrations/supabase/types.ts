@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      quote_requests: {
+        Row: {
+          beschrijving: string | null
+          bouwjaar: string | null
+          created_at: string
+          email: string
+          foto_urls: string[] | null
+          id: string
+          merk: string | null
+          model: string | null
+          naam: string
+          status: string
+          telefoon: string | null
+          type_werk: string
+        }
+        Insert: {
+          beschrijving?: string | null
+          bouwjaar?: string | null
+          created_at?: string
+          email: string
+          foto_urls?: string[] | null
+          id?: string
+          merk?: string | null
+          model?: string | null
+          naam: string
+          status?: string
+          telefoon?: string | null
+          type_werk: string
+        }
+        Update: {
+          beschrijving?: string | null
+          bouwjaar?: string | null
+          created_at?: string
+          email?: string
+          foto_urls?: string[] | null
+          id?: string
+          merk?: string | null
+          model?: string | null
+          naam?: string
+          status?: string
+          telefoon?: string | null
+          type_werk?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
