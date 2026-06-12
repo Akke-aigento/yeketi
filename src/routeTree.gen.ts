@@ -9,38 +9,155 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as OverRouteImport } from './routes/over'
+import { Route as OfferteRouteImport } from './routes/offerte'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DienstenRouteImport } from './routes/diensten'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverRoute = OverRouteImport.update({
+  id: '/over',
+  path: '/over',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfferteRoute = OfferteRouteImport.update({
+  id: '/offerte',
+  path: '/offerte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DienstenRoute = DienstenRouteImport.update({
+  id: '/diensten',
+  path: '/diensten',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RestauratieVwT2Route = RestauratieVwT2RouteImport.update({
+  id: '/restauratie/vw-t2',
+  path: '/restauratie/vw-t2',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/diensten': typeof DienstenRoute
+  '/login': typeof LoginRoute
+  '/offerte': typeof OfferteRoute
+  '/over': typeof OverRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/restauratie/vw-t2': typeof RestauratieVwT2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/diensten': typeof DienstenRoute
+  '/login': typeof LoginRoute
+  '/offerte': typeof OfferteRoute
+  '/over': typeof OverRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/restauratie/vw-t2': typeof RestauratieVwT2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/diensten': typeof DienstenRoute
+  '/login': typeof LoginRoute
+  '/offerte': typeof OfferteRoute
+  '/over': typeof OverRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/restauratie/vw-t2': typeof RestauratieVwT2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/diensten'
+    | '/login'
+    | '/offerte'
+    | '/over'
+    | '/sitemap.xml'
+    | '/restauratie/vw-t2'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/diensten'
+    | '/login'
+    | '/offerte'
+    | '/over'
+    | '/sitemap.xml'
+    | '/restauratie/vw-t2'
+  id:
+    | '__root__'
+    | '/'
+    | '/diensten'
+    | '/login'
+    | '/offerte'
+    | '/over'
+    | '/sitemap.xml'
+    | '/restauratie/vw-t2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DienstenRoute: typeof DienstenRoute
+  LoginRoute: typeof LoginRoute
+  OfferteRoute: typeof OfferteRoute
+  OverRoute: typeof OverRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  RestauratieVwT2Route: typeof RestauratieVwT2Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/over': {
+      id: '/over'
+      path: '/over'
+      fullPath: '/over'
+      preLoaderRoute: typeof OverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offerte': {
+      id: '/offerte'
+      path: '/offerte'
+      fullPath: '/offerte'
+      preLoaderRoute: typeof OfferteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diensten': {
+      id: '/diensten'
+      path: '/diensten'
+      fullPath: '/diensten'
+      preLoaderRoute: typeof DienstenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +165,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/restauratie/vw-t2': {
+      id: '/restauratie/vw-t2'
+      path: '/restauratie/vw-t2'
+      fullPath: '/restauratie/vw-t2'
+      preLoaderRoute: typeof RestauratieVwT2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DienstenRoute: DienstenRoute,
+  LoginRoute: LoginRoute,
+  OfferteRoute: OfferteRoute,
+  OverRoute: OverRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  RestauratieVwT2Route: RestauratieVwT2Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

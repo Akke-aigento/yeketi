@@ -1,0 +1,175 @@
+// All site copy lives here so a future English locale just adds a second object.
+export const nl = {
+  brand: { name: "Yeketi Motorworks", tagline: "unity in craftsmanship" },
+  nav: {
+    home: "Home",
+    diensten: "Diensten",
+    restauratie: "Restauratie",
+    over: "Over ons",
+    offerte: "Offerte",
+    portal: "Klantenportaal",
+  },
+  hero: {
+    eyebrow: "Klassiekers — restauratie & plaatwerk",
+    headline: "Vakmanschap dat verdwijnt, leeft hier verder.",
+    subline:
+      "Restauratie van klassiekers door meester-ambachtslieden — persoonlijk begeleid van inspectie tot aflevering.",
+    ctaQuote: "Vraag een offerte",
+    ctaFollow: "Volg een restauratie",
+  },
+  story: {
+    eyebrow: "Het verhaal",
+    title: "Een ambacht dat een tweede thuis vond.",
+    body: [
+      "Yeketi begon met één eenvoudige vaststelling: de klassiekers die wij in Europa koesteren, worden steeds zeldzamer hersteld. Niet door gebrek aan liefde, maar door gebrek aan tijd, aan handen, aan ruimte in de werkplaats.",
+      "In de bergen van Koerdistan, in Iraq, werken nog steeds meester-ambachtslieden die het métier in de vingers hebben. Plaatwerkers, lassers, schilders — opgeleid in een traditie waar elke deuk met de hand wordt uitgeklopt. Wij brengen Europese auto's naar hen toe, en de auto die terugkomt is meer dan hersteld. Hij is opnieuw verteld.",
+    ],
+    pullQuote:
+      "Een auto bewaart de adem van de mensen die hem maken. Daarom kiezen wij onze handen met zorg.",
+    pullAttribution: "— Baraam, oprichter",
+  },
+  process: {
+    eyebrow: "Hoe het werkt",
+    title: "Vijf stappen, één aanspreekpunt.",
+    steps: [
+      { n: "01", t: "Inspectie aan huis", d: "Wij komen langs, maken foto's, bespreken uw wensen en de staat van de wagen." },
+      { n: "02", t: "Offerte & planning", d: "Een transparante offerte met afgebakende posten en een realistische tijdslijn." },
+      { n: "03", t: "Transport", d: "Beveiligd, verzekerd transport van uw werkplaats of garage tot in de werkplaats in Koerdistan." },
+      { n: "04", t: "Restauratie met foto-updates", d: "Iedere week beelden vanuit de werkplaats. U volgt elke fase mee, op uw eigen tempo." },
+      { n: "05", t: "Aflevering", d: "De wagen komt terug, gepoetst en gekeurd, klaar voor de weg of voor de etalage." },
+    ],
+  },
+  why: {
+    eyebrow: "Waarom Yeketi",
+    title: "Drie redenen die het verschil maken.",
+    items: [
+      {
+        t: "Eerlijke prijs",
+        d: "Restauratie aan een fractie van wat dezelfde ingreep in een Europese werkplaats kost — zonder ooit aan kwaliteit in te boeten.",
+      },
+      {
+        t: "Kortere doorlooptijd",
+        d: "Wij denken in weken en maanden, niet in jaren. De werkplaats werkt met meerdere ambachtslieden op één project.",
+      },
+      {
+        t: "Persoonlijke begeleiding",
+        d: "Eén aanspreekpunt, van eerste foto tot aflevering. Updates met beelden, in uw taal, op uw tempo.",
+      },
+    ],
+  },
+  recent: {
+    eyebrow: "Recente restauratie",
+    title: "Een VW T2, herboren.",
+    body: "Negen maanden werk: complete plaatwerkrestauratie, originele kleurstelling, nieuw interieur. Lees het volledige verhaal.",
+    cta: "Bekijk de restauratie",
+    href: "/restauratie/vw-t2",
+  },
+  footer: {
+    columnsTitle: "Yeketi Motorworks",
+    tagline: "unity in craftsmanship",
+    contact: "Antwerpen, BE · Erbil, IQ",
+    email: "hallo@yeketi.eu",
+    instagram: "Instagram",
+    rights: "© 2026 Yeketi Motorworks",
+    kvk: "BTW BE 0XXX.XXX.XXX",
+  },
+  diensten: {
+    eyebrow: "Diensten",
+    title: "Twee paden. Hetzelfde vakmanschap.",
+    intro: "Of u nu een specifiek paneel wilt laten herstellen of een volledige restauratie wenst — wij vertrekken altijd van een gesprek en een eerlijke inschatting.",
+    tiers: [
+      {
+        t: "Plaatwerk & carrosserie",
+        sub: "Voor wie één element wil herstellen.",
+        items: [
+          "Uitdeuken met de hand, geen plamuur waar het niet hoort",
+          "Lassen en vernieuwen van rotte panelen",
+          "Voorbereiding voor spuitwerk, of volledige aflakking",
+          "Chroomwerk en sierlijsten in originele staat",
+        ],
+        cta: "Vraag een offerte",
+      },
+      {
+        t: "Volledige restauratie",
+        sub: "Voor wie de wagen terug wil zoals hij ooit was.",
+        items: [
+          "Demontage tot op het naakte chassis",
+          "Behandeling tegen corrosie, zinkprimer, nieuwe lak",
+          "Mechaniek, elektriciteit en interieur in originele specificaties",
+          "Eindkeuring, poetsbeurt, transport tot voor uw deur",
+        ],
+        cta: "Plan een gesprek",
+      },
+    ],
+    faqTitle: "Veelgestelde vragen",
+    faq: [
+      { q: "Hoe verloopt het transport en de verzekering?", a: "Wij werken met gespecialiseerde transporteurs voor klassiekers. De wagen wordt verzekerd op de afgesproken waarde, deur tot deur. U krijgt vooraf alle documenten ter inzage." },
+      { q: "Wat is een realistische doorlooptijd?", a: "Plaatwerk: enkele weken tot twee maanden. Volledige restauratie: drie tot negen maanden, afhankelijk van de staat en de mate van originaliteit die u wenst." },
+      { q: "Hoe houden jullie mij op de hoogte?", a: "U krijgt wekelijks foto's en, op vraag, een korte videoboodschap uit de werkplaats. Eén aanspreekpunt in België voor al uw vragen." },
+      { q: "Kan ik in schijven betalen?", a: "Ja. Wij werken standaard met drie schijven: bij start, halverwege en bij aflevering. Schijven zijn gekoppeld aan vooraf afgesproken mijlpalen." },
+      { q: "Welke garantie geven jullie op het werk?", a: "Twee jaar garantie op plaatwerk en lakwerk, één jaar op mechanische ingrepen. Wij blijven aanspreekbaar, ook na aflevering." },
+    ],
+  },
+  caseT2: {
+    eyebrow: "Restauratie · VW T2 · 1972",
+    title: "Een VW T2, herboren.",
+    lead: "Negen maanden, drie ambachtslieden, één doel: het busje terugbrengen in de staat waarin het in 1972 de fabriek verliet — zonder de geschiedenis uit te vegen.",
+    chapters: [
+      { date: "Maand 1", t: "Aankomst", d: "Het busje arriveert op een koude ochtend in maart. Eerste inventaris: zes plaatsen waar het metaal volledig vervangen moet worden. De originele kleur — Pastellweiß over Kasanrot — is nog herkenbaar onder vier lagen verf." },
+      { date: "Maand 2 – 4", t: "Plaatwerk", d: "Drempels, wielkasten en de onderkant van de schuifdeur worden met de hand opnieuw geklopt. Geen vervangpanelen uit de catalogus: alles wordt gevormd uit nieuw staal volgens de originele profielen." },
+      { date: "Maand 5", t: "Mechaniek", d: "De 1600cc boxer wordt volledig gereviseerd. Nieuwe zuigers, nieuwe pakkingen, originele Solex-carburateurs gerestaureerd in plaats van vervangen." },
+      { date: "Maand 6 – 7", t: "Lakwerk", d: "Zeven lagen primer, plamuur en lak. Pastellweiß en Kasanrot, exact volgens VW kleurcode L90D en L31. Met de hand gepolijst tot de oorspronkelijke diepte." },
+      { date: "Maand 8", t: "Interieur", d: "Nieuwe binnenbekleding op maat in originele stof. Het stuur, de pedalen, de schakelpook — alles wat de eigenaar dagelijks aanraakt, blijft het origineel." },
+      { date: "Maand 9", t: "Aflevering", d: "Eindcontrole, technische keuring, transport. Het busje rijdt opnieuw zijn eerste kilometers op Vlaamse kasseien — vijftig jaar na zijn eerste." },
+    ],
+    closing:
+      "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
+  },
+  over: {
+    eyebrow: "Over Yeketi",
+    title: "Yeketi betekent eenheid. Eenheid in vakmanschap.",
+    body: [
+      "Yeketi is een Koerdisch woord voor eenheid. Het kiezen van die naam was geen marketingbeslissing — het was een principe. Wij brengen twee werelden samen: Europese eigenaars die hun klassieker willen koesteren, en een netwerk van Koerdische meester-ambachtslieden die het oude métier nog in de vingers hebben.",
+      "De werkplaats ligt in de buurt van Erbil, in de Koerdistan-regio van Iraq. Het is een rustige plek, ver van de massaproductie, waar men nog tijd neemt om naar metaal te luisteren. De ambachtslieden — sommigen al dertig jaar in het vak — werken met de geduldige nauwkeurigheid die deze auto's verdienen.",
+      "Vanuit België coördineren wij elk project persoonlijk. Wij komen langs voor de inspectie, regelen het transport, en zijn uw enige aanspreekpunt zolang de wagen weg is. U hoort van ons in het Nederlands. U krijgt foto's per week, en een eerlijk antwoord wanneer u erom vraagt.",
+    ],
+    founderName: "Baraam — oprichter",
+    founderQuote:
+      "Ik wil dat mijn klanten hun wagen op een dag aan hun kleinkinderen kunnen doorgeven. Dat is de enige reden dat dit bestaat.",
+  },
+  offerte: {
+    eyebrow: "Offerte aanvragen",
+    title: "Vertel ons over uw klassieker.",
+    intro: "Geen verplichting, geen verkoopstruc. U krijgt binnen twee werkdagen een persoonlijke reactie van Baraam.",
+    labels: {
+      naam: "Naam",
+      email: "E-mail",
+      telefoon: "Telefoon",
+      merk: "Merk",
+      model: "Model",
+      bouwjaar: "Bouwjaar",
+      type: "Type werk",
+      typePlaat: "Plaatwerk",
+      typeFull: "Volledige restauratie",
+      typeAdvies: "Advies",
+      beschrijving: "Beschrijving",
+      fotos: "Foto's (max. 5)",
+      submit: "Verstuur aanvraag",
+      sending: "Versturen…",
+    },
+    success: {
+      title: "Bedankt voor uw aanvraag.",
+      body: "Wij hebben uw bericht goed ontvangen. Baraam neemt binnen twee werkdagen persoonlijk contact op.",
+    },
+    error: "Er ging iets mis bij het versturen. Probeer het opnieuw of stuur een e-mail naar hallo@yeketi.eu.",
+    photoTooMany: "Maximaal vijf foto's.",
+  },
+  login: {
+    title: "Klantenportaal",
+    body: "Het beveiligde portaal voor lopende restauraties opent binnenkort. U ontvangt uw inloggegevens per e-mail zodra uw project van start gaat.",
+    back: "Terug naar home",
+  },
+} as const;
+
+export type Copy = typeof nl;
+export const t = nl; // single-locale shortcut for now
