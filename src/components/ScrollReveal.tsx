@@ -36,9 +36,8 @@ export function ScrollReveal({
     return () => io.disconnect();
   }, []);
 
-  const Comp = As as keyof JSX.IntrinsicElements;
+  const Comp = As as React.ElementType;
   return (
-    // @ts-expect-error dynamic element
     <Comp
       ref={ref as never}
       className={`reveal ${visible ? "is-visible" : ""} ${className}`}
