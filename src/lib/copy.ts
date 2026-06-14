@@ -62,7 +62,7 @@ export const nl = {
     title: "Een VW T2, herboren.",
     body: "Negen maanden werk: complete plaatwerkrestauratie, originele kleurstelling, nieuw interieur. Lees het volledige verhaal.",
     cta: "Bekijk de restauratie",
-    href: "/restauratie/vw-t2",
+    href: "/recent-werk",
   },
   footer: {
     columnsTitle: "Yeketi Motorworks",
