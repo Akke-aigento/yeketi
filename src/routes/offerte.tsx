@@ -14,9 +14,9 @@ export const Route = createFileRoute("/offerte")({
       { name: "description", content: "Vraag een persoonlijke offerte aan voor restauratie of plaatwerk van uw klassieker." },
       { property: "og:title", content: "Offerte aanvragen — Yeketi Motorworks" },
       { property: "og:description", content: "Vraag een persoonlijke offerte aan voor uw klassieker." },
-      { property: "og:url", content: "/offerte" },
+      { property: "og:url", content: "https://yeketimotorworks.com/offerte" },
     ],
-    links: [{ rel: "canonical", href: "/offerte" }],
+    links: [{ rel: "canonical", href: "https://yeketimotorworks.com/offerte" }],
   }),
   component: Offerte,
 });

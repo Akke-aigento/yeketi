@@ -19,9 +19,9 @@ export const Route = createFileRoute("/recent-werk")({
       { name: "description", content: "Een visueel overzicht van recente restauraties — de beelden spreken voor zich." },
       { property: "og:title", content: "Recent werk · Yeketi Motorworks" },
       { property: "og:description", content: "Een visueel overzicht van recente restauraties." },
-      { property: "og:url", content: "/recent-werk" },
+      { property: "og:url", content: "https://yeketimotorworks.com/recent-werk" },
     ],
-    links: [{ rel: "canonical", href: "/recent-werk" }],
+    links: [{ rel: "canonical", href: "https://yeketimotorworks.com/recent-werk" }],
   }),
   component: RecentWerk,
 });

@@ -13,9 +13,22 @@ export const Route = createFileRoute("/diensten")({
       { name: "description", content: "Plaatwerk, carrosserie en volledige restauratie van klassiekers — door meester-ambachtslieden." },
       { property: "og:title", content: "Diensten — Yeketi Motorworks" },
       { property: "og:description", content: "Plaatwerk en volledige restauratie van klassiekers." },
-      { property: "og:url", content: "/diensten" },
+      { property: "og:url", content: "https://yeketimotorworks.com/diensten" },
     ],
-    links: [{ rel: "canonical", href: "/diensten" }],
+    links: [{ rel: "canonical", href: "https://yeketimotorworks.com/diensten" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          serviceType: "Restauratie van klassieke voertuigen",
+          provider: { "@type": "LocalBusiness", name: "Yeketi Motorworks", url: "https://yeketimotorworks.com" },
+          areaServed: ["NL", "BE", "DE", "LU", "FR"],
+          description: "Plaatwerk, carrosserie en volledige restauratie van klassiekers door meester-ambachtslieden.",
+        }),
+      },
+    ],
   }),
   component: Diensten,
 });
