@@ -18,10 +18,10 @@ const chapterImages = [arrivalImg, handsImg, teamImg, heroImg, interiorImg, deli
 export const Route = createFileRoute("/restauratie/vw-t2")({
   head: () => ({
     meta: [
-      { title: "Een VW T2, herboren — Yeketi Motorworks" },
-      { name: "description", content: "Negen maanden, drie ambachtslieden, één doel: een VW T2 uit 1972 terugbrengen in fabrieksstaat." },
-      { property: "og:title", content: "Een VW T2, herboren" },
-      { property: "og:description", content: "Chronologisch foto-verslag van een volledige VW T2-restauratie." },
+      { title: "Restauratie — onze werkwijze · Yeketi Motorworks" },
+      { name: "description", content: "Van aankomst tot aflevering: hoe wij een klassieker in negen maanden terugbrengen in originele staat." },
+      { property: "og:title", content: "Restauratie — onze werkwijze" },
+      { property: "og:description", content: "Chronologisch verslag van een volledige oldtimer-restauratie." },
       { property: "og:type", content: "article" },
       { property: "og:image", content: afterImg },
       { name: "twitter:image", content: afterImg },
