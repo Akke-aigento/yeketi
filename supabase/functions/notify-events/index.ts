@@ -1,0 +1,134 @@
+// Database webhook target. Sends Resend emails for new phase updates and new
+// quote requests. NOT callable anonymously — caller must present the matching
+// `x-webhook-secret` header. Configured to run with verify_jwt = false because
+// the DB webhook fires without a JWT.
+
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
+const WEBHOOK_SHARED_SECRET = Deno.env.get("WEBHOOK_SHARED_SECRET") ?? "";
+const ADMIN_NOTIFY_EMAIL = Deno.env.get("ADMIN_NOTIFY_EMAIL") ?? "";
+const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Yeketi Motorworks <onboarding@resend.dev>";
+const PUBLIC_SITE_URL = Deno.env.get("PUBLIC_SITE_URL") ?? "https://yeketi.eu";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+function timingSafeEqual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+async function sendEmail(opts: { to: string; subject: string; html: string }) {
+  if (!RESEND_API_KEY) { console.warn("RESEND_API_KEY not set; skipping send"); return; }
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: FROM_EMAIL, to: [opts.to], subject: opts.subject, html: opts.html }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Resend error", res.status, text);
+    throw new Error(`Resend ${res.status}: ${text}`);
+  }
+}
+
+function emailTemplate(opts: { headline: string; intro: string; ctaLabel: string; ctaUrl: string }) {
+  // Inline-styled, cream/charcoal/brass. Marcellus → web-safe serif fallback.
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#F7F3EC;font-family:Georgia,'Times New Roman',serif;color:#221F1B;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F7F3EC;padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;background:#FFFFFF;border:1px solid #221F1B;">
+        <tr><td style="padding:28px 28px 0;">
+          <div style="font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:#B0832C;font-family:Arial,Helvetica,sans-serif;">Yeketi Motorworks</div>
+        </td></tr>
+        <tr><td style="padding:18px 28px 4px;">
+          <h1 style="margin:0;font-family:'Marcellus',Georgia,serif;font-weight:400;font-size:28px;line-height:1.15;color:#221F1B;">${opts.headline}</h1>
+        </td></tr>
+        <tr><td style="padding:14px 28px 24px;">
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.65;color:#4A453E;">${opts.intro}</p>
+        </td></tr>
+        <tr><td style="padding:0 28px 36px;">
+          <a href="${opts.ctaUrl}" style="display:inline-block;background:#B0832C;color:#F7F3EC;text-decoration:none;padding:14px 26px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;border:1px solid #B0832C;">${opts.ctaLabel}</a>
+        </td></tr>
+        <tr><td style="padding:18px 28px 24px;border-top:1px solid #EFE8DB;">
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#4A453E;letter-spacing:0.04em;">Yeketi Motorworks · Antwerpen · Erbil<br/><em style="font-family:Georgia,'Times New Roman',serif;color:#B0832C;">unity in craftsmanship</em></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table></body></html>`;
+}
+
+async function sbFetch(path: string) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: {
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+  });
+  if (!r.ok) throw new Error(`Supabase ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+
+Deno.serve(async (req) => {
+  if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
+
+  // Shared-secret gate — required for any invocation.
+  const provided = req.headers.get("x-webhook-secret") ?? "";
+  if (!WEBHOOK_SHARED_SECRET || !timingSafeEqual(provided, WEBHOOK_SHARED_SECRET)) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  let body: { type: string; table?: string; record?: Record<string, unknown> };
+  try { body = await req.json(); } catch { return new Response("Bad Request", { status: 400 }); }
+
+  try {
+    if (body.table === "phase_updates" && body.type === "INSERT" && body.record) {
+      const phaseId = body.record.phase_id as string;
+      const updateBody = (body.record.body as string) ?? "";
+      const phases = await sbFetch(`project_phases?id=eq.${phaseId}&select=name,project_id`);
+      const phase = phases[0];
+      if (!phase) return new Response("ok");
+      const projects = await sbFetch(`projects?id=eq.${phase.project_id}&select=title,vehicle_make,vehicle_model,customer_id`);
+      const project = projects[0];
+      if (!project) return new Response("ok");
+      const profiles = await sbFetch(`profiles?id=eq.${project.customer_id}&select=email,full_name`);
+      const profile = profiles[0];
+      if (!profile?.email) return new Response("ok");
+      const vehicle = [project.vehicle_make, project.vehicle_model].filter(Boolean).join(" ") || project.title;
+      const portalUrl = `${PUBLIC_SITE_URL}/portaal/${project.customer_id ? project.customer_id : ""}`;
+      const projectUrl = `${PUBLIC_SITE_URL}/portaal/${phase.project_id}`;
+      void portalUrl;
+      const preview = updateBody.length > 140 ? updateBody.slice(0, 140) + "…" : updateBody;
+      await sendEmail({
+        to: profile.email,
+        subject: `Nieuwe update: ${vehicle}`,
+        html: emailTemplate({
+          headline: `Een nieuwe update voor je ${vehicle}`,
+          intro: `${profile.full_name ? `Hoi ${String(profile.full_name).split(" ")[0]}, ` : ""}er staat een nieuwe update klaar in het klantenportaal (fase: ${phase.name}).${preview ? `<br/><br/><em style="color:#4A453E;">${preview.replace(/</g, "&lt;")}</em>` : ""}`,
+          ctaLabel: "Bekijk de update",
+          ctaUrl: projectUrl,
+        }),
+      });
+    }
+
+    if (body.table === "quote_requests" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
+      const r = body.record;
+      const vehicle = [r.merk, r.model, r.bouwjaar].filter(Boolean).join(" ");
+      await sendEmail({
+        to: ADMIN_NOTIFY_EMAIL,
+        subject: `Nieuwe offerte-aanvraag van ${r.naam}`,
+        html: emailTemplate({
+          headline: `Nieuwe aanvraag van ${r.naam}`,
+          intro: `${vehicle || r.type_werk}<br/>${r.email}${r.telefoon ? ` · ${r.telefoon}` : ""}${r.beschrijving ? `<br/><br/>${String(r.beschrijving).replace(/</g, "&lt;")}` : ""}`,
+          ctaLabel: "Open in admin",
+          ctaUrl: `${PUBLIC_SITE_URL}/admin/offertes`,
+        }),
+      });
+    }
+
+    return new Response("ok", { status: 200 });
+  } catch (e) {
+    console.error(e);
+    return new Response(`Error: ${(e as Error).message}`, { status: 500 });
+  }
+});
