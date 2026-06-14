@@ -115,12 +115,12 @@ export const nl = {
     title: "Een VW T2, herboren.",
     lead: "Negen maanden, drie ambachtslieden, één doel: het busje terugbrengen in de staat waarin het in 1972 de fabriek verliet — zonder de geschiedenis uit te vegen.",
     chapters: [
-      { date: "Maand 1", t: "Aankomst", d: "Het busje arriveert op een koude ochtend in maart. Eerste inventaris: zes plaatsen waar het metaal volledig vervangen moet worden. De originele kleur — Pastellweiß over Kasanrot — is nog herkenbaar onder vier lagen verf." },
-      { date: "Maand 2 – 4", t: "Plaatwerk", d: "Drempels, wielkasten en de onderkant van de schuifdeur worden met de hand opnieuw geklopt. Geen vervangpanelen uit de catalogus: alles wordt gevormd uit nieuw staal volgens de originele profielen." },
-      { date: "Maand 5", t: "Mechaniek", d: "De 1600cc boxer wordt volledig gereviseerd. Nieuwe zuigers, nieuwe pakkingen, originele Solex-carburateurs gerestaureerd in plaats van vervangen." },
-      { date: "Maand 6 – 7", t: "Lakwerk", d: "Zeven lagen primer, plamuur en lak. Pastellweiß en Kasanrot, exact volgens VW kleurcode L90D en L31. Met de hand gepolijst tot de oorspronkelijke diepte." },
-      { date: "Maand 8", t: "Interieur", d: "Nieuwe binnenbekleding op maat in originele stof. Het stuur, de pedalen, de schakelpook — alles wat de eigenaar dagelijks aanraakt, blijft het origineel." },
-      { date: "Maand 9", t: "Aflevering", d: "Eindcontrole, technische keuring, transport. Het busje rijdt opnieuw zijn eerste kilometers op Vlaamse kasseien — vijftig jaar na zijn eerste." },
+      { date: "Maand 1", t: "Aankomst", d: "De wagen arriveert in de werkplaats. Eerste inventaris: een nauwgezette inspectie van carrosserie, chassis en mechaniek. Alle aandachtspunten worden gefotografeerd en met de eigenaar besproken voor er één bout wordt losgedraaid." },
+      { date: "Maand 2 – 4", t: "Plaatwerk", d: "Rotte panelen worden vakkundig uitgesneden en met de hand opnieuw gevormd uit nieuw staal, volgens de originele profielen. Geen plamuur waar het niet hoort — elke deuk wordt geklopt zoals het hoort bij een klassieker." },
+      { date: "Maand 5", t: "Mechaniek", d: "Het motorblok wordt volledig gereviseerd. Pakkingen, zuigers en kleppen worden vernieuwd; originele onderdelen worden waar mogelijk gerestaureerd in plaats van vervangen, om het karakter van de wagen te behouden." },
+      { date: "Maand 6 – 7", t: "Lakwerk", d: "Meerdere lagen primer, plamuur en lak — exact volgens de originele kleurcode van de fabrikant. Met de hand gepolijst tot de oorspronkelijke diepte en glans terug zichtbaar zijn." },
+      { date: "Maand 8", t: "Interieur", d: "Nieuwe binnenbekleding op maat in originele stof en kleur. Stuur, pedalen en schakelpook blijven het origineel — alles wat de eigenaar dagelijks aanraakt, draagt de patina van vijftig jaar geschiedenis." },
+      { date: "Maand 9", t: "Aflevering", d: "Eindcontrole, technische keuring en beveiligd transport tot voor de deur. De wagen rijdt opnieuw zijn eerste kilometers — een klassieker die nog generaties mee kan." },
     ],
     closing:
       "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
