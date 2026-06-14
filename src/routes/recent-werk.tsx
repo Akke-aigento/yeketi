@@ -26,17 +26,17 @@ export const Route = createFileRoute("/recent-werk")({
   component: RecentWerk,
 });
 
-type Shot = { src: string; alt: string; ratio: string; span?: string };
+type Shot = { src: string; alt: string; ratio: string };
 
 const shots: Shot[] = [
-  { src: arrivalImg, alt: "Aankomst van een klassieker in de werkplaats", ratio: "4/3", span: "md:col-span-2 md:row-span-2" },
-  { src: beforeImg, alt: "VW T2 — voor de restauratie", ratio: "4/3" },
-  { src: afterImg, alt: "VW T2 — na de restauratie", ratio: "4/3" },
+  { src: arrivalImg, alt: "Aankomst van een klassieker in de werkplaats", ratio: "4/3" },
   { src: handsImg, alt: "Handen van een meester-ambachtsman", ratio: "4/5" },
-  { src: workshopImg, alt: "Werkplaats in Erbil", ratio: "16/11", span: "md:col-span-2" },
+  { src: beforeImg, alt: "VW T2 — voor de restauratie", ratio: "4/3" },
+  { src: workshopImg, alt: "Werkplaats in Erbil", ratio: "4/3" },
+  { src: afterImg, alt: "VW T2 — na de restauratie", ratio: "4/3" },
   { src: interiorImg, alt: "Gerestaureerd interieur van een oldtimer", ratio: "4/3" },
-  { src: deliveryImg, alt: "Spik en span gerestaureerde oldtimer bij aflevering", ratio: "16/11", span: "md:col-span-2" },
   { src: teamImg, alt: "Het team in de werkplaats", ratio: "4/3" },
+  { src: deliveryImg, alt: "Spik en span gerestaureerde oldtimer bij aflevering", ratio: "4/3" },
 ];
 
 function RecentWerk() {
@@ -56,18 +56,15 @@ function RecentWerk() {
               </p>
             </ScrollReveal>
 
-            <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 md:auto-rows-[220px]">
+            <div className="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {shots.map((s, i) => (
-                <ScrollReveal key={s.src} delay={(i % 4) * 80}>
-                  <figure
-                    className={s.span ?? ""}
-                    style={{ border: "1px solid var(--charcoal)", height: "100%" }}
-                  >
+                <ScrollReveal key={s.src} delay={(i % 3) * 80}>
+                  <figure style={{ border: "1px solid var(--charcoal)" }}>
                     <img
                       src={s.src}
                       alt={s.alt}
                       loading="lazy"
-                      className="w-full h-full block"
+                      className="w-full block"
                       style={{ objectFit: "cover", aspectRatio: s.ratio }}
                     />
                   </figure>
