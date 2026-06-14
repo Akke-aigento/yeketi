@@ -2,11 +2,11 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const tabs = [
+const tabs: { to: "/admin" | "/admin/offertes" | "/admin/klanten"; label: string; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
   { to: "/admin/offertes", label: "Offertes" },
   { to: "/admin/klanten", label: "Klanten" },
-] as const;
+];
 
 export function AdminShell({ children, title }: { children: ReactNode; title?: string }) {
   const navigate = useNavigate();
