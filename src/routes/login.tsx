@@ -4,7 +4,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { t } from "@/lib/copy";
-import logoFullLight from "@/assets/yeketi-logo-full-light.svg.asset.json";
+import logoHorizontalLight from "@/assets/yeketi-logo-horizontal-light.svg.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
@@ -71,9 +71,9 @@ function Login() {
           <ScrollReveal>
             <div className="mx-auto" style={{ maxWidth: "440px" }}>
               <img
-                src={logoFullLight.url}
+                src={logoHorizontalLight.url}
                 alt="Yeketi Motorworks"
-                style={{ height: "150px", width: "auto", display: "block", margin: "0 auto 2.5rem" }}
+                style={{ height: "72px", width: "auto", display: "block", margin: "0 auto 2.5rem", background: "transparent" }}
               />
               {status === "sent" ? (
                 <div className="text-center">

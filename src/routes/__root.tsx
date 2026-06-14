@@ -14,20 +14,23 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <div
+      className="flex min-h-screen items-center justify-center px-6"
+      style={{ background: "var(--cream, #F7F3EC)", color: "var(--charcoal, #221F1B)" }}
+    >
+      <div className="max-w-xl text-center">
+        <p className="eyebrow" style={{ color: "var(--brass, #B08D57)" }}>404</p>
+        <h1
+          className="mt-5"
+          style={{ fontFamily: "var(--font-display, 'Marcellus', serif)", fontSize: "clamp(1.8rem,3.6vw,2.8rem)", lineHeight: 1.15 }}
+        >
+          Deze weg loopt dood — maar elke klassieker verdient een tweede kans.
+        </h1>
+        <p className="mt-6" style={{ color: "var(--charcoal-soft, #4A463F)", lineHeight: 1.7 }}>
+          De pagina die je zocht bestaat niet (meer). Keer terug naar de werkplaats.
         </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
+        <div className="mt-10">
+          <Link to="/" className="btn-y-solid">Terug naar home</Link>
         </div>
       </div>
     </div>
