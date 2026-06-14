@@ -61,7 +61,18 @@ function PortalIndex() {
               <p style={{ color: "var(--oxide)" }}>{error}</p>
             )}
             {!error && projects === null && (
-              <p className="eyebrow" style={{ color: "var(--charcoal-soft)" }}>Laden…</p>
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3" aria-label="Laden">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}>
+                    <div className="skeleton-y" style={{ aspectRatio: "4/3", borderBottom: "1px solid var(--charcoal)" }} />
+                    <div className="p-5">
+                      <div className="skeleton-y" style={{ height: "10px", width: "40%" }} />
+                      <div className="skeleton-y mt-4" style={{ height: "20px", width: "75%" }} />
+                      <div className="skeleton-y mt-3" style={{ height: "12px", width: "55%" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
             {projects && projects.length === 0 && (
               <div
