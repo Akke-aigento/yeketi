@@ -14,6 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
+      phase_updates: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          phase_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          phase_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          phase_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phase_updates_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "project_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          is_admin: boolean
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          is_admin?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          is_admin?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_phases: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          sort_order: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["phase_status"]
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          sort_order?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["phase_status"]
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          sort_order?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["phase_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_phases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          cover_photo_url: string | null
+          created_at: string
+          customer_id: string
+          expected_end_date: string | null
+          id: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at: string
+          vehicle_make: string | null
+          vehicle_model: string | null
+          vehicle_year: string | null
+        }
+        Insert: {
+          cover_photo_url?: string | null
+          created_at?: string
+          customer_id: string
+          expected_end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          title: string
+          updated_at?: string
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_year?: string | null
+        }
+        Update: {
+          cover_photo_url?: string | null
+          created_at?: string
+          customer_id?: string
+          expected_end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          title?: string
+          updated_at?: string
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_requests: {
         Row: {
           beschrijving: string | null
@@ -25,7 +178,7 @@ export type Database = {
           merk: string | null
           model: string | null
           naam: string
-          status: string
+          status: Database["public"]["Enums"]["quote_status"]
           telefoon: string | null
           type_werk: string
         }
@@ -39,7 +192,7 @@ export type Database = {
           merk?: string | null
           model?: string | null
           naam: string
-          status?: string
+          status?: Database["public"]["Enums"]["quote_status"]
           telefoon?: string | null
           type_werk: string
         }
@@ -53,21 +206,68 @@ export type Database = {
           merk?: string | null
           model?: string | null
           naam?: string
-          status?: string
+          status?: Database["public"]["Enums"]["quote_status"]
           telefoon?: string | null
           type_werk?: string
         }
         Relationships: []
+      }
+      update_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          sort_order: number
+          storage_path: string
+          update_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storage_path: string
+          update_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          storage_path?: string
+          update_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "update_photos_update_id_fkey"
+            columns: ["update_id"]
+            isOneToOne: false
+            referencedRelation: "phase_updates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _uid: string }; Returns: boolean }
+      owns_project: {
+        Args: { _project: string; _uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      phase_status: "pending" | "active" | "done"
+      project_status:
+        | "intake"
+        | "transport_out"
+        | "in_workshop"
+        | "transport_return"
+        | "delivered"
+        | "archived"
+      quote_status: "new" | "contacted" | "quoted" | "won" | "lost"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -194,6 +394,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      phase_status: ["pending", "active", "done"],
+      project_status: [
+        "intake",
+        "transport_out",
+        "in_workshop",
+        "transport_return",
+        "delivered",
+        "archived",
+      ],
+      quote_status: ["new", "contacted", "quoted", "won", "lost"],
+    },
   },
 } as const

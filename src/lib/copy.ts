@@ -169,6 +169,37 @@ export const nl = {
     body: "Het beveiligde portaal voor lopende restauraties opent binnenkort. U ontvangt uw inloggegevens per e-mail zodra uw project van start gaat.",
     back: "Terug naar home",
   },
+  portal: {
+    loginTitle: "Klantenportaal",
+    loginSubline: "We sturen je een inloglink per e-mail — geen wachtwoord nodig.",
+    emailLabel: "E-mailadres",
+    emailPlaceholder: "naam@voorbeeld.be",
+    send: "Stuur inloglink",
+    sending: "Versturen…",
+    sentTitle: "Check je inbox",
+    sentBody: "We hebben een inloglink gestuurd naar",
+    sentHint: "Open de e-mail op dit toestel om in te loggen.",
+    invalidEmail: "Vul een geldig e-mailadres in.",
+    sendError: "Er ging iets mis. Probeer het opnieuw of mail hallo@yeketi.eu.",
+    notRegistered:
+      "Dit e-mailadres staat nog niet in ons systeem. Neem contact op met Baraam zodat we je restauratie kunnen klaarzetten.",
+    overviewTitle: "Jouw restauraties",
+    overviewIntro: "Volg de voortgang van je project, fase per fase.",
+    empty: "Je restauratie wordt klaargezet — je ontvangt een e-mail zodra de eerste update er is.",
+    backToOverview: "Terug naar overzicht",
+    logout: "Uitloggen",
+    welcome: "Welkom terug",
+    timelineTitle: "Tijdlijn",
+    noUpdates: "Nog geen updates in deze fase.",
+    statusLabels: {
+      intake: "Intake",
+      transport_out: "Onderweg naar werkplaats",
+      in_workshop: "In de werkplaats",
+      transport_return: "Onderweg terug",
+      delivered: "Afgeleverd",
+      archived: "Gearchiveerd",
+    },
+  },
 } as const;
 
 export type Copy = typeof nl;
