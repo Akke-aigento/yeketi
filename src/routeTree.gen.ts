@@ -19,6 +19,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
 import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authenticated/portaal.index'
+import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -70,6 +71,12 @@ const AuthenticatedPortaalIndexRoute =
     path: '/portaal/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPortaalProjectIdRoute =
+  AuthenticatedPortaalProjectIdRouteImport.update({
+    id: '/portaal/$projectId',
+    path: '/portaal/$projectId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
 }
 export interface FileRoutesByTo {
@@ -91,6 +99,7 @@ export interface FileRoutesByTo {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
 }
 export interface FileRoutesById {
@@ -104,6 +113,7 @@ export interface FileRoutesById {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
 }
 export interface FileRouteTypes {
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/portaal/$projectId'
     | '/portaal/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/portaal/$projectId'
     | '/portaal'
   id:
     | '__root__'
@@ -140,6 +152,7 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/_authenticated/portaal/$projectId'
     | '/_authenticated/portaal/'
   fileRoutesById: FileRoutesById
 }
@@ -227,14 +240,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortaalIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/portaal/$projectId': {
+      id: '/_authenticated/portaal/$projectId'
+      path: '/portaal/$projectId'
+      fullPath: '/portaal/$projectId'
+      preLoaderRoute: typeof AuthenticatedPortaalProjectIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPortaalProjectIdRoute: typeof AuthenticatedPortaalProjectIdRoute
   AuthenticatedPortaalIndexRoute: typeof AuthenticatedPortaalIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPortaalProjectIdRoute: AuthenticatedPortaalProjectIdRoute,
   AuthenticatedPortaalIndexRoute: AuthenticatedPortaalIndexRoute,
 }
 
