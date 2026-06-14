@@ -23,6 +23,7 @@ import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 import { Route as AuthenticatedAdminOffertesRouteImport } from './routes/_authenticated/admin/offertes'
+import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authenticated/admin/klanten'
 import { Route as AuthenticatedAdminProjectenIdRouteImport } from './routes/_authenticated/admin/projecten.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -97,6 +98,12 @@ const AuthenticatedAdminOffertesRoute =
     path: '/offertes',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminKlantenRoute =
+  AuthenticatedAdminKlantenRouteImport.update({
+    id: '/klanten',
+    path: '/klanten',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminProjectenIdRoute =
   AuthenticatedAdminProjectenIdRouteImport.update({
     id: '/projecten/$id',
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -129,6 +137,7 @@ export interface FileRoutesByTo {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -147,6 +156,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/_authenticated/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/_authenticated/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/restauratie/vw-t2'
+    | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
     | '/admin/'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
     | '/admin'
@@ -197,6 +209,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/restauratie/vw-t2'
+    | '/_authenticated/admin/klanten'
     | '/_authenticated/admin/offertes'
     | '/_authenticated/portaal/$projectId'
     | '/_authenticated/admin/'
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminOffertesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/klanten': {
+      id: '/_authenticated/admin/klanten'
+      path: '/klanten'
+      fullPath: '/admin/klanten'
+      preLoaderRoute: typeof AuthenticatedAdminKlantenRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/projecten/$id': {
       id: '/_authenticated/admin/projecten/$id'
       path: '/projecten/$id'
@@ -327,6 +347,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminKlantenRoute: typeof AuthenticatedAdminKlantenRoute
   AuthenticatedAdminOffertesRoute: typeof AuthenticatedAdminOffertesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminProjectenIdRoute: typeof AuthenticatedAdminProjectenIdRoute
@@ -334,6 +355,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminKlantenRoute: AuthenticatedAdminKlantenRoute,
     AuthenticatedAdminOffertesRoute: AuthenticatedAdminOffertesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminProjectenIdRoute: AuthenticatedAdminProjectenIdRoute,
