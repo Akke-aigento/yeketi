@@ -18,8 +18,13 @@ import { Route as DienstenRouteImport } from './routes/diensten'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authenticated/portaal.index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
+import { Route as AuthenticatedAdminOffertesRouteImport } from './routes/_authenticated/admin/offertes'
+import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authenticated/admin/klanten'
+import { Route as AuthenticatedAdminProjectenIdRouteImport } from './routes/_authenticated/admin/projecten.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -65,17 +70,45 @@ const RestauratieVwT2Route = RestauratieVwT2RouteImport.update({
   path: '/restauratie/vw-t2',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPortaalIndexRoute =
   AuthenticatedPortaalIndexRouteImport.update({
     id: '/portaal/',
     path: '/portaal/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const AuthenticatedPortaalProjectIdRoute =
   AuthenticatedPortaalProjectIdRouteImport.update({
     id: '/portaal/$projectId',
     path: '/portaal/$projectId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminOffertesRoute =
+  AuthenticatedAdminOffertesRouteImport.update({
+    id: '/offertes',
+    path: '/offertes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminKlantenRoute =
+  AuthenticatedAdminKlantenRouteImport.update({
+    id: '/klanten',
+    path: '/klanten',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminProjectenIdRoute =
+  AuthenticatedAdminProjectenIdRouteImport.update({
+    id: '/projecten/$id',
+    path: '/projecten/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -86,9 +119,14 @@ export interface FileRoutesByFullPath {
   '/over': typeof OverRoute
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
+  '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
+  '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,8 +137,12 @@ export interface FileRoutesByTo {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
+  '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
+  '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,9 +154,14 @@ export interface FileRoutesById {
   '/over': typeof OverRoute
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/_authenticated/admin/klanten': typeof AuthenticatedAdminKlantenRoute
+  '/_authenticated/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
+  '/_authenticated/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -126,9 +173,14 @@ export interface FileRouteTypes {
     | '/over'
     | '/recent-werk'
     | '/sitemap.xml'
+    | '/admin'
     | '/restauratie/vw-t2'
+    | '/admin/klanten'
+    | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/admin/'
     | '/portaal/'
+    | '/admin/projecten/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,8 +191,12 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/admin/klanten'
+    | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/admin'
     | '/portaal'
+    | '/admin/projecten/$id'
   id:
     | '__root__'
     | '/'
@@ -151,9 +207,14 @@ export interface FileRouteTypes {
     | '/over'
     | '/recent-werk'
     | '/sitemap.xml'
+    | '/_authenticated/admin'
     | '/restauratie/vw-t2'
+    | '/_authenticated/admin/klanten'
+    | '/_authenticated/admin/offertes'
     | '/_authenticated/portaal/$projectId'
+    | '/_authenticated/admin/'
     | '/_authenticated/portaal/'
+    | '/_authenticated/admin/projecten/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -233,12 +294,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RestauratieVwT2RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/portaal/': {
       id: '/_authenticated/portaal/'
       path: '/portaal'
       fullPath: '/portaal/'
       preLoaderRoute: typeof AuthenticatedPortaalIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/portaal/$projectId': {
       id: '/_authenticated/portaal/$projectId'
@@ -247,15 +322,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortaalProjectIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/offertes': {
+      id: '/_authenticated/admin/offertes'
+      path: '/offertes'
+      fullPath: '/admin/offertes'
+      preLoaderRoute: typeof AuthenticatedAdminOffertesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/klanten': {
+      id: '/_authenticated/admin/klanten'
+      path: '/klanten'
+      fullPath: '/admin/klanten'
+      preLoaderRoute: typeof AuthenticatedAdminKlantenRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/projecten/$id': {
+      id: '/_authenticated/admin/projecten/$id'
+      path: '/projecten/$id'
+      fullPath: '/admin/projecten/$id'
+      preLoaderRoute: typeof AuthenticatedAdminProjectenIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminKlantenRoute: typeof AuthenticatedAdminKlantenRoute
+  AuthenticatedAdminOffertesRoute: typeof AuthenticatedAdminOffertesRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminProjectenIdRoute: typeof AuthenticatedAdminProjectenIdRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminKlantenRoute: AuthenticatedAdminKlantenRoute,
+    AuthenticatedAdminOffertesRoute: AuthenticatedAdminOffertesRoute,
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminProjectenIdRoute: AuthenticatedAdminProjectenIdRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedPortaalProjectIdRoute: typeof AuthenticatedPortaalProjectIdRoute
   AuthenticatedPortaalIndexRoute: typeof AuthenticatedPortaalIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedPortaalProjectIdRoute: AuthenticatedPortaalProjectIdRoute,
   AuthenticatedPortaalIndexRoute: AuthenticatedPortaalIndexRoute,
 }

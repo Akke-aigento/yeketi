@@ -7,9 +7,16 @@ import { t } from "@/lib/copy";
 export function PortalHeader() {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+    supabase.auth.getUser().then(async ({ data }) => {
+      setEmail(data.user?.email ?? null);
+      if (data.user) {
+        const { data: p } = await supabase.from("profiles").select("is_admin").eq("id", data.user.id).maybeSingle();
+        setIsAdmin(!!p?.is_admin);
+      }
+    });
   }, []);
 
   async function handleLogout() {
@@ -35,6 +42,15 @@ export function PortalHeader() {
             >
               {email}
             </span>
+          )}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-[12px] tracking-[0.22em] uppercase"
+              style={{ color: "var(--brass)" }}
+            >
+              Admin
+            </Link>
           )}
           <Link
             to="/portaal"
