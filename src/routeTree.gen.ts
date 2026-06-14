@@ -18,6 +18,7 @@ import { Route as DienstenRouteImport } from './routes/diensten'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authenticated/portaal.index'
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 
@@ -65,6 +66,11 @@ const RestauratieVwT2Route = RestauratieVwT2RouteImport.update({
   path: '/restauratie/vw-t2',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPortaalIndexRoute =
   AuthenticatedPortaalIndexRouteImport.update({
     id: '/portaal/',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/over': typeof OverRoute
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRouteRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/over': typeof OverRoute
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRouteRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/over': typeof OverRoute
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/over'
     | '/recent-werk'
     | '/sitemap.xml'
+    | '/admin'
     | '/restauratie/vw-t2'
     | '/portaal/$projectId'
     | '/portaal/'
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/over'
     | '/recent-werk'
     | '/sitemap.xml'
+    | '/admin'
     | '/restauratie/vw-t2'
     | '/portaal/$projectId'
     | '/portaal'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/over'
     | '/recent-werk'
     | '/sitemap.xml'
+    | '/_authenticated/admin'
     | '/restauratie/vw-t2'
     | '/_authenticated/portaal/$projectId'
     | '/_authenticated/portaal/'
@@ -233,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RestauratieVwT2RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/portaal/': {
       id: '/_authenticated/portaal/'
       path: '/portaal'
@@ -251,11 +270,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRoute
   AuthenticatedPortaalProjectIdRoute: typeof AuthenticatedPortaalProjectIdRoute
   AuthenticatedPortaalIndexRoute: typeof AuthenticatedPortaalIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRoute,
   AuthenticatedPortaalProjectIdRoute: AuthenticatedPortaalProjectIdRoute,
   AuthenticatedPortaalIndexRoute: AuthenticatedPortaalIndexRoute,
 }
