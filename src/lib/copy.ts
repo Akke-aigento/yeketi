@@ -111,9 +111,9 @@ export const nl = {
     ],
   },
   caseT2: {
-    eyebrow: "Restauratie · VW T2 · 1972",
-    title: "Een VW T2, herboren.",
-    lead: "Negen maanden, drie ambachtslieden, één doel: het busje terugbrengen in de staat waarin het in 1972 de fabriek verliet — zonder de geschiedenis uit te vegen.",
+    eyebrow: "Onze werkwijze",
+    title: "Restauratie — van aankomst tot aflevering.",
+    lead: "Negen maanden, meerdere ambachtslieden, één doel: een klassieker terugbrengen in de staat waarin hij ooit de fabriek verliet — zonder de geschiedenis uit te vegen.",
     chapters: [
       { date: "Maand 1", t: "Aankomst", d: "De wagen arriveert in de werkplaats. Eerste inventaris: een nauwgezette inspectie van carrosserie, chassis en mechaniek. Alle aandachtspunten worden gefotografeerd en met de eigenaar besproken voor er één bout wordt losgedraaid." },
       { date: "Maand 2 – 4", t: "Plaatwerk", d: "Rotte panelen worden vakkundig uitgesneden en met de hand opnieuw gevormd uit nieuw staal, volgens de originele profielen. Geen plamuur waar het niet hoort — elke deuk wordt geklopt zoals het hoort bij een klassieker." },
