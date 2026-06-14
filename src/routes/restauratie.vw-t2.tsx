@@ -10,8 +10,10 @@ import handsImg from "@/assets/craftsman-hands.jpg";
 import teamImg from "@/assets/workshop-team.jpg";
 import heroImg from "@/assets/hero-workshop.jpg";
 import arrivalAsset from "@/assets/vw-t2-arrival.jpg.asset.json";
+import interiorImg from "@/assets/oldtimer-interior.jpg";
+import deliveryImg from "@/assets/oldtimer-delivery.jpg";
 
-const chapterImages = [arrivalAsset.url, handsImg, teamImg, heroImg, handsImg, afterImg];
+const chapterImages = [arrivalAsset.url, handsImg, teamImg, heroImg, interiorImg, deliveryImg];
 
 export const Route = createFileRoute("/restauratie/vw-t2")({
   head: () => ({
