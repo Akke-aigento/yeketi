@@ -15,8 +15,10 @@ import { Route as OverRouteImport } from './routes/over'
 import { Route as OfferteRouteImport } from './routes/offerte'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DienstenRouteImport } from './routes/diensten'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
+import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authenticated/portaal.index'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -48,6 +50,10 @@ const DienstenRoute = DienstenRouteImport.update({
   path: '/diensten',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -58,6 +64,12 @@ const RestauratieVwT2Route = RestauratieVwT2RouteImport.update({
   path: '/restauratie/vw-t2',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPortaalIndexRoute =
+  AuthenticatedPortaalIndexRouteImport.update({
+    id: '/portaal/',
+    path: '/portaal/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/portaal/': typeof AuthenticatedPortaalIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,10 +91,12 @@ export interface FileRoutesByTo {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/portaal': typeof AuthenticatedPortaalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/diensten': typeof DienstenRoute
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
@@ -89,6 +104,7 @@ export interface FileRoutesById {
   '/recent-werk': typeof RecentWerkRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +117,7 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/portaal/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,9 +128,11 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/portaal'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/diensten'
     | '/login'
     | '/offerte'
@@ -121,10 +140,12 @@ export interface FileRouteTypes {
     | '/recent-werk'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/_authenticated/portaal/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   DienstenRoute: typeof DienstenRoute
   LoginRoute: typeof LoginRoute
   OfferteRoute: typeof OfferteRoute
@@ -178,6 +199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DienstenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -192,11 +220,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RestauratieVwT2RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/portaal/': {
+      id: '/_authenticated/portaal/'
+      path: '/portaal'
+      fullPath: '/portaal/'
+      preLoaderRoute: typeof AuthenticatedPortaalIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPortaalIndexRoute: typeof AuthenticatedPortaalIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPortaalIndexRoute: AuthenticatedPortaalIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   DienstenRoute: DienstenRoute,
   LoginRoute: LoginRoute,
   OfferteRoute: OfferteRoute,
