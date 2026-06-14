@@ -113,13 +113,26 @@ Deno.serve(async (req) => {
 
     if (body.table === "quote_requests" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
       const r = body.record;
-      const vehicle = [r.merk, r.model, r.bouwjaar].filter(Boolean).join(" ");
+      const vehicle = [r.merk, r.model, r.bouwjaar].filter(Boolean).join(" ") || (r.type_werk as string) || "onbekend voertuig";
+      const rows: Array<[string, string]> = [
+        ["Naam", String(r.naam ?? "")],
+        ["E-mail", String(r.email ?? "")],
+        ["Telefoon", String(r.telefoon ?? "—")],
+        ["Merk", String(r.merk ?? "—")],
+        ["Model", String(r.model ?? "—")],
+        ["Bouwjaar", String(r.bouwjaar ?? "—")],
+        ["Type werk", String(r.type_werk ?? "—")],
+        ["Beschrijving", String(r.beschrijving ?? "—")],
+      ];
+      const detailsHtml = rows
+        .map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#4A453E;letter-spacing:0.08em;text-transform:uppercase;vertical-align:top;white-space:nowrap;">${k}</td><td style="padding:6px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#221F1B;">${v.replace(/</g, "&lt;").replace(/\n/g, "<br/>")}</td></tr>`)
+        .join("");
       await sendEmail({
         to: ADMIN_NOTIFY_EMAIL,
-        subject: `Nieuwe offerte-aanvraag van ${r.naam}`,
+        subject: `Nieuwe offerteaanvraag — ${vehicle} (${r.naam})`,
         html: emailTemplate({
           headline: `Nieuwe aanvraag van ${r.naam}`,
-          intro: `${vehicle || r.type_werk}<br/>${r.email}${r.telefoon ? ` · ${r.telefoon}` : ""}${r.beschrijving ? `<br/><br/>${String(r.beschrijving).replace(/</g, "&lt;")}` : ""}`,
+          intro: `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${detailsHtml}</table>`,
           ctaLabel: "Open in admin",
           ctaUrl: `${PUBLIC_SITE_URL}/admin/offertes`,
         }),
