@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /login
+Disallow: /portaal
+Disallow: /admin
+
+Sitemap: https://yeketimotorworks.com/sitemap.xml

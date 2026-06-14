@@ -1,8 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-const BASE_URL = "";
-const paths = ["/", "/diensten", "/restauratie/vw-t2", "/over", "/offerte"];
+const BASE_URL = "https://yeketimotorworks.com";
+const paths = [
+  "/",
+  "/diensten",
+  "/recent-werk",
+  "/restauratie/vw-t2",
+  "/over",
+  "/offerte",
+  "/privacy",
+];
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {

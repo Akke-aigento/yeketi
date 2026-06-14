@@ -25,9 +25,9 @@ export const Route = createFileRoute("/restauratie/vw-t2")({
       { property: "og:type", content: "article" },
       { property: "og:image", content: afterImg },
       { name: "twitter:image", content: afterImg },
-      { property: "og:url", content: "/restauratie/vw-t2" },
+      { property: "og:url", content: "https://yeketimotorworks.com/restauratie/vw-t2" },
     ],
-    links: [{ rel: "canonical", href: "/restauratie/vw-t2" }],
+    links: [{ rel: "canonical", href: "https://yeketimotorworks.com/restauratie/vw-t2" }],
   }),
   component: CaseStudy,
 });

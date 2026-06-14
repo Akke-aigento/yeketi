@@ -21,9 +21,9 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:title", content: "Yeketi Motorworks" },
       { property: "og:description", content: "Restauratie van klassiekers door meester-ambachtslieden." },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://yeketimotorworks.com/" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://yeketimotorworks.com/" }],
   }),
   component: Index,
 });

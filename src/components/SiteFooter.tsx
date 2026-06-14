@@ -42,6 +42,7 @@ export function SiteFooter() {
               <li><Link to="/over" className="hover:text-[var(--gold)] transition-colors">Over ons</Link></li>
               <li><Link to="/offerte" className="hover:text-[var(--gold)] transition-colors">Offerte</Link></li>
               <li><Link to="/login" className="hover:text-[var(--gold)] transition-colors">Klantenportaal</Link></li>
+              <li><Link to="/privacy" className="hover:text-[var(--gold)] transition-colors">Privacy &amp; cookies</Link></li>
             </ul>
           </div>
         </div>
