@@ -3,7 +3,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { t } from "@/lib/copy";
-import portrait from "@/assets/baraam-portrait.jpg";
+import portrait from "@/assets/baraam-portrait.jpg.asset.json";
 import team from "@/assets/workshop-team.jpg";
 
 export const Route = createFileRoute("/over")({
@@ -42,7 +42,7 @@ function Over() {
               <ScrollReveal delay={120}>
                 <figure>
                   <img
-                    src={portrait}
+                    src={portrait.url}
                     alt="Portret van Baraam, oprichter van Yeketi Motorworks"
                     loading="lazy"
                     width={1200}
