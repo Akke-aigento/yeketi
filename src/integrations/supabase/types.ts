@@ -255,6 +255,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      dispatch_notify_event: { Args: { _payload: Json }; Returns: undefined }
       is_admin: { Args: { _uid: string }; Returns: boolean }
       owns_project: {
         Args: { _project: string; _uid: string }
