@@ -11,7 +11,7 @@ export function SiteLogo({ variant = "dark" }: { variant?: "dark" | "cream" }) {
       <img
         src={src}
         alt="Yeketi Motorworks"
-        className="h-14 sm:h-16 lg:h-20"
+        className="h-20 sm:h-24 lg:h-28 xl:h-32"
         style={{ width: "auto", display: "block" }}
       />
     </Link>
