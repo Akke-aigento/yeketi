@@ -87,9 +87,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Yeketi Motorworks" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: "https://yeketi.lovable.app/social/og-share-1200x630.jpg" },
+      { name: "twitter:image", content: "https://yeketi.lovable.app/social/og-share-1200x630.jpg" },
+      { name: "theme-color", content: "#221F1B" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon/favicon.ico", sizes: "any" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon/favicon-32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon/favicon-16.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/favicon/apple-touch-icon-180.png" },
+      { rel: "manifest", href: "/manifest.json" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

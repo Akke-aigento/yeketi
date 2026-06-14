@@ -3,6 +3,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { t } from "@/lib/copy";
+import logoFullLight from "@/assets/yeketi-logo-full-light.svg.asset.json";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -22,6 +23,11 @@ function Login() {
       <main className="flex-1 flex items-center">
         <section className="container-edit text-center" style={{ paddingBlock: "clamp(4rem,10vw,8rem)" }}>
           <ScrollReveal>
+            <img
+              src={logoFullLight.url}
+              alt="Yeketi Motorworks"
+              style={{ height: "220px", width: "auto", display: "block", margin: "0 auto 2rem" }}
+            />
             <p className="eyebrow">Binnenkort</p>
             <h1 className="mt-5" style={{ fontSize: "clamp(2rem,4.5vw,3.4rem)" }}>{t.login.title}</h1>
             <p className="mt-6 mx-auto max-w-xl" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
