@@ -64,7 +64,7 @@ function Hero() {
               <Link to="/offerte" className="btn-y-solid">
                 {t.hero.ctaQuote} <ArrowRight size={16} />
               </Link>
-              <Link to="/restauratie/vw-t2" className="btn-y">
+              <Link to="/login" className="btn-y">
                 {t.hero.ctaFollow}
               </Link>
             </div>
