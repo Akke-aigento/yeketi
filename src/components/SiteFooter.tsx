@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { t } from "@/lib/copy";
+import logoFullDark from "@/assets/yeketi-logo-full-dark.svg.asset.json";
 
 export function SiteFooter() {
   return (
@@ -7,13 +8,12 @@ export function SiteFooter() {
       <div className="container-edit" style={{ paddingBlock: "4.5rem" }}>
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6rem", letterSpacing: "0.22em" }}>
-              YEKETI
-            </div>
-            <div className="mt-1" style={{ color: "var(--gold)", fontSize: "0.7rem", letterSpacing: "0.42em" }}>
-              MOTORWORKS
-            </div>
-            <p className="italic-quote mt-6" style={{ color: "var(--gold)", fontSize: "1.15rem" }}>
+            <img
+              src={logoFullDark.url}
+              alt="Yeketi Motorworks"
+              style={{ height: "180px", width: "auto", display: "block" }}
+            />
+            <p className="italic-quote mt-4" style={{ color: "var(--gold)", fontSize: "1.15rem" }}>
               {t.footer.tagline}
             </p>
           </div>
