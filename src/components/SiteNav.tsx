@@ -28,8 +28,13 @@ export function SiteNav() {
         borderBottom: "1px solid var(--charcoal)",
       }}
     >
-      <div className="container-edit flex items-center justify-between gap-6" style={{ paddingBlock: "1.25rem" }}>
-        <SiteLogo />
+      <div
+        className="container-edit grid grid-cols-[1fr_auto_1fr] items-center gap-6 lg:flex lg:justify-between"
+        style={{ paddingBlock: "1.25rem" }}
+      >
+        <div className="lg:contents flex justify-center col-start-2">
+          <SiteLogo />
+        </div>
         <nav className="hidden lg:flex items-center gap-7 xl:gap-9" aria-label="Hoofdnavigatie">
           {links.map((l) => (
             <Link
@@ -47,7 +52,7 @@ export function SiteNav() {
           <Link to="/login" className="btn-y">{t.nav.portal}</Link>
         </div>
         <button
-          className="lg:hidden p-2 -mr-2"
+          className="lg:hidden p-2 -mr-2 col-start-3 justify-self-end"
           aria-label={open ? "Menu sluiten" : "Menu openen"}
           onClick={() => setOpen((v) => !v)}
           style={{ color: "var(--charcoal)" }}
