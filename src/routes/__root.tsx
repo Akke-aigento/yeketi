@@ -90,8 +90,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Yeketi Motorworks" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://yeketi.lovable.app/social/og-share-1200x630.jpg" },
-      { name: "twitter:image", content: "https://yeketi.lovable.app/social/og-share-1200x630.jpg" },
       { name: "theme-color", content: "#221F1B" },
     ],
     links: [
@@ -106,6 +104,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Marcellus&family=Jost:wght@300;400;500&family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: "Yeketi Motorworks",
+          description:
+            "Restauratie van klassiekers door meester-ambachtslieden. Persoonlijk begeleid van inspectie tot aflevering.",
+          url: "https://yeketimotorworks.com",
+          email: "info@yeketimotorworks.com",
+          image: "https://yeketimotorworks.com/favicon/favicon-512.png",
+          priceRange: "€€€",
+          areaServed: ["NL", "BE", "DE", "LU", "FR"],
+          sameAs: ["https://instagram.com/yeketimotorworks"],
+        }),
       },
     ],
   }),
