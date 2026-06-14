@@ -134,7 +134,7 @@ export const convertQuoteToProject = createServerFn({ method: "POST" })
       project_id: project.id,
       name,
       sort_order: i,
-      status: i === 0 ? "active" : "pending",
+      status: (i === 0 ? "active" : "pending") as "active" | "pending",
       started_at: i === 0 ? new Date().toISOString() : null,
     }));
     await supabaseAdmin.from("project_phases").insert(phaseRows);
