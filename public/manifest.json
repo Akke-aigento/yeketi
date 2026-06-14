@@ -2,11 +2,16 @@
   "name": "Yeketi Motorworks",
   "short_name": "Yeketi",
   "start_url": "/",
-  "display": "browser",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "nl",
   "background_color": "#F7F3EC",
   "theme_color": "#221F1B",
   "icons": [
-    { "src": "/favicon/favicon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/favicon/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/favicon/favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon/favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon/favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/favicon/favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
