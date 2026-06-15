@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
 import handsImg from "@/assets/craftsman-hands.jpg";
-import heroAsset from "@/assets/projects/vw-t2/t2-07-onderweg.jpg.asset.json";
+import heroAsset from "@/assets/projects/vw-t2/t2-hero-workshop.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
