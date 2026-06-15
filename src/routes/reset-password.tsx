@@ -45,7 +45,7 @@ function ResetPassword() {
     setStatus("saving");
     const { error: err } = await supabase.auth.updateUser({ password });
     if (err) {
-      setError(t.portal.sendError);
+      setError(err.message || t.portal.sendError);
       setStatus("idle");
       return;
     }
