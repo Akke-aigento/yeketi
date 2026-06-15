@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AdminShell, statusBadge, timeAgo } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
-import { convertQuoteToProject } from "@/lib/admin.functions";
+import { convertQuoteToProject, deleteQuoteRequest, cleanupOrphanQuotePhotos } from "@/lib/admin.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/admin/offertes")({
@@ -39,6 +39,8 @@ function Offertes() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const convert = useServerFn(convertQuoteToProject);
+  const removeQuote = useServerFn(deleteQuoteRequest);
+  const cleanupOrphans = useServerFn(cleanupOrphanQuotePhotos);
 
   async function load() {
     const { data } = await supabase.from("quote_requests").select("*").order("created_at", { ascending: false });
@@ -70,9 +72,35 @@ function Offertes() {
     } finally { setBusy(null); }
   }
 
+  async function deleteNow(q: Quote) {
+    if (!confirm(`Aanvraag van ${q.naam} verwijderen? Foto's worden ook gewist.`)) return;
+    setBusy(q.id);
+    try {
+      await removeQuote({ data: { quoteId: q.id } });
+      load();
+    } catch (e: unknown) {
+      alert((e as Error).message ?? "Verwijderen mislukt");
+    } finally { setBusy(null); }
+  }
+
+  async function runCleanup() {
+    if (!confirm("Wees-foto's in quote-photos opruimen?")) return;
+    try {
+      const res = await cleanupOrphans({});
+      alert(`Opgeruimd: ${res.removedFiles} bestand(en) (van ${res.scanned} gescand).`);
+    } catch (e) {
+      alert((e as Error).message ?? "Cleanup mislukt");
+    }
+  }
+
   return (
     <AdminShell title="Offertes">
       <section className="container-edit" style={{ paddingBottom: "3rem" }}>
+        <div className="flex justify-end pt-2">
+          <button onClick={runCleanup} className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>
+            Wees-foto's opruimen
+          </button>
+        </div>
         <div className="flex gap-1 overflow-x-auto -mx-1 px-1 py-2">
           {(["all", ...STATUSES] as const).map((s) => (
             <button
@@ -178,6 +206,14 @@ function Offertes() {
                       className="btn-y-solid w-full"
                     >
                       {busy === q.id ? "Bezig…" : "Maak project + nodig klant uit"}
+                    </button>
+                    <button
+                      onClick={() => deleteNow(q)}
+                      disabled={busy === q.id}
+                      className="w-full text-xs uppercase tracking-[0.18em] py-2"
+                      style={{ border: "1px solid var(--oxide)", color: "var(--oxide)", background: "transparent" }}
+                    >
+                      Aanvraag verwijderen
                     </button>
                   </div>
                 )}
