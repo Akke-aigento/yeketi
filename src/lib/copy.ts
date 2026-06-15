@@ -67,11 +67,11 @@ export const nl = {
   footer: {
     columnsTitle: "Yeketi Motorworks",
     tagline: "unity in craftsmanship",
-    contact: "Antwerpen, BE · Erbil, IQ",
+    contact: "Vredeplein 23, 3010 Kessel-Lo (BE)",
     email: "hallo@yeketi.eu",
     instagram: "Instagram",
     rights: "© 2026 Yeketi Motorworks",
-    kvk: "BTW BE 0XXX.XXX.XXX",
+    kvk: "BTW BE 0694.858.510",
   },
   diensten: {
     eyebrow: "Diensten",
