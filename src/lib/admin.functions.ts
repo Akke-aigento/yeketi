@@ -61,6 +61,7 @@ export const inviteCustomer = createServerFn({ method: "POST" })
     if (!user) {
       const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
         data: { full_name: data.full_name ?? null },
+        redirectTo: `${process.env.PUBLIC_SITE_URL ?? ""}/reset-password`,
       });
       if (inv.error) throw inv.error;
       user = inv.data.user;
@@ -82,7 +83,9 @@ export const resendInvite = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email.trim().toLowerCase());
+    const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email.trim().toLowerCase(), {
+      redirectTo: `${process.env.PUBLIC_SITE_URL ?? ""}/reset-password`,
+    });
     if (error) throw error;
     return { ok: true };
   });
@@ -105,6 +108,7 @@ export const convertQuoteToProject = createServerFn({ method: "POST" })
     if (!user) {
       const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
         data: { full_name: q.naam },
+        redirectTo: `${process.env.PUBLIC_SITE_URL ?? ""}/reset-password`,
       });
       if (inv.error) throw inv.error;
       user = inv.data.user;
