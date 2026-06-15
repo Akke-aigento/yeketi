@@ -4,7 +4,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
 import arrivalAsset from "@/assets/projects/vw-t2/t2-01-aankomst.jpg.asset.json";
-import inspectionAsset from "@/assets/projects/vw-t2/t2-03-inspectie-voor.jpg.asset.json";
 import strippenAsset from "@/assets/projects/vw-t2/t2-04-strippen.jpg.asset.json";
 import plamuurAsset from "@/assets/projects/vw-t2/t2-05-plamuur.jpg.asset.json";
 import trotsAsset from "@/assets/projects/vw-t2/t2-06-baraam-trots.jpg.asset.json";
@@ -20,8 +19,6 @@ const chapterImages = [
   onderwegAsset.url,
 ];
 const ogImage = onderwegAsset.url;
-// referenced to keep import used as a meaningful asset alias
-void inspectionAsset;
 
 export const Route = createFileRoute("/restauratie/vw-t2")({
   head: () => ({
