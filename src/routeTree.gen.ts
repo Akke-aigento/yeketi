@@ -23,6 +23,7 @@ import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authenticated/portaal.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 import { Route as AuthenticatedAdminOffertesRouteImport } from './routes/_authenticated/admin/offertes'
 import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authenticated/admin/klanten'
@@ -98,6 +99,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
+  id: '/api/public/bootstrap-admin',
+  path: '/api/public/bootstrap-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedPortaalProjectIdRoute =
   AuthenticatedPortaalProjectIdRouteImport.update({
     id: '/portaal/$projectId',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/_authenticated/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/_authenticated/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/api/public/bootstrap-admin'
     | '/admin/'
     | '/portaal/'
     | '/admin/projecten/$id'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/api/public/bootstrap-admin'
     | '/admin'
     | '/portaal'
     | '/admin/projecten/$id'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/klanten'
     | '/_authenticated/admin/offertes'
     | '/_authenticated/portaal/$projectId'
+    | '/api/public/bootstrap-admin'
     | '/_authenticated/admin/'
     | '/_authenticated/portaal/'
     | '/_authenticated/admin/projecten/$id'
@@ -253,6 +265,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   RestauratieVwT2Route: typeof RestauratieVwT2Route
+  ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -355,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/api/public/bootstrap-admin': {
+      id: '/api/public/bootstrap-admin'
+      path: '/api/public/bootstrap-admin'
+      fullPath: '/api/public/bootstrap-admin'
+      preLoaderRoute: typeof ApiPublicBootstrapAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/portaal/$projectId': {
       id: '/_authenticated/portaal/$projectId'
       path: '/portaal/$projectId'
@@ -433,6 +453,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   RestauratieVwT2Route: RestauratieVwT2Route,
+  ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
