@@ -2,11 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { SiteLogo } from "./SiteLogo";
-import { LanguageToggle, useLang, useT } from "@/lib/i18n";
+import { LanguageToggle, useT } from "@/lib/i18n";
 
 export function SiteNav() {
   const t = useT();
-  const { lang } = useLang();
   const links = [
     { to: "/diensten", label: t.nav.diensten },
     { to: "/restauratie/vw-t2", label: t.nav.restauratie },
