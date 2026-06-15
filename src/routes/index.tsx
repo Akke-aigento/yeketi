@@ -4,8 +4,8 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
-import heroImg from "@/assets/hero-workshop.jpg";
 import handsImg from "@/assets/craftsman-hands.jpg";
+import heroAsset from "@/assets/projects/vw-t2/t2-07-onderweg.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -72,8 +72,8 @@ function Hero() {
           <ScrollReveal delay={120}>
             <figure className="relative">
               <img
-                src={heroImg}
-                alt="Klassieke Mercedes en VW T2 in een zonovergoten werkplaats"
+                src={heroAsset.url}
+                alt="Gerestaureerde VW T2 onderweg na aflevering"
                 width={1920}
                 height={1280}
                 className="w-full h-auto block"
