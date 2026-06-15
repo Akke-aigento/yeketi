@@ -38,9 +38,10 @@ function Privacy() {
             <ScrollReveal>
               <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>Verantwoordelijke</h2>
               <p className="mt-3">
-                Yeketi Motorworks is een handelsnaam van <strong>Nomadix BV</strong>. Vestigings- en KvK-gegevens
-                worden hier opgenomen zodra deze beschikbaar zijn. Contact:
-                {" "}<a href="mailto:info@yeketimotorworks.com" style={{ color: "var(--brass)" }}>info@yeketimotorworks.com</a>.
+                Yeketi Motorworks — <strong>Baram Maaruf</strong><br />
+                Vredeplein 23, 3010 Kessel-Lo, België<br />
+                BTW BE 0694.858.510<br />
+                Contact: <a href="mailto:info@yeketimotorworks.com" style={{ color: "var(--brass)" }}>info@yeketimotorworks.com</a>
               </p>
             </ScrollReveal>
 
