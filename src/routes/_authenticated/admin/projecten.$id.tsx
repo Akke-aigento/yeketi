@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { AdminShell } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/image-compress";
 import { t } from "@/lib/copy";
 import { deletePhase as deletePhaseFn, deleteProject as deleteProjectFn } from "@/lib/admin.functions";
+import { ConfirmModal, PromptModal } from "@/components/AdminModals";
 
 export const Route = createFileRoute("/_authenticated/admin/projecten/$id")({
   head: () => ({ meta: [{ title: "Project — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -38,39 +40,56 @@ function ProjectAdmin() {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  // Modal state for prompt/confirm replacements
+  const [phaseNamePrompt, setPhaseNamePrompt] = useState<{ initial: string; onSave: (v: string) => void } | null>(null);
+  const [confirmState, setConfirmState] = useState<{ title: string; message: string; destructive?: boolean; onConfirm: () => void } | null>(null);
 
   const load = useCallback(async () => {
-    const [p, ph, c] = await Promise.all([
-      supabase.from("projects").select("*").eq("id", id).maybeSingle(),
-      supabase.from("project_phases").select("*").eq("project_id", id).order("sort_order"),
-      supabase.from("profiles").select("id, full_name, email, phone").eq("id", (await supabase.from("projects").select("customer_id").eq("id", id).maybeSingle()).data?.customer_id ?? "").maybeSingle(),
-    ]);
-    setProject((p.data as Project | null) ?? null);
-    const phRows = (ph.data as Phase[] | null) ?? [];
-    setPhases(phRows);
-    setCustomer((c.data as Customer | null) ?? null);
-    if (phRows.length > 0) {
-      const { data: u } = await supabase
-        .from("phase_updates").select("*")
-        .in("phase_id", phRows.map((r) => r.id))
-        .order("created_at", { ascending: false });
-      const upd = (u as Update[] | null) ?? [];
-      setUpdates(upd);
-      if (upd.length > 0) {
-        const { data: ph2 } = await supabase
-          .from("update_photos").select("*").in("update_id", upd.map((r) => r.id)).order("sort_order");
-        const photosData = (ph2 as Photo[] | null) ?? [];
-        setPhotos(photosData);
-        if (photosData.length > 0) {
-          const { data: signed } = await supabase.storage
-            .from("project-photos")
-            .createSignedUrls(photosData.map((x) => x.storage_path), 3600);
-          const map: Record<string, string> = {};
-          (signed ?? []).forEach((s, i) => { if (s.signedUrl) map[photosData[i].storage_path] = s.signedUrl; });
-          setSignedUrls(map);
-        }
-      } else { setPhotos([]); }
-    } else { setUpdates([]); setPhotos([]); }
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [p, ph, c] = await Promise.all([
+        supabase.from("projects").select("*").eq("id", id).maybeSingle(),
+        supabase.from("project_phases").select("*").eq("project_id", id).order("sort_order"),
+        supabase.from("profiles").select("id, full_name, email, phone").eq("id", (await supabase.from("projects").select("customer_id").eq("id", id).maybeSingle()).data?.customer_id ?? "").maybeSingle(),
+      ]);
+      if (p.error) throw p.error;
+      if (ph.error) throw ph.error;
+      setProject((p.data as Project | null) ?? null);
+      const phRows = (ph.data as Phase[] | null) ?? [];
+      setPhases(phRows);
+      setCustomer((c.data as Customer | null) ?? null);
+      if (phRows.length > 0) {
+        const { data: u, error: ue } = await supabase
+          .from("phase_updates").select("*")
+          .in("phase_id", phRows.map((r) => r.id))
+          .order("created_at", { ascending: false });
+        if (ue) throw ue;
+        const upd = (u as Update[] | null) ?? [];
+        setUpdates(upd);
+        if (upd.length > 0) {
+          const { data: ph2, error: pe2 } = await supabase
+            .from("update_photos").select("*").in("update_id", upd.map((r) => r.id)).order("sort_order");
+          if (pe2) throw pe2;
+          const photosData = (ph2 as Photo[] | null) ?? [];
+          setPhotos(photosData);
+          if (photosData.length > 0) {
+            const { data: signed } = await supabase.storage
+              .from("project-photos")
+              .createSignedUrls(photosData.map((x) => x.storage_path), 3600);
+            const map: Record<string, string> = {};
+            (signed ?? []).forEach((s, i) => { if (s.signedUrl) map[photosData[i].storage_path] = s.signedUrl; });
+            setSignedUrls(map);
+          }
+        } else { setPhotos([]); }
+      } else { setUpdates([]); setPhotos([]); }
+    } catch (e) {
+      setLoadError((e as Error).message ?? "Laden mislukt");
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
@@ -78,71 +97,109 @@ function ProjectAdmin() {
   const activePhase = phases.find((p) => p.status === "active") ?? phases[0];
 
   async function updateProject(patch: Partial<Project>) {
-    await supabase.from("projects").update(patch).eq("id", id);
+    const { error } = await supabase.from("projects").update(patch).eq("id", id);
+    if (error) { toast.error("Project bijwerken mislukt", { description: error.message }); return; }
     load();
   }
 
   async function addPhase() {
-    const name = prompt("Naam van de fase?");
-    if (!name) return;
-    const next = (phases[phases.length - 1]?.sort_order ?? -1) + 1;
-    await supabase.from("project_phases").insert({ project_id: id, name, sort_order: next, status: "pending" });
-    load();
+    setPhaseNamePrompt({
+      initial: "",
+      onSave: async (name) => {
+        const next = (phases[phases.length - 1]?.sort_order ?? -1) + 1;
+        const { error } = await supabase.from("project_phases").insert({ project_id: id, name, sort_order: next, status: "pending" });
+        if (error) { toast.error("Fase toevoegen mislukt", { description: error.message }); return; }
+        toast.success("Fase toegevoegd");
+        load();
+      },
+    });
   }
   async function renamePhase(p: Phase) {
-    const name = prompt("Nieuwe naam?", p.name);
-    if (!name || name === p.name) return;
-    await supabase.from("project_phases").update({ name }).eq("id", p.id);
-    load();
+    setPhaseNamePrompt({
+      initial: p.name,
+      onSave: async (name) => {
+        if (name === p.name) return;
+        const { error } = await supabase.from("project_phases").update({ name }).eq("id", p.id);
+        if (error) { toast.error("Hernoemen mislukt", { description: error.message }); return; }
+        toast.success("Fase hernoemd");
+        load();
+      },
+    });
   }
   async function deletePhase(p: Phase) {
-    if (!confirm(`Fase "${p.name}" verwijderen? Alle updates en foto's gaan mee.`)) return;
-    try {
-      await deletePhaseSrv({ data: { phaseId: p.id } });
-      load();
-    } catch (e) {
-      alert((e as Error).message ?? "Verwijderen mislukt");
-    }
+    setConfirmState({
+      title: "Fase verwijderen",
+      message: `Fase "${p.name}" verwijderen? Alle updates en foto's gaan mee.`,
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          await deletePhaseSrv({ data: { phaseId: p.id } });
+          toast.success("Fase verwijderd");
+          load();
+        } catch (e) {
+          toast.error("Verwijderen mislukt", { description: (e as Error).message });
+        }
+      },
+    });
   }
   async function deleteProject() {
     if (!project) return;
-    if (!confirm(`Project "${project.title}" volledig verwijderen? Alle fases, updates en foto's gaan mee.`)) return;
-    try {
-      await deleteProjectSrv({ data: { projectId: id } });
-      navigate({ to: "/admin/projecten" });
-    } catch (e) {
-      alert((e as Error).message ?? "Verwijderen mislukt");
-    }
+    setConfirmState({
+      title: "Project verwijderen",
+      message: `Project "${project.title}" volledig verwijderen? Alle fases, updates en foto's gaan mee.`,
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          await deleteProjectSrv({ data: { projectId: id } });
+          toast.success("Project verwijderd");
+          navigate({ to: "/admin/projecten" });
+        } catch (e) {
+          toast.error("Verwijderen mislukt", { description: (e as Error).message });
+        }
+      },
+    });
   }
   async function setPhaseStatus(p: Phase, status: Phase["status"]) {
-    await supabase.from("project_phases").update({ status }).eq("id", p.id);
+    const { error } = await supabase.from("project_phases").update({ status }).eq("id", p.id);
+    if (error) { toast.error("Status wijzigen mislukt", { description: error.message }); return; }
     load();
   }
   async function reorderPhase(p: Phase, dir: -1 | 1) {
     const idx = phases.findIndex((x) => x.id === p.id);
     const neighbor = phases[idx + dir];
     if (!neighbor) return;
-    await Promise.all([
+    const results = await Promise.all([
       supabase.from("project_phases").update({ sort_order: neighbor.sort_order }).eq("id", p.id),
       supabase.from("project_phases").update({ sort_order: p.sort_order }).eq("id", neighbor.id),
     ]);
+    const firstError = results.find((r) => r.error)?.error;
+    if (firstError) { toast.error("Herschikken mislukt", { description: firstError.message }); return; }
     load();
   }
   async function deleteUpdate(u: Update) {
-    if (!confirm("Update verwijderen?")) return;
-    // Verzamel foto-paden zodat we ze ook uit storage halen
-    const { data: ups } = await supabase
-      .from("update_photos").select("storage_path").eq("update_id", u.id);
-    const paths = (ups ?? []).map((x) => x.storage_path).filter(Boolean) as string[];
-    if (paths.length > 0) {
-      await supabase.storage.from("project-photos").remove(paths);
-    }
-    await supabase.from("phase_updates").delete().eq("id", u.id);
-    load();
+    setConfirmState({
+      title: "Update verwijderen",
+      message: "Deze update en bijhorende foto's worden definitief verwijderd.",
+      destructive: true,
+      onConfirm: async () => {
+        const { data: ups, error: lerr } = await supabase
+          .from("update_photos").select("storage_path").eq("update_id", u.id);
+        if (lerr) { toast.error("Verwijderen mislukt", { description: lerr.message }); return; }
+        const paths = (ups ?? []).map((x) => x.storage_path).filter(Boolean) as string[];
+        if (paths.length > 0) {
+          const { error: re } = await supabase.storage.from("project-photos").remove(paths);
+          if (re) { toast.error("Foto's verwijderen mislukt", { description: re.message }); return; }
+        }
+        const { error: de } = await supabase.from("phase_updates").delete().eq("id", u.id);
+        if (de) { toast.error("Update verwijderen mislukt", { description: de.message }); return; }
+        toast.success("Update verwijderd");
+        load();
+      },
+    });
   }
 
   function waCustomer() {
-    if (!customer?.phone) return alert("Geen telefoonnummer voor deze klant.");
+    if (!customer?.phone) { toast.error("Geen telefoonnummer voor deze klant."); return; }
     const clean = customer.phone.replace(/[^\d+]/g, "");
     const number = clean.startsWith("+") ? clean.slice(1) : clean;
     const voertuig = [project?.vehicle_make, project?.vehicle_model].filter(Boolean).join(" ") || project?.title;
@@ -153,7 +210,17 @@ function ProjectAdmin() {
     window.open(`https://wa.me/${number}?text=${text}`, "_blank");
   }
 
-  if (!project) {
+  if (loadError) {
+    return (
+      <AdminShell title="Project">
+        <div className="container-edit pb-8">
+          <p className="text-sm" style={{ color: "var(--oxide)" }}>Laden mislukt: {loadError}</p>
+          <button onClick={load} className="btn-y-solid mt-3">Opnieuw proberen</button>
+        </div>
+      </AdminShell>
+    );
+  }
+  if (loading || !project) {
     return <AdminShell title="Project"><div className="container-edit pb-8 eyebrow" style={{ color: "var(--charcoal-soft)" }}>Laden…</div></AdminShell>;
   }
 
@@ -302,6 +369,24 @@ function ProjectAdmin() {
           onSaved={() => { setShowNew(false); load(); }}
         />
       )}
+      <PromptModal
+        open={phaseNamePrompt !== null}
+        title={phaseNamePrompt?.initial ? "Fase hernoemen" : "Nieuwe fase"}
+        initial={phaseNamePrompt?.initial ?? ""}
+        placeholder="Naam van de fase"
+        confirmLabel="Opslaan"
+        onSave={async (v) => { await phaseNamePrompt?.onSave(v); }}
+        onClose={() => setPhaseNamePrompt(null)}
+      />
+      <ConfirmModal
+        open={confirmState !== null}
+        title={confirmState?.title ?? ""}
+        message={confirmState?.message ?? ""}
+        destructive={confirmState?.destructive}
+        confirmLabel="Verwijder"
+        onConfirm={async () => { await confirmState?.onConfirm(); }}
+        onClose={() => setConfirmState(null)}
+      />
     </AdminShell>
   );
 }

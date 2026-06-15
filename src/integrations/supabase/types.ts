@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      notify_event_failures: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          payload_summary: Json | null
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload_summary?: Json | null
+          source: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload_summary?: Json | null
+          source?: string
+        }
+        Relationships: []
+      }
       phase_updates: {
         Row: {
           body: string
