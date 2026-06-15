@@ -20,7 +20,9 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   const navigate = useNavigate();
+  const [mode, setMode] = useState<"login" | "forgot">("login");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -44,23 +46,35 @@ function Login() {
       setError(t.portal.invalidEmail);
       return;
     }
-    setStatus("sending");
-    const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/portaal` : undefined;
-    const { error: err } = await supabase.auth.signInWithOtp({
-      email: trimmed,
-      options: { shouldCreateUser: false, emailRedirectTo: redirectTo },
-    });
-    if (err) {
-      const msg = err.message?.toLowerCase() ?? "";
-      if (msg.includes("not allowed") || msg.includes("signup") || msg.includes("not found")) {
-        setError(t.portal.notRegistered);
-      } else {
-        setError(t.portal.sendError);
+    if (mode === "login") {
+      if (password.length < 1) {
+        setError(t.portal.invalidCredentials);
+        return;
       }
-      setStatus("idle");
-      return;
+      setStatus("sending");
+      const { error: err } = await supabase.auth.signInWithPassword({
+        email: trimmed,
+        password,
+      });
+      if (err) {
+        setError(t.portal.invalidCredentials);
+        setStatus("idle");
+        return;
+      }
+      // onAuthStateChange handler will navigate
+    } else {
+      setStatus("sending");
+      const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+      const { error: err } = await supabase.auth.resetPasswordForEmail(trimmed, {
+        redirectTo,
+      });
+      if (err) {
+        setError(t.portal.sendError);
+        setStatus("idle");
+        return;
+      }
+      setStatus("sent");
     }
-    setStatus("sent");
   }
 
   return (
@@ -77,18 +91,18 @@ function Login() {
               />
               {status === "sent" ? (
                 <div className="text-center">
-                  <p className="eyebrow">{t.portal.sentTitle}</p>
+                  <p className="eyebrow">{t.portal.resetTitle}</p>
                   <h1 className="mt-5" style={{ fontSize: "clamp(1.6rem,3vw,2.2rem)" }}>
-                    {t.portal.sentBody}
+                    {t.portal.resetSent}
                   </h1>
-                  <p className="mt-3" style={{ fontFamily: "var(--font-display)", color: "var(--brass)", fontSize: "1.15rem" }}>
-                    {email}
-                  </p>
-                  <p className="mt-6" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
-                    {t.portal.sentHint}
-                  </p>
                   <div className="mt-10">
-                    <Link to="/" className="btn-y">{t.login.back}</Link>
+                    <button
+                      type="button"
+                      className="btn-y"
+                      onClick={() => { setMode("login"); setStatus("idle"); setError(null); }}
+                    >
+                      {t.portal.backToLogin}
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -96,10 +110,10 @@ function Login() {
                   <div className="text-center">
                     <p className="eyebrow">{t.nav.portal}</p>
                     <h1 className="mt-5" style={{ fontSize: "clamp(1.8rem,3.4vw,2.6rem)" }}>
-                      {t.portal.loginTitle}
+                      {mode === "login" ? t.portal.loginTitle : t.portal.resetTitle}
                     </h1>
                     <p className="mt-5 mx-auto" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7, maxWidth: "360px" }}>
-                      {t.portal.loginSubline}
+                      {mode === "login" ? t.portal.loginSubline : t.portal.resetSubline}
                     </p>
                   </div>
                   <form onSubmit={onSubmit} className="mt-10">
@@ -117,6 +131,24 @@ function Login() {
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={status === "sending"}
                     />
+                    {mode === "login" && (
+                      <>
+                        <label htmlFor="password" className="eyebrow block mt-6" style={{ color: "var(--charcoal-soft)" }}>
+                          {t.portal.passwordLabel}
+                        </label>
+                        <input
+                          id="password"
+                          type="password"
+                          autoComplete="current-password"
+                          required
+                          className="field-y mt-2"
+                          placeholder={t.portal.passwordPlaceholder}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          disabled={status === "sending"}
+                        />
+                      </>
+                    )}
                     {error && (
                       <p className="mt-4 text-sm" style={{ color: "var(--oxide)", lineHeight: 1.6 }}>
                         {error}
@@ -127,12 +159,29 @@ function Login() {
                       className="btn-y-solid mt-8 w-full"
                       disabled={status === "sending"}
                     >
-                      {status === "sending" ? t.portal.sending : t.portal.send}
+                      {status === "sending" ? t.portal.sending : (mode === "login" ? t.portal.send : t.portal.resetSend)}
                     </button>
                   </form>
-                  <p className="mt-8 text-center text-sm" style={{ color: "var(--charcoal-soft)" }}>
+                  <div className="mt-8 flex flex-col items-center gap-3 text-sm" style={{ color: "var(--charcoal-soft)" }}>
+                    {mode === "login" ? (
+                      <button
+                        type="button"
+                        onClick={() => { setMode("forgot"); setError(null); }}
+                        style={{ borderBottom: "1px solid var(--charcoal-soft)" }}
+                      >
+                        {t.portal.forgot}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => { setMode("login"); setError(null); }}
+                        style={{ borderBottom: "1px solid var(--charcoal-soft)" }}
+                      >
+                        {t.portal.backToLogin}
+                      </button>
+                    )}
                     <Link to="/" style={{ borderBottom: "1px solid var(--charcoal-soft)" }}>{t.login.back}</Link>
-                  </p>
+                  </div>
                 </>
               )}
             </div>
