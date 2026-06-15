@@ -198,6 +198,22 @@ function PortalProject() {
           role="dialog"
           aria-modal="true"
           onClick={() => setLightbox(null)}
+          onTouchStart={(e) => {
+            (e.currentTarget as HTMLDivElement & { _tsx?: number })._tsx = e.touches[0]?.clientX;
+          }}
+          onTouchEnd={(e) => {
+            const startX = (e.currentTarget as HTMLDivElement & { _tsx?: number })._tsx;
+            const endX = e.changedTouches[0]?.clientX;
+            if (startX == null || endX == null) return;
+            const dx = endX - startX;
+            if (Math.abs(dx) < 50) return;
+            setLightbox((lb) => lb && {
+              ...lb,
+              index: dx < 0
+                ? (lb.index + 1) % lb.urls.length
+                : (lb.index - 1 + lb.urls.length) % lb.urls.length,
+            });
+          }}
           style={{
             position: "fixed",
             inset: 0,
