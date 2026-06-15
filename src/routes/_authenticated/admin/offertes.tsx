@@ -6,7 +6,6 @@ import { convertQuoteToProject, deleteQuoteRequest, cleanupOrphanQuotePhotos } f
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/AdminModals";
-import { useState as useReactState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/offertes")({
   head: () => ({ meta: [{ title: "Offertes — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -244,6 +243,15 @@ function Offertes() {
           })}
         </ul>
       </section>
+      <ConfirmModal
+        open={confirmState !== null}
+        title={confirmState?.title ?? ""}
+        message={confirmState?.message ?? ""}
+        destructive={confirmState?.destructive}
+        confirmLabel={confirmState?.destructive ? "Verwijder" : "Bevestig"}
+        onConfirm={async () => { await confirmState?.onConfirm(); }}
+        onClose={() => setConfirmState(null)}
+      />
     </AdminShell>
   );
 }
