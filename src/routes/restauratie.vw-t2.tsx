@@ -2,9 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { BeforeAfter } from "@/components/BeforeAfter";
 import { t } from "@/lib/copy";
-import beforeImg from "@/assets/vw-t2-before.jpg";
 import afterImg from "@/assets/vw-t2-after.jpg";
 import handsImg from "@/assets/craftsman-hands.jpg";
 import teamImg from "@/assets/workshop-team.jpg";
@@ -48,12 +46,6 @@ function CaseStudy() {
             </p>
           </ScrollReveal>
         </header>
-
-        <div className="container-edit">
-          <ScrollReveal delay={80}>
-            <BeforeAfter before={beforeImg} after={afterImg} alt="VW T2 voor en na restauratie" />
-          </ScrollReveal>
-        </div>
 
         <section className="container-edit" style={{ paddingBlock: "clamp(4rem,8vw,7rem)" }}>
           <div className="grid lg:grid-cols-12 gap-10">

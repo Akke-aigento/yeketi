@@ -50,7 +50,7 @@ function RecentWerk() {
                 Recent werk.
               </h1>
               <p className="mt-5 max-w-xl italic-quote" style={{ color: "var(--charcoal-soft)", fontSize: "1.1rem" }}>
-                Elke restauratie krijgt hier zijn eigen verhaal. We beginnen bij het allereerste project — en bouwen verder, bus per bus.
+                Elke restauratie krijgt hier zijn eigen verhaal. We beginnen bij het allereerste project — en bouwen verder, oldtimer per oldtimer.
               </p>
             </ScrollReveal>
 
