@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/admin/klanten")({
   component: Klanten,
 });
 
-type Profile = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean };
+type Profile = { id: string; full_name: string | null; email: string | null; phone: string | null };
 type Project = { id: string; customer_id: string; title: string; status: keyof typeof t.portal.statusLabels };
 
 function Klanten() {
@@ -50,7 +50,7 @@ function Klanten() {
       <section className="container-edit pb-12">
         {profiles === null && <p className="eyebrow" style={{ color: "var(--charcoal-soft)" }}>Laden…</p>}
         <ul className="space-y-2">
-          {profiles?.filter((p) => !p.is_admin).map((p) => {
+          {profiles?.map((p) => {
             const pr = projects.filter((x) => x.customer_id === p.id);
             return (
               <li key={p.id} className="px-3 py-3" style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}>
