@@ -7,9 +7,13 @@ export const nl = {
     home: "Home",
     diensten: "Diensten",
     restauratie: "Restauratie",
+    recent: "Recent werk",
     over: "Over ons",
     offerte: "Offerte",
     portal: "Klantenportaal",
+    aria: "Hoofdnavigatie",
+    menuOpen: "Menu openen",
+    menuClose: "Menu sluiten",
   },
   hero: {
     eyebrow: "Klassiekers — restauratie & plaatwerk",
@@ -74,6 +78,15 @@ export const nl = {
     instagram: "Instagram",
     rights: "© 2026 Yeketi Motorworks",
     kvk: "BTW BE 0694.858.510",
+    contactTitle: "Contact",
+    companyTitle: "Bedrijf",
+    links: {
+      diensten: "Diensten",
+      over: "Over ons",
+      offerte: "Offerte",
+      portal: "Klantenportaal",
+      privacy: "Privacy & cookies",
+    },
   },
   diensten: {
     eyebrow: "Diensten",
@@ -126,6 +139,7 @@ export const nl = {
     ],
     closing:
       "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
+    cta: "Start uw restauratie",
   },
   over: {
     eyebrow: "Over Yeketi",
@@ -165,6 +179,13 @@ export const nl = {
     },
     error: "Er ging iets mis bij het versturen. Probeer het opnieuw of stuur een e-mail naar hallo@yeketi.eu.",
     photoTooMany: "Maximaal vijf foto's.",
+    back: "Terug naar home",
+    descriptionPlaceholder: "Wat wenst u te laten doen? Eventuele zorgpunten of bijzonderheden…",
+    photosOptional: "Optioneel — helpt ons een snellere inschatting te maken.",
+    photosChosen: (n: number) => `${n} foto('s) gekozen.`,
+    onlyImages: "Alleen afbeeldingen toegestaan.",
+    photoTooLarge: "Een foto is groter dan 8MB.",
+    checkFields: "Controleer de ingevulde gegevens.",
   },
   login: {
     title: "Klantenportaal",
@@ -200,6 +221,8 @@ export const nl = {
     rateLimited: "Je hebt net al een link opgevraagd. Controleer je mailbox of probeer over een paar minuten opnieuw.",
     showPassword: "Toon wachtwoord",
     hidePassword: "Verberg wachtwoord",
+    showShort: "Toon",
+    hideShort: "Verberg",
     inviteWelcomeTitle: "Welkom — stel je wachtwoord in",
     inviteWelcomeBody: "Kies een wachtwoord om je toegang tot het klantenportaal te activeren.",
     settingPasswordFor: "Je stelt een wachtwoord in voor",
@@ -223,6 +246,60 @@ export const nl = {
       delivered: "Afgeleverd",
       archived: "Gearchiveerd",
     },
+  },
+  recentWerk: {
+    eyebrow: "Recente restauratie",
+    title: "Recent werk.",
+    intro: "Elke restauratie krijgt hier zijn eigen verhaal. We beginnen bij het allereerste project — en bouwen verder, oldtimer per oldtimer.",
+    projectLabel: "Project 01 · 2024",
+    projectTitle: "VW T2 Westfalia — van schuurvondst tot bergpas.",
+    projectBody:
+      "Een originele Westfalia camper, binnengebracht met sporen van jarenlang stilstaan. Focus lag op plaatwerk, slaapdak en exterieur — techniek en interieur bleven in deze fase buiten beschouwing. Hieronder de chronologie, van eerste inspectie tot eerste rit door de bergen.",
+    monthMay: "Mei 2024",
+    monthJun: "Juni 2024",
+    shots: {
+      aankomst: { alt: "VW T2 Westfalia bij aankomst, achterklep open", caption: "Aankomst — Baram en de eigenaar overlopen de staat van de bus." },
+      inventaris: { alt: "VW T2 Westfalia vooraanzicht in tweekleurige originele lak", caption: "Inventaris — alle originele delen blijven behouden waar het kan." },
+      slaapdak: { alt: "VW T2 Westfalia zijaanzicht met opgeklapt slaapdak", caption: "Slaapdak opgemeten, kap en scharnieren grondig nagekeken." },
+      ontmanteling: { alt: "VW T2 ontdaan van rubbers en ramen, klaar voor schuurwerk", caption: "Ontmanteling — rubbers, ramen en sierlijsten gaan eruit voor het plaatwerk." },
+      plamuur: { alt: "VW T2 in plamuur, gemaskeerd voor spuitwerk", caption: "Plamuur en schuurwerk — laag per laag tot het oppervlak weer strak is." },
+      eindcontrole: { alt: "Baram Maro en klant bij de afgewerkte VW T2 Westfalia", caption: "Eindcontrole — Baram tekent pas af als élk detail klopt." },
+      onderweg: { alt: "Gerestaureerde VW T2 Westfalia in een bergachtig landschap", caption: "Onderweg — de bus rijdt weer waar hij thuishoort." },
+    },
+    comingSoonLabel: "Project 02 · binnenkort",
+    comingSoonBody:
+      "De volgende klassieker staat al in de werkplaats. Foto's en verhaal volgen zodra het werk vordert.",
+  },
+  privacy: {
+    eyebrow: "Juridisch",
+    title: "Privacy & cookies",
+    lastUpdate:
+      "Laatste update: juni 2026. Deze verklaring is een plaatsing — definitieve juridische tekst wordt toegevoegd na controle door Nomadix BV.",
+    sections: {
+      responsibleTitle: "Verantwoordelijke",
+      responsibleAddr: "Vredeplein 23, 3010 Kessel-Lo, België",
+      responsibleVat: "BTW BE 0694.858.510",
+      contactLabel: "Contact:",
+      dataTitle: "Welke gegevens verzamelen wij",
+      dataItems: [
+        "Contactgegevens die je zelf invult via het offerteformulier (naam, e-mail, telefoon).",
+        "Voertuiggegevens en foto's die je ons toestuurt voor een inschatting of restauratie.",
+        "Inloggegevens van het klantenportaal (e-mailadres voor magic-link login).",
+      ],
+      useTitle: "Waarvoor gebruiken wij ze",
+      useBody:
+        "Uitsluitend om je offerteaanvraag te beantwoorden, je restauratie voor te bereiden en uit te voeren, en om je via het portaal en e-mail op de hoogte te houden van de voortgang.",
+      cookiesTitle: "Cookies",
+      cookiesBody:
+        "Wij gebruiken alleen functionele cookies die noodzakelijk zijn voor het inloggen op het klantenportaal. Geen tracking, geen advertentiecookies, geen analytics van derden.",
+      retentionTitle: "Bewaartermijn",
+      retentionBody:
+        "Offerteaanvragen worden 24 maanden bewaard. Project- en restauratiedossiers worden zolang bewaard als de wettelijke administratieplicht vereist (7 jaar).",
+      rightsTitle: "Jouw rechten",
+      rightsBefore: "Je hebt recht op inzage, correctie en verwijdering van je gegevens. Stuur een e-mail naar ",
+      rightsAfter: " en we reageren binnen 30 dagen.",
+    },
+    back: "Terug naar home",
   },
 };
 
