@@ -5,21 +5,16 @@ const PROD_SITE_URL = "https://yeketimotorworks.com";
 const RESET_REDIRECT = `${PROD_SITE_URL}/reset-password`;
 
 async function assertAdmin(ctx: { supabase: SupabaseLike; userId: string }) {
-  const { data, error } = await ctx.supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", ctx.userId)
-    .maybeSingle();
-  if (error || !data?.is_admin) throw new Error("Forbidden");
+  const { data, error } = await ctx.supabase.rpc("has_role", {
+    _user_id: ctx.userId,
+    _role: "admin",
+  });
+  if (error || !data) throw new Error("Forbidden");
 }
 
 // Minimal shape we use (avoids importing the heavy generated type here)
 type SupabaseLike = {
-  from: (t: string) => {
-    select: (q: string) => {
-      eq: (c: string, v: string) => { maybeSingle: () => Promise<{ data: { is_admin?: boolean } | null; error: unknown }> };
-    };
-  };
+  rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: boolean | null; error: unknown }>;
 };
 
 const DEFAULT_PHASES = [
@@ -73,14 +68,20 @@ export const listCustomers = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: profiles, error } = await supabaseAdmin
       .from("profiles")
-      .select("id, full_name, email, phone, is_admin, created_at")
+      .select("id, full_name, email, phone, created_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
+    const { data: adminRoles } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin");
+    const adminIds = new Set((adminRoles ?? []).map((r) => r.user_id));
+    const customerProfiles = (profiles ?? []).filter((p) => !adminIds.has(p.id));
     const { data: projects } = await supabaseAdmin
       .from("projects")
       .select("id, customer_id, title, status, created_at, updated_at")
       .order("updated_at", { ascending: false });
-    return { profiles: profiles ?? [], projects: projects ?? [] };
+    return { profiles: customerProfiles, projects: projects ?? [] };
   });
 
 export const inviteCustomer = createServerFn({ method: "POST" })
