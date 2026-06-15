@@ -186,7 +186,7 @@ function Login() {
                               cursor: "pointer",
                             }}
                           >
-                            {showPassword ? "Verberg" : "Toon"}
+                            {showPassword ? t.portal.hideShort : t.portal.showShort}
                           </button>
                         </div>
                       </>

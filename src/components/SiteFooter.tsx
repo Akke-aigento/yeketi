@@ -20,7 +20,7 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <div className="eyebrow" style={{ color: "var(--gold)" }}>Contact</div>
+            <div className="eyebrow" style={{ color: "var(--gold)" }}>{t.footer.contactTitle}</div>
             <ul className="mt-4 space-y-2 text-sm" style={{ color: "var(--cream)" }}>
               <li>{t.footer.contact}</li>
               <li>
@@ -37,13 +37,13 @@ export function SiteFooter() {
           </div>
 
           <div>
-            <div className="eyebrow" style={{ color: "var(--gold)" }}>Bedrijf</div>
+            <div className="eyebrow" style={{ color: "var(--gold)" }}>{t.footer.companyTitle}</div>
             <ul className="mt-4 space-y-2 text-sm">
-              <li><Link to="/diensten" className="hover:text-[var(--gold)] transition-colors">Diensten</Link></li>
-              <li><Link to="/over" className="hover:text-[var(--gold)] transition-colors">Over ons</Link></li>
-              <li><Link to="/offerte" className="hover:text-[var(--gold)] transition-colors">Offerte</Link></li>
-              <li><Link to="/login" className="hover:text-[var(--gold)] transition-colors">Klantenportaal</Link></li>
-              <li><Link to="/privacy" className="hover:text-[var(--gold)] transition-colors">Privacy &amp; cookies</Link></li>
+              <li><Link to="/diensten" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.diensten}</Link></li>
+              <li><Link to="/over" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.over}</Link></li>
+              <li><Link to="/offerte" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.offerte}</Link></li>
+              <li><Link to="/login" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.portal}</Link></li>
+              <li><Link to="/privacy" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.privacy}</Link></li>
             </ul>
           </div>
         </div>
