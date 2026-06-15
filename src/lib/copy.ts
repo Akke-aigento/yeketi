@@ -212,7 +212,7 @@ export const nl = {
     logout: "Uitloggen",
     welcome: "Welkom terug",
     timelineTitle: "Tijdlijn",
-    noUpdates: "Nog geen updates in deze fase.",
+    noUpdates: "Nog niet gestart.",
     statusLabels: {
       intake: "Intake",
       transport_out: "Onderweg naar werkplaats",
