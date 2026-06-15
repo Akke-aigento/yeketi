@@ -134,7 +134,10 @@ Deno.serve(async (req) => {
   }
 
   let body: { type: string; table?: string; record?: Record<string, unknown> };
-  try { body = await req.json(); } catch { return new Response("Bad Request", { status: 400 }); }
+  try { body = await req.json(); } catch (e) {
+    await logFailure("unknown", null, `Bad JSON body: ${(e as Error).message}`);
+    return new Response("Bad Request", { status: 400 });
+  }
 
   try {
     if (body.table === "phase_updates" && body.type === "INSERT" && body.record) {
@@ -154,19 +157,23 @@ Deno.serve(async (req) => {
       const projectUrl = `${PUBLIC_SITE_URL}/portaal/${phase.project_id}`;
       void portalUrl;
       const preview = updateBody.length > 140 ? updateBody.slice(0, 140) + "…" : updateBody;
-      await sendEmail({
-        to: profile.email,
-        subject: `Nieuwe update: ${vehicle}`,
-        ...(() => {
-          const tpl = {
-            headline: `Een nieuwe update voor je ${vehicle}`,
-            intro: `${profile.full_name ? `Hoi ${String(profile.full_name).split(" ")[0]}, ` : ""}er staat een nieuwe update klaar in het klantenportaal (fase: ${phase.name}).${preview ? `<br/><br/><em style="color:#4A453E;">${preview.replace(/</g, "&lt;")}</em>` : ""}`,
-            ctaLabel: "Bekijk de update",
-            ctaUrl: projectUrl,
-          };
-          return { html: emailTemplate(tpl), text: plainText(tpl) };
-        })(),
-      });
+      try {
+        await sendEmail({
+          to: profile.email,
+          subject: `Nieuwe update: ${vehicle}`,
+          ...(() => {
+            const tpl = {
+              headline: `Een nieuwe update voor je ${vehicle}`,
+              intro: `${profile.full_name ? `Hoi ${String(profile.full_name).split(" ")[0]}, ` : ""}er staat een nieuwe update klaar in het klantenportaal (fase: ${phase.name}).${preview ? `<br/><br/><em style="color:#4A453E;">${preview.replace(/</g, "&lt;")}</em>` : ""}`,
+              ctaLabel: "Bekijk de update",
+              ctaUrl: projectUrl,
+            };
+            return { html: emailTemplate(tpl), text: plainText(tpl) };
+          })(),
+        });
+      } catch (e) {
+        await logFailure("phase_updates", { phase_id: phaseId, project_id: phase.project_id, to: profile.email }, (e as Error).message);
+      }
     }
 
     if (body.table === "quote_requests" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
@@ -185,28 +192,33 @@ Deno.serve(async (req) => {
       const detailsHtml = rows
         .map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#4A453E;letter-spacing:0.08em;text-transform:uppercase;vertical-align:top;white-space:nowrap;">${k}</td><td style="padding:6px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#221F1B;">${v.replace(/</g, "&lt;").replace(/\n/g, "<br/>")}</td></tr>`)
         .join("");
-      await sendEmail({
-        to: ADMIN_NOTIFY_EMAIL,
-        subject: `Nieuwe offerteaanvraag — ${vehicle} (${r.naam})`,
-        ...(() => {
-          const tpl = {
-            headline: `Nieuwe aanvraag van ${r.naam}`,
-            intro: `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${detailsHtml}</table>`,
-            ctaLabel: "Open in admin",
-            ctaUrl: `${PUBLIC_SITE_URL}/admin/offertes`,
-          };
-          const textBody = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
-          return {
-            html: emailTemplate(tpl),
-            text: `Nieuwe aanvraag van ${r.naam}\n\n${textBody}\n\nOpen in admin: ${PUBLIC_SITE_URL}/admin/offertes`,
-          };
-        })(),
-      });
+      try {
+        await sendEmail({
+          to: ADMIN_NOTIFY_EMAIL,
+          subject: `Nieuwe offerteaanvraag — ${vehicle} (${r.naam})`,
+          ...(() => {
+            const tpl = {
+              headline: `Nieuwe aanvraag van ${r.naam}`,
+              intro: `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${detailsHtml}</table>`,
+              ctaLabel: "Open in admin",
+              ctaUrl: `${PUBLIC_SITE_URL}/admin/offertes`,
+            };
+            const textBody = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
+            return {
+              html: emailTemplate(tpl),
+              text: `Nieuwe aanvraag van ${r.naam}\n\n${textBody}\n\nOpen in admin: ${PUBLIC_SITE_URL}/admin/offertes`,
+            };
+          })(),
+        });
+      } catch (e) {
+        await logFailure("quote_requests", { id: r.id, naam: r.naam, email: r.email }, (e as Error).message);
+      }
     }
 
     return new Response("ok", { status: 200 });
   } catch (e) {
     console.error(e);
+    await logFailure(body?.table ?? "unknown", body?.record ?? null, (e as Error).message);
     return new Response(`Error: ${(e as Error).message}`, { status: 500 });
   }
 });
