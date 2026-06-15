@@ -18,6 +18,7 @@ function Dashboard() {
   const [projects, setProjects] = useState<ProjectRow[] | null>(null);
   const [newQuotes, setNewQuotes] = useState<number | null>(null);
   const [stale, setStale] = useState<number | null>(null);
+  const [notifyFailures, setNotifyFailures] = useState<{ count: number; recent: Array<{ id: string; event_type: string; error_message: string | null; created_at: string }> } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -63,6 +64,16 @@ function Dashboard() {
       setProjects(rowsAnnotated as ProjectRow[]);
       setNewQuotes(q.count ?? 0);
       setStale(staleCount);
+      const { data: failRows, count: failCount } = await supabase
+        .from("notify_event_failures")
+        .select("id, event_type, error_message, created_at", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (!active) return;
+      setNotifyFailures({
+        count: failCount ?? 0,
+        recent: (failRows as Array<{ id: string; event_type: string; error_message: string | null; created_at: string }> | null) ?? [],
+      });
     })();
     return () => { active = false; };
   }, []);
@@ -77,6 +88,24 @@ function Dashboard() {
           </Link>
           <Stat label="Stil ≥ 7 dagen" value={stale} accent={stale && stale > 0 ? "var(--oxide)" : "var(--charcoal-soft)"} />
         </div>
+
+        {notifyFailures && notifyFailures.count > 0 && (
+          <div className="mt-4 px-3 py-3" style={{ border: "1px solid var(--oxide)", background: "var(--cream-deep)" }}>
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--oxide)" }}>
+                Notificaties niet bezorgd
+              </div>
+              <span style={{ fontFamily: "var(--font-display)", color: "var(--oxide)" }}>{notifyFailures.count}</span>
+            </div>
+            <ul className="mt-2 space-y-1">
+              {notifyFailures.recent.map((f) => (
+                <li key={f.id} className="text-xs" style={{ color: "var(--charcoal-soft)" }}>
+                  <span style={{ color: "var(--charcoal)" }}>{f.event_type}</span> · {timeAgo(f.created_at)} geleden — {f.error_message ?? "onbekende fout"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <h2 className="mt-8" style={{ fontSize: "1.1rem" }}>Projecten — oudste update eerst</h2>
         <p className="text-xs mt-1" style={{ color: "var(--charcoal-soft)" }}>
