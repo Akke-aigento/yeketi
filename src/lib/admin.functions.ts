@@ -5,21 +5,16 @@ const PROD_SITE_URL = "https://yeketimotorworks.com";
 const RESET_REDIRECT = `${PROD_SITE_URL}/reset-password`;
 
 async function assertAdmin(ctx: { supabase: SupabaseLike; userId: string }) {
-  const { data, error } = await ctx.supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", ctx.userId)
-    .maybeSingle();
-  if (error || !data?.is_admin) throw new Error("Forbidden");
+  const { data, error } = await ctx.supabase.rpc("has_role", {
+    _user_id: ctx.userId,
+    _role: "admin",
+  });
+  if (error || !data) throw new Error("Forbidden");
 }
 
 // Minimal shape we use (avoids importing the heavy generated type here)
 type SupabaseLike = {
-  from: (t: string) => {
-    select: (q: string) => {
-      eq: (c: string, v: string) => { maybeSingle: () => Promise<{ data: { is_admin?: boolean } | null; error: unknown }> };
-    };
-  };
+  rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: boolean | null; error: unknown }>;
 };
 
 const DEFAULT_PHASES = [
