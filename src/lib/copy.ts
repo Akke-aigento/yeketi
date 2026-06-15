@@ -28,7 +28,7 @@ export const nl = {
     ],
     pullQuote:
       "Een auto bewaart de adem van de mensen die hem maken. Daarom kiezen wij onze handen met zorg.",
-    pullAttribution: "— Baram, oprichter",
+    pullAttribution: "— Baram Maro, oprichter",
   },
   process: {
     eyebrow: "Hoe het werkt",
@@ -36,7 +36,7 @@ export const nl = {
     steps: [
       { n: "01", t: "Inspectie aan huis", d: "Wij komen langs, maken foto's, bespreken uw wensen en de staat van de wagen." },
       { n: "02", t: "Offerte & planning", d: "Een transparante offerte met afgebakende posten en een realistische tijdslijn." },
-      { n: "03", t: "Transport", d: "Beveiligd, verzekerd transport van uw werkplaats of garage tot in de werkplaats in Koerdistan." },
+      { n: "03", t: "Transport", d: "Transport persoonlijk verzorgd — Baram brengt de wagen zelf naar de werkplaats en blijft ter plaatse tijdens de restauratie." },
       { n: "04", t: "Restauratie met foto-updates", d: "Iedere week beelden vanuit de werkplaats. U volgt elke fase mee, op uw eigen tempo." },
       { n: "05", t: "Aflevering", d: "De wagen komt terug, gepoetst en gekeurd, klaar voor de weg of voor de etalage." },
     ],
@@ -105,8 +105,8 @@ export const nl = {
     ],
     faqTitle: "Veelgestelde vragen",
     faq: [
-      { q: "Hoe verloopt het transport en de verzekering?", a: "Wij werken met gespecialiseerde transporteurs voor klassiekers. De wagen wordt verzekerd op de afgesproken waarde, deur tot deur. U krijgt vooraf alle documenten ter inzage." },
-      { q: "Wat is een realistische doorlooptijd?", a: "Plaatwerk: enkele weken tot twee maanden. Volledige restauratie: drie tot negen maanden, afhankelijk van de staat en de mate van originaliteit die u wenst." },
+      { q: "Hoe verloopt het transport en de verzekering?", a: "Baram verzorgt het transport voorlopig persoonlijk: hij brengt de wagen zelf naar de werkplaats, blijft ter plaatse tijdens het werk, en regelt vooraf de gepaste verzekering op de afgesproken waarde. Alle documenten krijgt u ter inzage voor de wagen vertrekt." },
+      { q: "Wat is een realistische doorlooptijd?", a: "Plaatwerk: enkele weken tot twee maanden. Een volledige restauratie duurt doorgaans rond drie maanden — wij werken parallel met meerdere ambachtslieden in gespecialiseerde werkplaatsen, in plaats van fase na fase." },
       { q: "Hoe houden jullie mij op de hoogte?", a: "U krijgt wekelijks foto's en, op vraag, een korte videoboodschap uit de werkplaats. Eén aanspreekpunt in België voor al uw vragen." },
       { q: "Kan ik in schijven betalen?", a: "Ja. Wij werken standaard met drie schijven: bij start, halverwege en bij aflevering. Schijven zijn gekoppeld aan vooraf afgesproken mijlpalen." },
       { q: "Welke garantie geven jullie op het werk?", a: "Twee jaar garantie op plaatwerk en lakwerk, één jaar op mechanische ingrepen. Wij blijven aanspreekbaar, ook na aflevering." },
@@ -115,14 +115,14 @@ export const nl = {
   caseT2: {
     eyebrow: "Onze werkwijze",
     title: "Restauratie — van aankomst tot aflevering.",
-    lead: "Negen maanden, meerdere ambachtslieden, één doel: een klassieker terugbrengen in de staat waarin hij ooit de fabriek verliet — zonder de geschiedenis uit te vegen.",
+    lead: "Een volledige restauratie loopt bij ons parallel: plaatwerk, mechaniek, lakwerk en interieur lopen tegelijk in gespecialiseerde werkplaatsen, elk met de juiste meester aan het werk. Daardoor staat een klassieker bij ons rond drie maanden in de werkplaats — niet de jaren die hetzelfde werk elders zou kosten.",
     chapters: [
-      { date: "Maand 1", t: "Aankomst", d: "De wagen arriveert in de werkplaats. Eerste inventaris: een nauwgezette inspectie van carrosserie, chassis en mechaniek. Alle aandachtspunten worden gefotografeerd en met de eigenaar besproken voor er één bout wordt losgedraaid." },
-      { date: "Maand 2 – 4", t: "Plaatwerk", d: "Rotte panelen worden vakkundig uitgesneden en met de hand opnieuw gevormd uit nieuw staal, volgens de originele profielen. Geen plamuur waar het niet hoort — elke deuk wordt geklopt zoals het hoort bij een klassieker." },
-      { date: "Maand 5", t: "Mechaniek", d: "Het motorblok wordt volledig gereviseerd. Pakkingen, zuigers en kleppen worden vernieuwd; originele onderdelen worden waar mogelijk gerestaureerd in plaats van vervangen, om het karakter van de wagen te behouden." },
-      { date: "Maand 6 – 7", t: "Lakwerk", d: "Meerdere lagen primer, plamuur en lak — exact volgens de originele kleurcode van de fabrikant. Met de hand gepolijst tot de oorspronkelijke diepte en glans terug zichtbaar zijn." },
-      { date: "Maand 8", t: "Interieur", d: "Nieuwe binnenbekleding op maat in originele stof en kleur. Stuur, pedalen en schakelpook blijven het origineel — alles wat de eigenaar dagelijks aanraakt, draagt de patina van vijftig jaar geschiedenis." },
-      { date: "Maand 9", t: "Aflevering", d: "Eindcontrole en beveiligd transport tot voor de deur. De wagen rijdt opnieuw zijn eerste kilometers — een klassieker die nog generaties mee kan." },
+      { date: "Fase 01", t: "Aankomst & inspectie", d: "De wagen arriveert in de werkplaats. Een nauwgezette inspectie van carrosserie, chassis en mechaniek; alle aandachtspunten worden gefotografeerd en met de eigenaar besproken voor er één bout wordt losgedraaid." },
+      { date: "Fase 02", t: "Plaatwerk", d: "Rotte panelen worden vakkundig uitgesneden en met de hand opnieuw gevormd uit nieuw staal, volgens de originele profielen. Geen plamuur waar het niet hoort — elke deuk wordt geklopt zoals het hoort bij een klassieker." },
+      { date: "Fase 03", t: "Mechaniek", d: "Het motorblok wordt volledig gereviseerd. Pakkingen, zuigers en kleppen worden vernieuwd; originele onderdelen worden waar mogelijk gerestaureerd in plaats van vervangen, om het karakter van de wagen te behouden." },
+      { date: "Fase 04", t: "Lakwerk", d: "Meerdere lagen primer, plamuur en lak — exact volgens de originele kleurcode van de fabrikant. Met de hand gepolijst tot de oorspronkelijke diepte en glans terug zichtbaar zijn." },
+      { date: "Fase 05", t: "Interieur", d: "Nieuwe binnenbekleding op maat in originele stof en kleur. Stuur, pedalen en schakelpook blijven het origineel — alles wat de eigenaar dagelijks aanraakt, draagt de patina van een halve eeuw geschiedenis." },
+      { date: "Fase 06", t: "Aflevering", d: "Eindcontrole en transport tot voor de deur. De wagen rijdt opnieuw zijn eerste kilometers — een klassieker die nog generaties mee kan." },
     ],
     closing:
       "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
@@ -135,7 +135,7 @@ export const nl = {
       "De werkplaats ligt in de buurt van Erbil, in de Koerdistan-regio van Iraq. Het is een rustige plek, ver van de massaproductie, waar men nog tijd neemt om naar metaal te luisteren. De ambachtslieden — sommigen al dertig jaar in het vak — werken met de geduldige nauwkeurigheid die deze auto's verdienen.",
       "Vanuit België coördineren wij elk project persoonlijk. Wij komen langs voor de inspectie, regelen het transport, en zijn uw enige aanspreekpunt zolang de wagen weg is. U hoort van ons in het Nederlands. U krijgt foto's per week, en een eerlijk antwoord wanneer u erom vraagt.",
     ],
-    founderName: "Baram — oprichter",
+    founderName: "Baram Maro — oprichter",
     founderQuote:
       "Ik wil dat mijn klanten hun wagen op een dag aan hun kleinkinderen kunnen doorgeven. Dat is de enige reden dat dit bestaat.",
   },
@@ -255,7 +255,7 @@ export const en: Copy = {
     ],
     pullQuote:
       "A car carries the breath of the people who built it. That is why we choose our hands with care.",
-    pullAttribution: "— Baram, founder",
+    pullAttribution: "— Baram Maro, founder",
   },
   process: {
     eyebrow: "How it works",
@@ -263,7 +263,7 @@ export const en: Copy = {
     steps: [
       { n: "01", t: "On-site inspection", d: "We come to you, take photos, and discuss your wishes and the state of the car." },
       { n: "02", t: "Quote & planning", d: "A transparent quote with itemised work and a realistic timeline." },
-      { n: "03", t: "Transport", d: "Secured, insured transport from your garage to the workshop in Kurdistan." },
+      { n: "03", t: "Transport", d: "Transport handled personally — Baram drives the car to the workshop himself and stays on-site for the duration of the restoration." },
       { n: "04", t: "Restoration with photo updates", d: "Weekly images from the workshop. You follow every stage at your own pace." },
       { n: "05", t: "Delivery", d: "The car returns, detailed and inspected, ready for the road or the showroom." },
     ],
@@ -323,8 +323,8 @@ export const en: Copy = {
     ],
     faqTitle: "Frequently asked questions",
     faq: [
-      { q: "How do transport and insurance work?", a: "We work with specialist classic-car transporters. The car is insured at the agreed value, door to door. You receive all documents in advance." },
-      { q: "What is a realistic lead time?", a: "Bodywork: a few weeks to two months. Full restoration: three to nine months, depending on the condition and the level of originality you want." },
+      { q: "How do transport and insurance work?", a: "For now Baram handles transport personally: he drives the car to the workshop himself, stays on-site while the work is under way, and arranges the right insurance at the agreed value beforehand. You receive all documents before the car leaves." },
+      { q: "What is a realistic lead time?", a: "Bodywork: a few weeks to two months. A full restoration typically takes around three months — we work in parallel with multiple craftsmen in specialised workshops, rather than phase after phase." },
       { q: "How do you keep me informed?", a: "You get weekly photos and, on request, a short video message from the workshop. One point of contact in Belgium for all your questions." },
       { q: "Can I pay in instalments?", a: "Yes. We work in three instalments by default: at start, halfway, and on delivery. Instalments are tied to pre-agreed milestones." },
       { q: "What warranty do you offer?", a: "Two years on bodywork and paintwork, one year on mechanical work. We remain available, also after delivery." },
@@ -333,14 +333,14 @@ export const en: Copy = {
   caseT2: {
     eyebrow: "Our way of working",
     title: "Restoration — from arrival to delivery.",
-    lead: "Nine months, several craftsmen, one goal: to bring a classic back to the state in which it once left the factory — without erasing its history.",
+    lead: "A full restoration runs in parallel with us: bodywork, mechanics, paint and interior all happen at the same time in specialised workshops, each with the right master at work. That is why a classic stays with us for around three months — not the years the same work would take elsewhere.",
     chapters: [
-      { date: "Month 1", t: "Arrival", d: "The car arrives at the workshop. First inventory: a thorough inspection of body, chassis and mechanics. Every point of attention is photographed and discussed with the owner before a single bolt is loosened." },
-      { date: "Month 2 – 4", t: "Bodywork", d: "Rusted panels are cut out and reshaped by hand from new steel, true to the original profiles. No filler where it doesn't belong — every dent tapped out the way a classic deserves." },
-      { date: "Month 5", t: "Mechanics", d: "The engine block is fully rebuilt. Gaskets, pistons and valves are renewed; original parts are restored rather than replaced wherever possible, to preserve the character of the car." },
-      { date: "Month 6 – 7", t: "Paintwork", d: "Multiple layers of primer, filler and paint — exactly to the manufacturer's original colour code. Hand-polished until the original depth and gloss are visible again." },
-      { date: "Month 8", t: "Interior", d: "New upholstery made to measure in original fabric and colour. Steering wheel, pedals and gear lever stay original — everything the owner touches daily carries the patina of fifty years of history." },
-      { date: "Month 9", t: "Delivery", d: "Final inspection and secured transport to your door. The car drives its first kilometres again — a classic ready for generations to come." },
+      { date: "Stage 01", t: "Arrival & inspection", d: "The car arrives at the workshop. A thorough inspection of body, chassis and mechanics; every point of attention is photographed and discussed with the owner before a single bolt is loosened." },
+      { date: "Stage 02", t: "Bodywork", d: "Rusted panels are cut out and reshaped by hand from new steel, true to the original profiles. No filler where it doesn't belong — every dent tapped out the way a classic deserves." },
+      { date: "Stage 03", t: "Mechanics", d: "The engine block is fully rebuilt. Gaskets, pistons and valves are renewed; original parts are restored rather than replaced wherever possible, to preserve the character of the car." },
+      { date: "Stage 04", t: "Paintwork", d: "Multiple layers of primer, filler and paint — exactly to the manufacturer's original colour code. Hand-polished until the original depth and gloss are visible again." },
+      { date: "Stage 05", t: "Interior", d: "New upholstery made to measure in original fabric and colour. Steering wheel, pedals and gear lever stay original — everything the owner touches daily carries the patina of half a century of history." },
+      { date: "Stage 06", t: "Delivery", d: "Final inspection and transport to your door. The car drives its first kilometres again — a classic ready for generations to come." },
     ],
     closing:
       "Restoration is not an attempt to turn back time. It is a promise that the story may continue.",
@@ -353,7 +353,7 @@ export const en: Copy = {
       "The workshop is located near Erbil, in the Kurdistan region of Iraq. It is a quiet place, far from mass production, where people still take the time to listen to metal. The craftsmen — some with thirty years in the trade — work with the patient precision these cars deserve.",
       "From Belgium we coordinate every project personally. We come by for the inspection, arrange transport, and are your only point of contact while the car is away. You hear from us in English or Dutch. You get photos every week, and an honest answer when you ask for one.",
     ],
-    founderName: "Baram — founder",
+    founderName: "Baram Maro — founder",
     founderQuote:
       "I want my clients to be able to hand their car down to their grandchildren one day. That is the only reason this exists.",
   },
