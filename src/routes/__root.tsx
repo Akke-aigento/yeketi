@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { CookieBanner } from "../components/CookieBanner";
 
 function NotFoundComponent() {
   return (
@@ -128,6 +129,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           priceRange: "€€€",
           areaServed: ["NL", "BE", "DE", "LU", "FR"],
           sameAs: ["https://instagram.com/yeketimotorworks"],
+          founder: { "@type": "Person", name: "Baram Maaruf" },
+          vatID: "BE0694858510",
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "Vredeplein 23",
+            postalCode: "3010",
+            addressLocality: "Kessel-Lo",
+            addressCountry: "BE",
+          },
         }),
       },
     ],
@@ -159,6 +169,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <CookieBanner />
     </QueryClientProvider>
   );
 }

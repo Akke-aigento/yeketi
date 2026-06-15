@@ -26,7 +26,7 @@ export const nl = {
     ],
     pullQuote:
       "Een auto bewaart de adem van de mensen die hem maken. Daarom kiezen wij onze handen met zorg.",
-    pullAttribution: "— Baraam, oprichter",
+    pullAttribution: "— Baram, oprichter",
   },
   process: {
     eyebrow: "Hoe het werkt",
@@ -67,11 +67,11 @@ export const nl = {
   footer: {
     columnsTitle: "Yeketi Motorworks",
     tagline: "unity in craftsmanship",
-    contact: "Antwerpen, BE · Erbil, IQ",
+    contact: "Vredeplein 23, 3010 Kessel-Lo (BE)",
     email: "hallo@yeketi.eu",
     instagram: "Instagram",
     rights: "© 2026 Yeketi Motorworks",
-    kvk: "BTW BE 0XXX.XXX.XXX",
+    kvk: "BTW BE 0694.858.510",
   },
   diensten: {
     eyebrow: "Diensten",
@@ -133,14 +133,14 @@ export const nl = {
       "De werkplaats ligt in de buurt van Erbil, in de Koerdistan-regio van Iraq. Het is een rustige plek, ver van de massaproductie, waar men nog tijd neemt om naar metaal te luisteren. De ambachtslieden — sommigen al dertig jaar in het vak — werken met de geduldige nauwkeurigheid die deze auto's verdienen.",
       "Vanuit België coördineren wij elk project persoonlijk. Wij komen langs voor de inspectie, regelen het transport, en zijn uw enige aanspreekpunt zolang de wagen weg is. U hoort van ons in het Nederlands. U krijgt foto's per week, en een eerlijk antwoord wanneer u erom vraagt.",
     ],
-    founderName: "Baraam — oprichter",
+    founderName: "Baram — oprichter",
     founderQuote:
       "Ik wil dat mijn klanten hun wagen op een dag aan hun kleinkinderen kunnen doorgeven. Dat is de enige reden dat dit bestaat.",
   },
   offerte: {
     eyebrow: "Offerte aanvragen",
     title: "Vertel ons over uw klassieker.",
-    intro: "Geen verplichting, geen verkoopstruc. U krijgt binnen twee werkdagen een persoonlijke reactie van Baraam.",
+    intro: "Geen verplichting, geen verkoopstruc. U krijgt binnen twee werkdagen een persoonlijke reactie van Baram.",
     labels: {
       naam: "Naam",
       email: "E-mail",
@@ -159,7 +159,7 @@ export const nl = {
     },
     success: {
       title: "Bedankt voor uw aanvraag.",
-      body: "Wij hebben uw bericht goed ontvangen. Baraam neemt binnen twee werkdagen persoonlijk contact op.",
+      body: "Wij hebben uw bericht goed ontvangen. Baram neemt binnen twee werkdagen persoonlijk contact op.",
     },
     error: "Er ging iets mis bij het versturen. Probeer het opnieuw of stuur een e-mail naar hallo@yeketi.eu.",
     photoTooMany: "Maximaal vijf foto's.",
@@ -204,7 +204,7 @@ export const nl = {
     verifyingLink: "Recovery-link wordt geverifieerd…",
     linkExpiredAfterWait: "We konden je link niet verifiëren. Vraag een nieuwe link aan om verder te gaan.",
     notRegistered:
-      "Dit e-mailadres staat nog niet in ons systeem. Neem contact op met Baraam zodat we je restauratie kunnen klaarzetten.",
+      "Dit e-mailadres staat nog niet in ons systeem. Neem contact op met Baram zodat we je restauratie kunnen klaarzetten.",
     overviewTitle: "Jouw restauraties",
     overviewIntro: "Volg de voortgang van je project, fase per fase.",
     empty: "Je restauratie wordt klaargezet — je ontvangt een e-mail zodra de eerste update er is.",

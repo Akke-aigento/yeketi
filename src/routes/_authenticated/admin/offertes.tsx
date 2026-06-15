@@ -28,7 +28,7 @@ function waLink(phone: string | null, naam: string, voertuig: string) {
   const clean = phone.replace(/[^\d+]/g, "");
   const number = clean.startsWith("+") ? clean.slice(1) : clean;
   const text = encodeURIComponent(
-    `Hoi ${naam.split(" ")[0] ?? naam}, dit is Baraam van Yeketi Motorworks. Bedankt voor je aanvraag voor ${voertuig || "je klassieker"}. Wanneer komt het uit om even te bellen?`,
+    `Hoi ${naam.split(" ")[0] ?? naam}, dit is Baram van Yeketi Motorworks. Bedankt voor je aanvraag voor ${voertuig || "je klassieker"}. Wanneer komt het uit om even te bellen?`,
   );
   return `https://wa.me/${number}?text=${text}`;
 }

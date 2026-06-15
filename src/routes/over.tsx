@@ -12,7 +12,7 @@ export const Route = createFileRoute("/over")({
       { title: "Over ons — Yeketi Motorworks" },
       { name: "description", content: "Yeketi betekent eenheid. Wij brengen Europese eigenaars en Koerdische meester-ambachtslieden samen." },
       { property: "og:title", content: "Over Yeketi Motorworks" },
-      { property: "og:description", content: "Het verhaal van Baraam, het netwerk van ambachtslieden, en de betekenis van Yeketi." },
+      { property: "og:description", content: "Het verhaal van Baram, het netwerk van ambachtslieden, en de betekenis van Yeketi." },
       { property: "og:url", content: "https://yeketimotorworks.com/over" },
     ],
     links: [{ rel: "canonical", href: "https://yeketimotorworks.com/over" }],
@@ -43,7 +43,7 @@ function Over() {
                 <figure>
                   <img
                     src={portrait.url}
-                    alt="Portret van Baraam, oprichter van Yeketi Motorworks"
+                    alt="Portret van Baram, oprichter van Yeketi Motorworks"
                     loading="lazy"
                     width={1200}
                     height={1500}
