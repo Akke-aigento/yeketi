@@ -13,8 +13,11 @@ export function PortalHeader() {
     supabase.auth.getUser().then(async ({ data }) => {
       setEmail(data.user?.email ?? null);
       if (data.user) {
-        const { data: p } = await supabase.from("profiles").select("is_admin").eq("id", data.user.id).maybeSingle();
-        setIsAdmin(!!p?.is_admin);
+        const { data: isAdminRpc } = await supabase.rpc("has_role", {
+          _user_id: data.user.id,
+          _role: "admin",
+        });
+        setIsAdmin(!!isAdminRpc);
       }
     });
   }, []);
