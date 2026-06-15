@@ -296,40 +296,84 @@ function NewUpdateModal({
 }: { projectId: string; phases: { id: string; name: string }[]; defaultPhaseId: string; onClose: () => void; onSaved: () => void }) {
   const [phaseId, setPhaseId] = useState(defaultPhaseId);
   const [body, setBody] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+  type FileItem = { file: File; status: "pending" | "uploading" | "done" | "error"; error?: string };
+  const [items, setItems] = useState<FileItem[]>([]);
   const [busy, setBusy] = useState(false);
-  const [progress, setProgress] = useState("");
+  const [updateId, setUpdateId] = useState<string | null>(null);
+
+  function addFiles(list: FileList | null) {
+    if (!list) return;
+    setItems((prev) => [...prev, ...Array.from(list).map((file) => ({ file, status: "pending" as const }))]);
+  }
+
+  async function uploadOne(updId: string, item: FileItem, sortIndex: number): Promise<FileItem> {
+    try {
+      const blob = await compressImage(item.file);
+      const safeIdx = String(sortIndex).padStart(3, "0");
+      const path = `${projectId}/${updId}/${Date.now()}-${safeIdx}.jpg`;
+      const up = await supabase.storage.from("project-photos").upload(path, blob, {
+        contentType: "image/jpeg", upsert: false,
+      });
+      if (up.error) throw up.error;
+      const ins = await supabase.from("update_photos").insert({
+        update_id: updId, storage_path: path, sort_order: sortIndex,
+      });
+      if (ins.error) throw ins.error;
+      return { ...item, status: "done" };
+    } catch (e: unknown) {
+      return { ...item, status: "error", error: e instanceof Error ? e.message : "Upload mislukt" };
+    }
+  }
+
+  async function runUploads(updId: string, current: FileItem[]) {
+    const toDo = current.map((it, i) => ({ it, i })).filter(({ it }) => it.status !== "done");
+    // Mark in-progress
+    setItems((prev) => prev.map((it, i) =>
+      toDo.some((x) => x.i === i) ? { ...it, status: "uploading", error: undefined } : it,
+    ));
+    for (const { it, i } of toDo) {
+      const res = await uploadOne(updId, it, i);
+      setItems((prev) => prev.map((p, idx) => (idx === i ? res : p)));
+    }
+  }
 
   async function submit() {
-    if (!body.trim() && files.length === 0) return;
+    if (!body.trim() && items.length === 0) return;
     setBusy(true);
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      const { data: update, error } = await supabase
-        .from("phase_updates")
-        .insert({ phase_id: phaseId, body: body.trim(), created_by: userData.user?.id ?? null })
-        .select("id")
-        .maybeSingle();
-      if (error || !update) throw error ?? new Error("Kon update niet opslaan");
-
-      for (let i = 0; i < files.length; i++) {
-        setProgress(`Foto ${i + 1}/${files.length} verkleinen…`);
-        const blob = await compressImage(files[i]);
-        setProgress(`Foto ${i + 1}/${files.length} uploaden…`);
-        const path = `${projectId}/${update.id}/${Date.now()}-${i}.jpg`;
-        const up = await supabase.storage.from("project-photos").upload(path, blob, {
-          contentType: "image/jpeg", upsert: false,
-        });
-        if (up.error) throw up.error;
-        await supabase.from("update_photos").insert({
-          update_id: update.id, storage_path: path, sort_order: i,
-        });
+      let updId = updateId;
+      if (!updId) {
+        const { data: userData } = await supabase.auth.getUser();
+        const { data: update, error } = await supabase
+          .from("phase_updates")
+          .insert({ phase_id: phaseId, body: body.trim(), created_by: userData.user?.id ?? null })
+          .select("id")
+          .maybeSingle();
+        if (error || !update) throw error ?? new Error("Kon update niet opslaan");
+        updId = update.id;
+        setUpdateId(updId);
       }
-      onSaved();
+      await runUploads(updId, items);
     } catch (e: unknown) {
       alert((e as Error).message ?? "Fout bij opslaan");
-    } finally { setBusy(false); setProgress(""); }
+    } finally { setBusy(false); }
   }
+
+  async function retryFailed() {
+    if (!updateId) return;
+    setBusy(true);
+    try { await runUploads(updateId, items); }
+    finally { setBusy(false); }
+  }
+
+  function finish() {
+    onSaved();
+  }
+
+  const failedCount = items.filter((i) => i.status === "error").length;
+  const doneCount = items.filter((i) => i.status === "done").length;
+  const allDone = items.length > 0 && doneCount === items.length;
+  const published = updateId !== null;
 
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
@@ -341,7 +385,7 @@ function NewUpdateModal({
         <div className="px-4 py-4 space-y-4">
           <label className="block">
             <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>Fase</span>
-            <select className="field-y" value={phaseId} onChange={(e) => setPhaseId(e.target.value)}>
+            <select className="field-y" value={phaseId} onChange={(e) => setPhaseId(e.target.value)} disabled={published}>
               {phases.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </label>
@@ -354,6 +398,7 @@ function NewUpdateModal({
               onChange={(e) => setBody(e.target.value)}
               placeholder="Korte beschrijving voor de klant…"
               style={{ resize: "vertical" }}
+              disabled={published}
             />
           </label>
           <div>
@@ -363,36 +408,78 @@ function NewUpdateModal({
                 Camera
                 <input
                   type="file" accept="image/*" capture="environment" multiple className="hidden"
-                  onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])])}
+                  onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
                 />
               </label>
               <label className="btn-y text-center cursor-pointer">
                 Galerij
                 <input
                   type="file" accept="image/*" multiple className="hidden"
-                  onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])])}
+                  onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
                 />
               </label>
             </div>
-            {files.length > 0 && (
+            {items.length > 0 && (
               <div className="grid grid-cols-4 gap-1 mt-2">
-                {files.map((f, i) => (
-                  <div key={i} className="relative">
-                    <img src={URL.createObjectURL(f)} alt="" className="w-full" style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)" }} />
-                    <button
-                      onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
-                      className="absolute top-0 right-0 px-1 text-xs"
-                      style={{ background: "var(--charcoal)", color: "var(--gold)" }}
-                    >✕</button>
-                  </div>
-                ))}
+                {items.map((it, i) => {
+                  const ring =
+                    it.status === "done" ? "var(--brass)" :
+                    it.status === "error" ? "var(--oxide)" :
+                    it.status === "uploading" ? "var(--gold)" : "var(--charcoal)";
+                  return (
+                    <div key={i} className="relative">
+                      <img
+                        src={URL.createObjectURL(it.file)}
+                        alt=""
+                        className="w-full"
+                        style={{
+                          aspectRatio: "1/1",
+                          objectFit: "cover",
+                          border: "2px solid " + ring,
+                          opacity: it.status === "done" ? 0.7 : 1,
+                        }}
+                      />
+                      <div
+                        className="absolute bottom-0 left-0 right-0 text-[9px] tracking-[0.1em] uppercase text-center py-0.5"
+                        style={{ background: "rgba(34,31,27,0.78)", color: ring }}
+                      >
+                        {it.status === "pending" ? "wacht" :
+                         it.status === "uploading" ? "bezig" :
+                         it.status === "done" ? "ok" : "fout"}
+                      </div>
+                      {!published && (
+                        <button
+                          onClick={() => setItems((prev) => prev.filter((_, j) => j !== i))}
+                          className="absolute top-0 right-0 px-1 text-xs"
+                          style={{ background: "var(--charcoal)", color: "var(--gold)" }}
+                        >✕</button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
+            {published && failedCount > 0 && (
+              <p className="text-xs mt-2" style={{ color: "var(--oxide)" }}>
+                {failedCount} foto{failedCount === 1 ? "" : "'s"} mislukt — probeer opnieuw, de rest blijft staan.
+              </p>
+            )}
           </div>
-          {progress && <p className="text-xs" style={{ color: "var(--charcoal-soft)" }}>{progress}</p>}
-          <button onClick={submit} disabled={busy} className="btn-y-solid w-full">
-            {busy ? "Versturen…" : "Publiceer update"}
-          </button>
+          {!published && (
+            <button onClick={submit} disabled={busy} className="btn-y-solid w-full">
+              {busy ? "Versturen…" : "Publiceer update"}
+            </button>
+          )}
+          {published && failedCount > 0 && (
+            <button onClick={retryFailed} disabled={busy} className="btn-y-solid w-full">
+              {busy ? "Bezig…" : `Probeer ${failedCount} mislukte opnieuw`}
+            </button>
+          )}
+          {published && (
+            <button onClick={finish} disabled={busy} className="btn-y w-full">
+              {allDone || failedCount === 0 ? "Klaar" : "Sluiten — mislukte foto's overslaan"}
+            </button>
+          )}
         </div>
       </div>
     </div>
