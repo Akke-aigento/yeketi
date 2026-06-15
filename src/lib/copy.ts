@@ -60,7 +60,7 @@ export const nl = {
   recent: {
     eyebrow: "Recente restauratie",
     title: "Een VW T2, herboren.",
-    body: "Negen maanden werk: plaatwerkrestauratie en exterieur in originele kleurstelling. Lees het volledige verhaal.",
+    body: "Eén maand werk: plaatwerkrestauratie en exterieur in originele kleurstelling. Lees het volledige verhaal.",
     cta: "Bekijk de restauratie",
     href: "/recent-werk",
   },
