@@ -4,6 +4,9 @@ import { AdminShell, statusBadge, timeAgo } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { convertQuoteToProject, deleteQuoteRequest, cleanupOrphanQuotePhotos } from "@/lib/admin.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { ConfirmModal } from "@/components/AdminModals";
+import { useState as useReactState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/offertes")({
   head: () => ({ meta: [{ title: "Offertes — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -41,6 +44,7 @@ function Offertes() {
   const convert = useServerFn(convertQuoteToProject);
   const removeQuote = useServerFn(deleteQuoteRequest);
   const cleanupOrphans = useServerFn(cleanupOrphanQuotePhotos);
+  const [confirmState, setConfirmState] = useState<{ title: string; message: string; destructive?: boolean; onConfirm: () => void | Promise<void> } | null>(null);
 
   async function load() {
     const { data } = await supabase.from("quote_requests").select("*").order("created_at", { ascending: false });
@@ -55,42 +59,60 @@ function Offertes() {
 
   async function setStatus(id: string, status: Quote["status"]) {
     setBusy(id);
-    await supabase.from("quote_requests").update({ status }).eq("id", id);
+    const { error } = await supabase.from("quote_requests").update({ status }).eq("id", id);
     setBusy(null);
+    if (error) { toast.error("Status wijzigen mislukt", { description: error.message }); return; }
     load();
   }
 
   async function convertNow(q: Quote) {
-    if (!confirm(`Project aanmaken voor ${q.naam} en uitnodigingsmail sturen naar ${q.email}?`)) return;
-    setBusy(q.id);
-    try {
-      await convert({ data: { quoteId: q.id } });
-      alert("Project aangemaakt. Klant heeft een inloglink ontvangen.");
-      load();
-    } catch (e: unknown) {
-      alert((e as Error).message ?? "Fout bij aanmaken");
-    } finally { setBusy(null); }
+    setConfirmState({
+      title: "Project aanmaken",
+      message: `Project aanmaken voor ${q.naam} en uitnodigingsmail sturen naar ${q.email}?`,
+      onConfirm: async () => {
+        setBusy(q.id);
+        try {
+          await convert({ data: { quoteId: q.id } });
+          toast.success("Project aangemaakt. Klant heeft een inloglink ontvangen.");
+          load();
+        } catch (e) {
+          toast.error("Fout bij aanmaken", { description: (e as Error).message });
+        } finally { setBusy(null); }
+      },
+    });
   }
 
   async function deleteNow(q: Quote) {
-    if (!confirm(`Aanvraag van ${q.naam} verwijderen? Foto's worden ook gewist.`)) return;
-    setBusy(q.id);
-    try {
-      await removeQuote({ data: { quoteId: q.id } });
-      load();
-    } catch (e: unknown) {
-      alert((e as Error).message ?? "Verwijderen mislukt");
-    } finally { setBusy(null); }
+    setConfirmState({
+      title: "Aanvraag verwijderen",
+      message: `Aanvraag van ${q.naam} verwijderen? Foto's worden ook gewist.`,
+      destructive: true,
+      onConfirm: async () => {
+        setBusy(q.id);
+        try {
+          await removeQuote({ data: { quoteId: q.id } });
+          toast.success("Aanvraag verwijderd");
+          load();
+        } catch (e) {
+          toast.error("Verwijderen mislukt", { description: (e as Error).message });
+        } finally { setBusy(null); }
+      },
+    });
   }
 
   async function runCleanup() {
-    if (!confirm("Wees-foto's in quote-photos opruimen?")) return;
-    try {
-      const res = await cleanupOrphans({});
-      alert(`Opgeruimd: ${res.removedFiles} bestand(en) (van ${res.scanned} gescand).`);
-    } catch (e) {
-      alert((e as Error).message ?? "Cleanup mislukt");
-    }
+    setConfirmState({
+      title: "Wees-foto's opruimen",
+      message: "Verwijdert alle foto's in quote-photos die niet meer aan een aanvraag hangen.",
+      onConfirm: async () => {
+        try {
+          const res = await cleanupOrphans({});
+          toast.success(`Opgeruimd: ${res.removedFiles} bestand(en) (van ${res.scanned} gescand).`);
+        } catch (e) {
+          toast.error("Cleanup mislukt", { description: (e as Error).message });
+        }
+      },
+    });
   }
 
   return (
