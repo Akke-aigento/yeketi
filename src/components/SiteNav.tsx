@@ -2,17 +2,17 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { SiteLogo } from "./SiteLogo";
-import { t } from "@/lib/copy";
-
-const links = [
-  { to: "/diensten", label: t.nav.diensten },
-  { to: "/restauratie/vw-t2", label: t.nav.restauratie },
-  { to: "/recent-werk", label: "Recent werk" },
-  { to: "/over", label: t.nav.over },
-  { to: "/offerte", label: t.nav.offerte },
-] as const;
+import { LanguageToggle, useT } from "@/lib/i18n";
 
 export function SiteNav() {
+  const t = useT();
+  const links = [
+    { to: "/diensten", label: t.nav.diensten },
+    { to: "/restauratie/vw-t2", label: t.nav.restauratie },
+    { to: "/recent-werk", label: t.lang === "en" ? "Recent work" : "Recent werk" },
+    { to: "/over", label: t.nav.over },
+    { to: "/offerte", label: t.nav.offerte },
+  ] as const;
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
@@ -48,7 +48,8 @@ export function SiteNav() {
             </Link>
           ))}
         </nav>
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex items-center gap-4">
+          <LanguageToggle />
           <Link to="/login" className="btn-y">{t.nav.portal}</Link>
         </div>
         <button
@@ -83,10 +84,11 @@ export function SiteNav() {
                 {l.label}
               </Link>
             ))}
-            <div className="pt-4">
+            <div className="pt-4 flex items-center gap-4">
               <Link to="/login" onClick={() => setOpen(false)} className="btn-y">
                 {t.nav.portal}
               </Link>
+              <LanguageToggle />
             </div>
           </nav>
         </div>
