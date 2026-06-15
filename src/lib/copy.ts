@@ -1,4 +1,6 @@
-// All site copy lives here so a future English locale just adds a second object.
+// All site copy lives here. Public pages use `useT()` from `@/lib/i18n` and
+// pick from `dict[lang]`. Server code and admin/portal pages still import the
+// NL-only `t` shortcut.
 export const nl = {
   brand: { name: "Yeketi Motorworks", tagline: "unity in craftsmanship" },
   nav: {
@@ -225,4 +227,223 @@ export const nl = {
 } as const;
 
 export type Copy = typeof nl;
-export const t = nl; // single-locale shortcut for now
+
+export const en: Copy = {
+  brand: { name: "Yeketi Motorworks", tagline: "unity in craftsmanship" },
+  nav: {
+    home: "Home",
+    diensten: "Services",
+    restauratie: "Restoration",
+    over: "About",
+    offerte: "Quote",
+    portal: "Client portal",
+  },
+  hero: {
+    eyebrow: "Classics — restoration & bodywork",
+    headline: "Craftsmanship that's disappearing, lives on here.",
+    subline:
+      "Restoration of classic cars by master craftsmen — personally guided from inspection to delivery.",
+    ctaQuote: "Request a quote",
+    ctaFollow: "Follow a restoration",
+  },
+  story: {
+    eyebrow: "The story",
+    title: "A craft that found a second home.",
+    body: [
+      "Yeketi began with one simple observation: the classic cars we cherish in Europe are restored less and less. Not for lack of love, but for lack of time, of hands, of room in the workshop.",
+      "In the mountains of Kurdistan, in Iraq, master craftsmen still work who carry the trade in their fingers. Panel beaters, welders, painters — trained in a tradition where every dent is tapped out by hand. We bring European cars to them, and the car that comes back is more than restored. It is retold.",
+    ],
+    pullQuote:
+      "A car carries the breath of the people who built it. That is why we choose our hands with care.",
+    pullAttribution: "— Baram, founder",
+  },
+  process: {
+    eyebrow: "How it works",
+    title: "Five steps, one point of contact.",
+    steps: [
+      { n: "01", t: "On-site inspection", d: "We come to you, take photos, and discuss your wishes and the state of the car." },
+      { n: "02", t: "Quote & planning", d: "A transparent quote with itemised work and a realistic timeline." },
+      { n: "03", t: "Transport", d: "Secured, insured transport from your garage to the workshop in Kurdistan." },
+      { n: "04", t: "Restoration with photo updates", d: "Weekly images from the workshop. You follow every stage at your own pace." },
+      { n: "05", t: "Delivery", d: "The car returns, detailed and inspected, ready for the road or the showroom." },
+    ],
+  },
+  why: {
+    eyebrow: "Why Yeketi",
+    title: "Three reasons that make the difference.",
+    items: [
+      { t: "Fair price", d: "Restoration at a fraction of what the same work costs in a European workshop — without ever compromising on quality." },
+      { t: "Shorter lead time", d: "We think in weeks and months, not years. The workshop puts several craftsmen on one project." },
+      { t: "Personal guidance", d: "One point of contact, from the first photo to delivery. Updates with images, in your language, at your pace." },
+    ],
+  },
+  recent: {
+    eyebrow: "Recent restoration",
+    title: "A VW T2, reborn.",
+    body: "One month of work: bodywork restoration and exterior in the original colour scheme. Read the full story.",
+    cta: "View the restoration",
+    href: "/recent-werk",
+  },
+  footer: {
+    columnsTitle: "Yeketi Motorworks",
+    tagline: "unity in craftsmanship",
+    contact: "Vredeplein 23, 3010 Kessel-Lo (BE)",
+    email: "hallo@yeketi.eu",
+    instagram: "Instagram",
+    rights: "© 2026 Yeketi Motorworks",
+    kvk: "VAT BE 0694.858.510",
+  },
+  diensten: {
+    eyebrow: "Services",
+    title: "Two paths. The same craftsmanship.",
+    intro: "Whether you want a single panel repaired or a full restoration — we always start with a conversation and an honest assessment.",
+    tiers: [
+      {
+        t: "Bodywork & panel beating",
+        sub: "For those who want one element restored.",
+        items: [
+          "Hand-tapped dent removal, no filler where it doesn't belong",
+          "Welding and replacing rusted panels",
+          "Prep work for painting, or full respray",
+          "Chrome and trim restored to original condition",
+        ],
+        cta: "Request a quote",
+      },
+      {
+        t: "Full restoration",
+        sub: "For those who want the car back the way it once was.",
+        items: [
+          "Disassembly down to the bare chassis",
+          "Corrosion treatment, zinc primer, new paint",
+          "Mechanics, electrics and interior to original specification",
+          "Final inspection, detailing, transport to your door",
+        ],
+        cta: "Schedule a call",
+      },
+    ],
+    faqTitle: "Frequently asked questions",
+    faq: [
+      { q: "How do transport and insurance work?", a: "We work with specialist classic-car transporters. The car is insured at the agreed value, door to door. You receive all documents in advance." },
+      { q: "What is a realistic lead time?", a: "Bodywork: a few weeks to two months. Full restoration: three to nine months, depending on the condition and the level of originality you want." },
+      { q: "How do you keep me informed?", a: "You get weekly photos and, on request, a short video message from the workshop. One point of contact in Belgium for all your questions." },
+      { q: "Can I pay in instalments?", a: "Yes. We work in three instalments by default: at start, halfway, and on delivery. Instalments are tied to pre-agreed milestones." },
+      { q: "What warranty do you offer?", a: "Two years on bodywork and paintwork, one year on mechanical work. We remain available, also after delivery." },
+    ],
+  },
+  caseT2: {
+    eyebrow: "Our way of working",
+    title: "Restoration — from arrival to delivery.",
+    lead: "Nine months, several craftsmen, one goal: to bring a classic back to the state in which it once left the factory — without erasing its history.",
+    chapters: [
+      { date: "Month 1", t: "Arrival", d: "The car arrives at the workshop. First inventory: a thorough inspection of body, chassis and mechanics. Every point of attention is photographed and discussed with the owner before a single bolt is loosened." },
+      { date: "Month 2 – 4", t: "Bodywork", d: "Rusted panels are cut out and reshaped by hand from new steel, true to the original profiles. No filler where it doesn't belong — every dent tapped out the way a classic deserves." },
+      { date: "Month 5", t: "Mechanics", d: "The engine block is fully rebuilt. Gaskets, pistons and valves are renewed; original parts are restored rather than replaced wherever possible, to preserve the character of the car." },
+      { date: "Month 6 – 7", t: "Paintwork", d: "Multiple layers of primer, filler and paint — exactly to the manufacturer's original colour code. Hand-polished until the original depth and gloss are visible again." },
+      { date: "Month 8", t: "Interior", d: "New upholstery made to measure in original fabric and colour. Steering wheel, pedals and gear lever stay original — everything the owner touches daily carries the patina of fifty years of history." },
+      { date: "Month 9", t: "Delivery", d: "Final inspection and secured transport to your door. The car drives its first kilometres again — a classic ready for generations to come." },
+    ],
+    closing:
+      "Restoration is not an attempt to turn back time. It is a promise that the story may continue.",
+  },
+  over: {
+    eyebrow: "About Yeketi",
+    title: "Yeketi means unity. Unity in craftsmanship.",
+    body: [
+      "Yeketi is a Kurdish word for unity. Choosing that name was not a marketing decision — it was a principle. We bring two worlds together: European owners who want to cherish their classic car, and a network of Kurdish master craftsmen who still carry the old trade in their hands.",
+      "The workshop is located near Erbil, in the Kurdistan region of Iraq. It is a quiet place, far from mass production, where people still take the time to listen to metal. The craftsmen — some with thirty years in the trade — work with the patient precision these cars deserve.",
+      "From Belgium we coordinate every project personally. We come by for the inspection, arrange transport, and are your only point of contact while the car is away. You hear from us in English or Dutch. You get photos every week, and an honest answer when you ask for one.",
+    ],
+    founderName: "Baram — founder",
+    founderQuote:
+      "I want my clients to be able to hand their car down to their grandchildren one day. That is the only reason this exists.",
+  },
+  offerte: {
+    eyebrow: "Request a quote",
+    title: "Tell us about your classic.",
+    intro: "No obligation, no sales pitch. You'll get a personal response from Baram within two working days.",
+    labels: {
+      naam: "Name",
+      email: "Email",
+      telefoon: "Phone",
+      merk: "Make",
+      model: "Model",
+      bouwjaar: "Year",
+      type: "Type of work",
+      typePlaat: "Bodywork",
+      typeFull: "Full restoration",
+      typeAdvies: "Advice",
+      beschrijving: "Description",
+      fotos: "Photos (max. 5)",
+      submit: "Send request",
+      sending: "Sending…",
+    },
+    success: {
+      title: "Thank you for your request.",
+      body: "We received your message. Baram will get back to you personally within two working days.",
+    },
+    error: "Something went wrong while sending. Please try again or email hallo@yeketi.eu.",
+    photoTooMany: "Maximum five photos.",
+  },
+  login: {
+    title: "Client portal",
+    body: "The secure portal for ongoing restorations is opening soon. You'll receive your login details by email once your project starts.",
+    back: "Back to home",
+  },
+  portal: {
+    loginTitle: "Client portal",
+    loginSubline: "Sign in with your email and password.",
+    emailLabel: "Email",
+    emailPlaceholder: "name@example.com",
+    passwordLabel: "Password",
+    passwordPlaceholder: "Your password",
+    send: "Sign in",
+    sending: "One moment…",
+    forgot: "Forgot your password?",
+    resetTitle: "Reset your password",
+    resetSubline: "Enter your email and we'll send you a link to choose a new password.",
+    resetSend: "Send reset link",
+    resetSent: "Check your inbox — if the address is on file, you'll receive an email with a reset link.",
+    backToLogin: "Back to sign in",
+    newPasswordTitle: "Choose a new password",
+    newPasswordLabel: "New password",
+    newPasswordSave: "Save password",
+    newPasswordSaved: "Password saved. Redirecting…",
+    resetLinkExpired: "This reset link has expired. Please request a new one to choose your password.",
+    resetLinkInvalid: "This reset link is no longer valid. Please request a new one to choose your password.",
+    requestNewResetLink: "Request a new reset link",
+    passwordTooShort: "Password must be at least 8 characters.",
+    invalidCredentials: "Email or password is incorrect.",
+    invalidEmail: "Please enter a valid email address.",
+    sendError: "Something went wrong. Please try again or email hallo@yeketi.eu.",
+    rateLimited: "You've just requested a link. Check your inbox or try again in a few minutes.",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
+    inviteWelcomeTitle: "Welcome — set your password",
+    inviteWelcomeBody: "Choose a password to activate your access to the client portal.",
+    settingPasswordFor: "You're setting a password for",
+    verifyingLink: "Verifying recovery link…",
+    linkExpiredAfterWait: "We couldn't verify your link. Please request a new one to continue.",
+    notRegistered:
+      "This email isn't in our system yet. Please contact Baram so we can set up your restoration.",
+    overviewTitle: "Your restorations",
+    overviewIntro: "Track the progress of your project, stage by stage.",
+    empty: "Your restoration is being prepared — you'll receive an email as soon as the first update is ready.",
+    backToOverview: "Back to overview",
+    logout: "Sign out",
+    welcome: "Welcome back",
+    timelineTitle: "Timeline",
+    noUpdates: "Not started yet.",
+    statusLabels: {
+      intake: "Intake",
+      transport_out: "On the way to the workshop",
+      in_workshop: "In the workshop",
+      transport_return: "On the way back",
+      delivered: "Delivered",
+      archived: "Archived",
+    },
+  },
+};
+
+export type Lang = "nl" | "en";
+export const dict: Record<Lang, Copy> = { nl, en };
+export const t = nl; // NL shortcut for server code, admin, and authenticated portal
