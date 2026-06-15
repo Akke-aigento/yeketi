@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
+import { t as nlCopy } from "@/lib/copy";
 import logoHorizontalLight from "@/assets/yeketi-logo-horizontal-light.svg.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { sendWelcomeAfterInvite } from "@/lib/email.functions";
@@ -18,8 +19,8 @@ function getResetLinkError() {
 
   if (!authError) return null;
   return authError === "otp_expired"
-    ? t.portal.resetLinkExpired
-    : authDescription?.replace(/\+/g, " ") || t.portal.resetLinkInvalid;
+    ? nlCopy.portal.resetLinkExpired
+    : authDescription?.replace(/\+/g, " ") || nlCopy.portal.resetLinkInvalid;
 }
 
 export const Route = createFileRoute("/reset-password")({
