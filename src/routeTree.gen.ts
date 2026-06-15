@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RecentWerkRouteImport } from './routes/recent-werk'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OverRouteImport } from './routes/over'
@@ -30,6 +31,11 @@ import { Route as AuthenticatedAdminProjectenIdRouteImport } from './routes/_aut
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecentWerkRoute = RecentWerkRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/over': typeof OverRoute
   '/privacy': typeof PrivacyRoute
   '/recent-werk': typeof RecentWerkRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/over': typeof OverRoute
   '/privacy': typeof PrivacyRoute
   '/recent-werk': typeof RecentWerkRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/over': typeof OverRoute
   '/privacy': typeof PrivacyRoute
   '/recent-werk': typeof RecentWerkRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/over'
     | '/privacy'
     | '/recent-werk'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/admin'
     | '/restauratie/vw-t2'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/over'
     | '/privacy'
     | '/recent-werk'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
     | '/admin/klanten'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/over'
     | '/privacy'
     | '/recent-werk'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/restauratie/vw-t2'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   OverRoute: typeof OverRoute
   PrivacyRoute: typeof PrivacyRoute
   RecentWerkRoute: typeof RecentWerkRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   RestauratieVwT2Route: typeof RestauratieVwT2Route
 }
@@ -249,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recent-werk': {
@@ -410,6 +430,7 @@ const rootRouteChildren: RootRouteChildren = {
   OverRoute: OverRoute,
   PrivacyRoute: PrivacyRoute,
   RecentWerkRoute: RecentWerkRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   RestauratieVwT2Route: RestauratieVwT2Route,
 }
