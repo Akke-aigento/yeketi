@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
 import portrait from "@/assets/baraam-portrait.jpg.asset.json";
 import team from "@/assets/workshop-team.jpg";
 
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/over")({
 });
 
 function Over() {
+  const t = useT();
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />

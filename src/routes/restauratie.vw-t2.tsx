@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
 import afterImg from "@/assets/vw-t2-after.jpg";
 import handsImg from "@/assets/craftsman-hands.jpg";
 import teamImg from "@/assets/workshop-team.jpg";
@@ -31,6 +31,7 @@ export const Route = createFileRoute("/restauratie/vw-t2")({
 });
 
 function CaseStudy() {
+  const t = useT();
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />

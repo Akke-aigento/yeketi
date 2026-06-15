@@ -4,7 +4,7 @@ import { z } from "zod";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/offerte")({
@@ -33,6 +33,7 @@ const schema = z.object({
 });
 
 function Offerte() {
+  const t = useT();
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [photoCount, setPhotoCount] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);

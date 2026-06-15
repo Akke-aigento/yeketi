@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
 import heroImg from "@/assets/hero-workshop.jpg";
 import handsImg from "@/assets/craftsman-hands.jpg";
 
@@ -42,6 +42,7 @@ function Index() {
 }
 
 function Hero() {
+  const t = useT();
   return (
     <section className="relative" style={{ background: "var(--cream)" }}>
       <div className="container-edit grid gap-10 lg:grid-cols-12 lg:gap-16" style={{ paddingBlock: "clamp(3rem,8vw,7rem)" }}>
@@ -102,6 +103,7 @@ function Hero() {
 }
 
 function Story() {
+  const t = useT();
   return (
     <section style={{ paddingBlock: "clamp(4rem,9vw,8rem)" }}>
       <div className="container-edit grid gap-12 lg:grid-cols-12 lg:gap-16">
@@ -145,6 +147,7 @@ function Story() {
 }
 
 function Process() {
+  const t = useT();
   return (
     <section style={{ background: "var(--cream-deep)", paddingBlock: "clamp(4rem,9vw,7rem)" }}>
       <div className="container-edit">
@@ -194,6 +197,7 @@ function Process() {
 }
 
 function Why() {
+  const t = useT();
   return (
     <section style={{ paddingBlock: "clamp(4rem,9vw,8rem)" }}>
       <div className="container-edit">
@@ -221,6 +225,7 @@ function Why() {
 }
 
 function Recent() {
+  const t = useT();
   return (
     <section style={{ paddingBlock: "clamp(4rem,9vw,8rem)", borderTop: "1px solid var(--charcoal)" }}>
       <div className="container-edit max-w-3xl">

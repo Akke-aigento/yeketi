@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
 import logoFullDark from "@/assets/yeketi-logo-full-dark.svg.asset.json";
 
 export function SiteFooter() {
+  const t = useT();
   return (
     <footer style={{ background: "var(--charcoal)", color: "var(--cream)" }}>
       <div className="container-edit" style={{ paddingBlock: "4.5rem" }}>

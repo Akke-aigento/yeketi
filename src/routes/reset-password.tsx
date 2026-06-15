@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
 import logoHorizontalLight from "@/assets/yeketi-logo-horizontal-light.svg.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { sendWelcomeAfterInvite } from "@/lib/email.functions";
@@ -33,6 +33,7 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function ResetPassword() {
+  const t = useT();
   const navigate = useNavigate();
   const sendWelcome = useServerFn(sendWelcomeAfterInvite);
   const [ready, setReady] = useState(false);
