@@ -229,6 +229,14 @@
   100% { box-shadow: 0 0 0 0 rgba(176, 131, 44, 0); }
 }
 
+/* Timeline dot — pulse on active, disabled under reduced-motion */
+.timeline-dot { width: 21px; height: 21px; border-radius: 999px; border: 1px solid var(--brass); background: transparent; }
+.timeline-dot.is-done { background: var(--brass); }
+.timeline-dot.is-active { animation: yeketi-pulse 2s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .timeline-dot.is-active { animation: none; box-shadow: 0 0 0 2px rgba(176,131,44,0.45); }
+}
+
 /* Brand-consistent focus ring across all interactive elements */
 @layer base {
   :where(a, button, [role="button"], input, textarea, select, summary, [tabindex]):focus-visible {

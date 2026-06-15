@@ -2,8 +2,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const tabs: { to: "/admin" | "/admin/offertes" | "/admin/klanten"; label: string; exact?: boolean }[] = [
+const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/klanten"; label: string; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
+  { to: "/admin/projecten", label: "Projecten" },
   { to: "/admin/offertes", label: "Offertes" },
   { to: "/admin/klanten", label: "Klanten" },
 ];
