@@ -7,7 +7,8 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const WEBHOOK_SHARED_SECRET = Deno.env.get("WEBHOOK_SHARED_SECRET") ?? "";
 const ADMIN_NOTIFY_EMAIL = Deno.env.get("ADMIN_NOTIFY_EMAIL") ?? "";
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Yeketi Motorworks <onboarding@resend.dev>";
-const PUBLIC_SITE_URL = Deno.env.get("PUBLIC_SITE_URL") ?? "https://yeketi.eu";
+const PUBLIC_SITE_URL = Deno.env.get("PUBLIC_SITE_URL") ?? "https://yeketimotorworks.com";
+const REPLY_TO = Deno.env.get("REPLY_TO_EMAIL") ?? "info@yeketimotorworks.com";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
@@ -18,18 +19,29 @@ function timingSafeEqual(a: string, b: string) {
   return diff === 0;
 }
 
-async function sendEmail(opts: { to: string; subject: string; html: string }) {
+async function sendEmail(opts: { to: string; subject: string; html: string; text?: string }) {
   if (!RESEND_API_KEY) { console.warn("RESEND_API_KEY not set; skipping send"); return; }
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM_EMAIL, to: [opts.to], subject: opts.subject, html: opts.html }),
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: [opts.to],
+      reply_to: REPLY_TO,
+      subject: opts.subject,
+      html: opts.html,
+      text: opts.text,
+    }),
   });
   if (!res.ok) {
     const text = await res.text();
     console.error("Resend error", res.status, text);
     throw new Error(`Resend ${res.status}: ${text}`);
   }
+}
+
+function stripHtml(html: string) {
+  return html.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\n{3,}/g, "\n\n").trim();
 }
 
 function emailTemplate(opts: { headline: string; intro: string; ctaLabel: string; ctaUrl: string }) {
@@ -51,11 +63,15 @@ function emailTemplate(opts: { headline: string; intro: string; ctaLabel: string
           <a href="${opts.ctaUrl}" style="display:inline-block;background:#B0832C;color:#F7F3EC;text-decoration:none;padding:14px 26px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;border:1px solid #B0832C;">${opts.ctaLabel}</a>
         </td></tr>
         <tr><td style="padding:18px 28px 24px;border-top:1px solid #EFE8DB;">
-          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#4A453E;letter-spacing:0.04em;">Yeketi Motorworks · Antwerpen · Erbil<br/><em style="font-family:Georgia,'Times New Roman',serif;color:#B0832C;">unity in craftsmanship</em></p>
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#4A453E;letter-spacing:0.04em;">Yeketi Motorworks · Antwerpen · Erbil<br/>Je ontvangt deze mail omdat je een lopend project of aanvraag hebt bij Yeketi Motorworks. Antwoord gerust op deze mail — die komt rechtstreeks bij ons binnen via ${REPLY_TO}.<br/><em style="font-family:Georgia,'Times New Roman',serif;color:#B0832C;">unity in craftsmanship</em></p>
         </td></tr>
       </table>
     </td></tr>
   </table></body></html>`;
+}
+
+function plainText(opts: { headline: string; intro: string; ctaLabel: string; ctaUrl: string }) {
+  return `${opts.headline}\n\n${stripHtml(opts.intro)}\n\n${opts.ctaLabel}: ${opts.ctaUrl}\n\n— Yeketi Motorworks · Antwerpen · Erbil\nAntwoord op deze mail komt binnen bij ${REPLY_TO}.`;
 }
 
 async function sbFetch(path: string) {
@@ -102,12 +118,15 @@ Deno.serve(async (req) => {
       await sendEmail({
         to: profile.email,
         subject: `Nieuwe update: ${vehicle}`,
-        html: emailTemplate({
-          headline: `Een nieuwe update voor je ${vehicle}`,
-          intro: `${profile.full_name ? `Hoi ${String(profile.full_name).split(" ")[0]}, ` : ""}er staat een nieuwe update klaar in het klantenportaal (fase: ${phase.name}).${preview ? `<br/><br/><em style="color:#4A453E;">${preview.replace(/</g, "&lt;")}</em>` : ""}`,
-          ctaLabel: "Bekijk de update",
-          ctaUrl: projectUrl,
-        }),
+        ...(() => {
+          const tpl = {
+            headline: `Een nieuwe update voor je ${vehicle}`,
+            intro: `${profile.full_name ? `Hoi ${String(profile.full_name).split(" ")[0]}, ` : ""}er staat een nieuwe update klaar in het klantenportaal (fase: ${phase.name}).${preview ? `<br/><br/><em style="color:#4A453E;">${preview.replace(/</g, "&lt;")}</em>` : ""}`,
+            ctaLabel: "Bekijk de update",
+            ctaUrl: projectUrl,
+          };
+          return { html: emailTemplate(tpl), text: plainText(tpl) };
+        })(),
       });
     }
 
@@ -130,12 +149,19 @@ Deno.serve(async (req) => {
       await sendEmail({
         to: ADMIN_NOTIFY_EMAIL,
         subject: `Nieuwe offerteaanvraag — ${vehicle} (${r.naam})`,
-        html: emailTemplate({
-          headline: `Nieuwe aanvraag van ${r.naam}`,
-          intro: `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${detailsHtml}</table>`,
-          ctaLabel: "Open in admin",
-          ctaUrl: `${PUBLIC_SITE_URL}/admin/offertes`,
-        }),
+        ...(() => {
+          const tpl = {
+            headline: `Nieuwe aanvraag van ${r.naam}`,
+            intro: `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${detailsHtml}</table>`,
+            ctaLabel: "Open in admin",
+            ctaUrl: `${PUBLIC_SITE_URL}/admin/offertes`,
+          };
+          const textBody = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
+          return {
+            html: emailTemplate(tpl),
+            text: `Nieuwe aanvraag van ${r.naam}\n\n${textBody}\n\nOpen in admin: ${PUBLIC_SITE_URL}/admin/offertes`,
+          };
+        })(),
       });
     }
 
