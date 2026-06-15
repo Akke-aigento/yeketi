@@ -2,15 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { SiteLogo } from "./SiteLogo";
-import { LanguageToggle, useLang, useT } from "@/lib/i18n";
+import { LanguageToggle, useT } from "@/lib/i18n";
 
 export function SiteNav() {
   const t = useT();
-  const { lang } = useLang();
   const links = [
     { to: "/diensten", label: t.nav.diensten },
     { to: "/restauratie/vw-t2", label: t.nav.restauratie },
-    { to: "/recent-werk", label: lang === "en" ? "Recent work" : "Recent werk" },
+    { to: "/recent-werk", label: t.nav.recent },
     { to: "/over", label: t.nav.over },
     { to: "/offerte", label: t.nav.offerte },
   ] as const;
@@ -36,7 +35,7 @@ export function SiteNav() {
         <div className="lg:contents flex justify-center col-start-2">
           <SiteLogo />
         </div>
-        <nav className="hidden lg:flex items-center gap-7 xl:gap-9" aria-label="Hoofdnavigatie">
+        <nav className="hidden lg:flex items-center gap-7 xl:gap-9" aria-label={t.nav.aria}>
           {links.map((l) => (
             <Link
               key={l.to}
@@ -55,7 +54,7 @@ export function SiteNav() {
         </div>
         <button
           className="lg:hidden p-2 -mr-2 col-start-3 justify-self-end"
-          aria-label={open ? "Menu sluiten" : "Menu openen"}
+          aria-label={open ? t.nav.menuClose : t.nav.menuOpen}
           onClick={() => setOpen((v) => !v)}
           style={{ color: "var(--charcoal)" }}
         >

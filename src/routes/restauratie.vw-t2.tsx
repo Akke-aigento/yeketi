@@ -115,7 +115,7 @@ function CaseStudy() {
                 “{t.caseT2.closing}”
               </p>
               <div className="mt-10">
-                <Link to="/offerte" className="btn-y-ghost-cream">Start uw restauratie</Link>
+                <Link to="/offerte" className="btn-y-ghost-cream">{t.caseT2.cta}</Link>
               </div>
             </ScrollReveal>
           </div>

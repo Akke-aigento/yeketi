@@ -61,7 +61,7 @@ function Offerte() {
       beschrijving: fd.get("beschrijving"),
     });
     if (!parsed.success) {
-      setErrorMsg("Controleer de ingevulde gegevens.");
+      setErrorMsg(t.offerte.checkFields);
       return;
     }
 
@@ -71,10 +71,10 @@ function Offerte() {
       const foto_urls: string[] = [];
       for (const f of files) {
         if (!f.type.startsWith("image/")) {
-          throw new Error("Alleen afbeeldingen toegestaan.");
+          throw new Error(t.offerte.onlyImages);
         }
         if (f.size > 8 * 1024 * 1024) {
-          throw new Error("Een foto is groter dan 8MB.");
+          throw new Error(t.offerte.photoTooLarge);
         }
         const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
         const path = `${submissionPrefix}/${Date.now()}-${safe}`;
@@ -131,7 +131,7 @@ function Offerte() {
                 <p className="mt-4" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
                   {t.offerte.success.body}
                 </p>
-                <Link to="/" className="btn-y mt-8 inline-flex">Terug naar home</Link>
+                <Link to="/" className="btn-y mt-8 inline-flex">{t.offerte.back}</Link>
               </div>
             </ScrollReveal>
           ) : (
@@ -175,7 +175,7 @@ function Offerte() {
                   rows={5}
                   className="field-y"
                   style={{ borderBottom: "1px solid var(--charcoal)", resize: "vertical" }}
-                  placeholder="Wat wenst u te laten doen? Eventuele zorgpunten of bijzonderheden…"
+                  placeholder={t.offerte.descriptionPlaceholder}
                 />
               </div>
 
@@ -192,7 +192,7 @@ function Offerte() {
                   style={{ paddingBlock: "0.5rem", color: "var(--charcoal-soft)" }}
                 />
                 <p className="mt-2 text-xs" style={{ color: "var(--charcoal-soft)" }}>
-                  {photoCount > 0 ? `${photoCount} foto('s) gekozen.` : "Optioneel — helpt ons een snellere inschatting te maken."}
+                  {photoCount > 0 ? t.offerte.photosChosen(photoCount) : t.offerte.photosOptional}
                 </p>
               </div>
 

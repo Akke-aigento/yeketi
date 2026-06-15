@@ -7,9 +7,13 @@ export const nl = {
     home: "Home",
     diensten: "Diensten",
     restauratie: "Restauratie",
+    recent: "Recent werk",
     over: "Over ons",
     offerte: "Offerte",
     portal: "Klantenportaal",
+    aria: "Hoofdnavigatie",
+    menuOpen: "Menu openen",
+    menuClose: "Menu sluiten",
   },
   hero: {
     eyebrow: "Klassiekers — restauratie & plaatwerk",
@@ -74,6 +78,15 @@ export const nl = {
     instagram: "Instagram",
     rights: "© 2026 Yeketi Motorworks",
     kvk: "BTW BE 0694.858.510",
+    contactTitle: "Contact",
+    companyTitle: "Bedrijf",
+    links: {
+      diensten: "Diensten",
+      over: "Over ons",
+      offerte: "Offerte",
+      portal: "Klantenportaal",
+      privacy: "Privacy & cookies",
+    },
   },
   diensten: {
     eyebrow: "Diensten",
@@ -126,6 +139,7 @@ export const nl = {
     ],
     closing:
       "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
+    cta: "Start uw restauratie",
   },
   over: {
     eyebrow: "Over Yeketi",
@@ -165,6 +179,13 @@ export const nl = {
     },
     error: "Er ging iets mis bij het versturen. Probeer het opnieuw of stuur een e-mail naar hallo@yeketi.eu.",
     photoTooMany: "Maximaal vijf foto's.",
+    back: "Terug naar home",
+    descriptionPlaceholder: "Wat wenst u te laten doen? Eventuele zorgpunten of bijzonderheden…",
+    photosOptional: "Optioneel — helpt ons een snellere inschatting te maken.",
+    photosChosen: (n: number) => `${n} foto('s) gekozen.`,
+    onlyImages: "Alleen afbeeldingen toegestaan.",
+    photoTooLarge: "Een foto is groter dan 8MB.",
+    checkFields: "Controleer de ingevulde gegevens.",
   },
   login: {
     title: "Klantenportaal",
@@ -200,6 +221,8 @@ export const nl = {
     rateLimited: "Je hebt net al een link opgevraagd. Controleer je mailbox of probeer over een paar minuten opnieuw.",
     showPassword: "Toon wachtwoord",
     hidePassword: "Verberg wachtwoord",
+    showShort: "Toon",
+    hideShort: "Verberg",
     inviteWelcomeTitle: "Welkom — stel je wachtwoord in",
     inviteWelcomeBody: "Kies een wachtwoord om je toegang tot het klantenportaal te activeren.",
     settingPasswordFor: "Je stelt een wachtwoord in voor",
@@ -224,6 +247,66 @@ export const nl = {
       archived: "Gearchiveerd",
     },
   },
+  recentWerk: {
+    eyebrow: "Recente restauratie",
+    title: "Recent werk.",
+    intro: "Elke restauratie krijgt hier zijn eigen verhaal. We beginnen bij het allereerste project — en bouwen verder, oldtimer per oldtimer.",
+    projectLabel: "Project 01 · 2024",
+    projectTitle: "VW T2 Westfalia — van schuurvondst tot bergpas.",
+    projectBody:
+      "Een originele Westfalia camper, binnengebracht met sporen van jarenlang stilstaan. Focus lag op plaatwerk, slaapdak en exterieur — techniek en interieur bleven in deze fase buiten beschouwing. Hieronder de chronologie, van eerste inspectie tot eerste rit door de bergen.",
+    monthMay: "Mei 2024",
+    monthJun: "Juni 2024",
+    shots: {
+      aankomst: { alt: "VW T2 Westfalia bij aankomst, achterklep open", caption: "Aankomst — Baram en de eigenaar overlopen de staat van de bus." },
+      inventaris: { alt: "VW T2 Westfalia vooraanzicht in tweekleurige originele lak", caption: "Inventaris — alle originele delen blijven behouden waar het kan." },
+      slaapdak: { alt: "VW T2 Westfalia zijaanzicht met opgeklapt slaapdak", caption: "Slaapdak opgemeten, kap en scharnieren grondig nagekeken." },
+      ontmanteling: { alt: "VW T2 ontdaan van rubbers en ramen, klaar voor schuurwerk", caption: "Ontmanteling — rubbers, ramen en sierlijsten gaan eruit voor het plaatwerk." },
+      plamuur: { alt: "VW T2 in plamuur, gemaskeerd voor spuitwerk", caption: "Plamuur en schuurwerk — laag per laag tot het oppervlak weer strak is." },
+      eindcontrole: { alt: "Baram Maro en klant bij de afgewerkte VW T2 Westfalia", caption: "Eindcontrole — Baram tekent pas af als élk detail klopt." },
+      onderweg: { alt: "Gerestaureerde VW T2 Westfalia in een bergachtig landschap", caption: "Onderweg — de bus rijdt weer waar hij thuishoort." },
+    },
+    comingSoonLabel: "Project 02 · binnenkort",
+    comingSoonBody:
+      "De volgende klassieker staat al in de werkplaats. Foto's en verhaal volgen zodra het werk vordert.",
+  },
+  privacy: {
+    eyebrow: "Juridisch",
+    title: "Privacy & cookies",
+    lastUpdate:
+      "Laatste update: juni 2026. Deze verklaring is een plaatsing — definitieve juridische tekst wordt toegevoegd na controle door Nomadix BV.",
+    sections: {
+      responsibleTitle: "Verantwoordelijke",
+      responsibleAddr: "Vredeplein 23, 3010 Kessel-Lo, België",
+      responsibleVat: "BTW BE 0694.858.510",
+      contactLabel: "Contact:",
+      dataTitle: "Welke gegevens verzamelen wij",
+      dataItems: [
+        "Contactgegevens die je zelf invult via het offerteformulier (naam, e-mail, telefoon).",
+        "Voertuiggegevens en foto's die je ons toestuurt voor een inschatting of restauratie.",
+        "Inloggegevens van het klantenportaal (e-mailadres voor magic-link login).",
+      ],
+      useTitle: "Waarvoor gebruiken wij ze",
+      useBody:
+        "Uitsluitend om je offerteaanvraag te beantwoorden, je restauratie voor te bereiden en uit te voeren, en om je via het portaal en e-mail op de hoogte te houden van de voortgang.",
+      cookiesTitle: "Cookies",
+      cookiesBody:
+        "Wij gebruiken alleen functionele cookies die noodzakelijk zijn voor het inloggen op het klantenportaal. Geen tracking, geen advertentiecookies, geen analytics van derden.",
+      retentionTitle: "Bewaartermijn",
+      retentionBody:
+        "Offerteaanvragen worden 24 maanden bewaard. Project- en restauratiedossiers worden zolang bewaard als de wettelijke administratieplicht vereist (7 jaar).",
+      rightsTitle: "Jouw rechten",
+      rightsBefore: "Je hebt recht op inzage, correctie en verwijdering van je gegevens. Stuur een e-mail naar ",
+      rightsAfter: " en we reageren binnen 30 dagen.",
+    },
+    back: "Terug naar home",
+  },
+  notFound: {
+    eyebrow: "404",
+    title: "Deze weg loopt dood — maar elke klassieker verdient een tweede kans.",
+    body: "De pagina die je zocht bestaat niet (meer). Keer terug naar de werkplaats.",
+    cta: "Terug naar home",
+  },
 };
 
 export type Copy = typeof nl;
@@ -234,9 +317,13 @@ export const en: Copy = {
     home: "Home",
     diensten: "Services",
     restauratie: "Restoration",
+    recent: "Recent work",
     over: "About",
     offerte: "Quote",
     portal: "Client portal",
+    aria: "Main navigation",
+    menuOpen: "Open menu",
+    menuClose: "Close menu",
   },
   hero: {
     eyebrow: "Classics — restoration & bodywork",
@@ -292,6 +379,15 @@ export const en: Copy = {
     instagram: "Instagram",
     rights: "© 2026 Yeketi Motorworks",
     kvk: "VAT BE 0694.858.510",
+    contactTitle: "Contact",
+    companyTitle: "Company",
+    links: {
+      diensten: "Services",
+      over: "About",
+      offerte: "Quote",
+      portal: "Client portal",
+      privacy: "Privacy & cookies",
+    },
   },
   diensten: {
     eyebrow: "Services",
@@ -344,6 +440,7 @@ export const en: Copy = {
     ],
     closing:
       "Restoration is not an attempt to turn back time. It is a promise that the story may continue.",
+    cta: "Start your restoration",
   },
   over: {
     eyebrow: "About Yeketi",
@@ -383,6 +480,13 @@ export const en: Copy = {
     },
     error: "Something went wrong while sending. Please try again or email hallo@yeketi.eu.",
     photoTooMany: "Maximum five photos.",
+    back: "Back to home",
+    descriptionPlaceholder: "What would you like done? Any concerns or details to flag…",
+    photosOptional: "Optional — helps us give you a quicker estimate.",
+    photosChosen: (n: number) => `${n} photo${n === 1 ? "" : "s"} selected.`,
+    onlyImages: "Images only.",
+    photoTooLarge: "One of the photos is larger than 8MB.",
+    checkFields: "Please check the details you entered.",
   },
   login: {
     title: "Client portal",
@@ -418,6 +522,8 @@ export const en: Copy = {
     rateLimited: "You've just requested a link. Check your inbox or try again in a few minutes.",
     showPassword: "Show password",
     hidePassword: "Hide password",
+    showShort: "Show",
+    hideShort: "Hide",
     inviteWelcomeTitle: "Welcome — set your password",
     inviteWelcomeBody: "Choose a password to activate your access to the client portal.",
     settingPasswordFor: "You're setting a password for",
@@ -441,6 +547,66 @@ export const en: Copy = {
       delivered: "Delivered",
       archived: "Archived",
     },
+  },
+  recentWerk: {
+    eyebrow: "Recent restoration",
+    title: "Recent work.",
+    intro: "Each restoration gets its own story here. We start with the very first project — and build out from there, classic by classic.",
+    projectLabel: "Project 01 · 2024",
+    projectTitle: "VW T2 Westfalia — from barn find to mountain pass.",
+    projectBody:
+      "An original Westfalia camper, brought in with the marks of years of standing still. The focus was on bodywork, pop-top roof and exterior — mechanics and interior stayed out of scope at this stage. Below the chronology, from first inspection to first drive through the mountains.",
+    monthMay: "May 2024",
+    monthJun: "June 2024",
+    shots: {
+      aankomst: { alt: "VW T2 Westfalia on arrival, rear hatch open", caption: "Arrival — Baram and the owner walk through the state of the bus." },
+      inventaris: { alt: "VW T2 Westfalia front view in original two-tone paint", caption: "Inventory — all original parts kept wherever possible." },
+      slaapdak: { alt: "VW T2 Westfalia side view with pop-top roof raised", caption: "Pop-top measured, canvas and hinges thoroughly checked." },
+      ontmanteling: { alt: "VW T2 stripped of rubbers and windows, ready for sanding", caption: "Stripping — rubbers, windows and trim come off before the bodywork begins." },
+      plamuur: { alt: "VW T2 in filler, masked for spraying", caption: "Filler and sanding — layer by layer until the surface is straight again." },
+      eindcontrole: { alt: "Baram Maro and client beside the finished VW T2 Westfalia", caption: "Final check — Baram only signs off when every detail is right." },
+      onderweg: { alt: "Restored VW T2 Westfalia in a mountainous landscape", caption: "On the road — the bus drives again where it belongs." },
+    },
+    comingSoonLabel: "Project 02 · coming soon",
+    comingSoonBody:
+      "The next classic is already in the workshop. Photos and story will follow as the work progresses.",
+  },
+  privacy: {
+    eyebrow: "Legal",
+    title: "Privacy & cookies",
+    lastUpdate:
+      "Last update: June 2026. This statement is a placeholder — final legal text will be added after review by Nomadix BV.",
+    sections: {
+      responsibleTitle: "Data controller",
+      responsibleAddr: "Vredeplein 23, 3010 Kessel-Lo, Belgium",
+      responsibleVat: "VAT BE 0694.858.510",
+      contactLabel: "Contact:",
+      dataTitle: "What data we collect",
+      dataItems: [
+        "Contact details you fill in yourself via the quote form (name, email, phone).",
+        "Vehicle details and photos you send us for an estimate or restoration.",
+        "Login details for the client portal (email address for magic-link login).",
+      ],
+      useTitle: "What we use them for",
+      useBody:
+        "Strictly to answer your quote request, to prepare and carry out your restoration, and to keep you informed of progress via the portal and email.",
+      cookiesTitle: "Cookies",
+      cookiesBody:
+        "We only use functional cookies needed to sign in to the client portal. No tracking, no advertising cookies, no third-party analytics.",
+      retentionTitle: "Retention",
+      retentionBody:
+        "Quote requests are kept for 24 months. Project and restoration files are kept for as long as the legal record-keeping obligation requires (7 years).",
+      rightsTitle: "Your rights",
+      rightsBefore: "You have the right to access, correct and delete your data. Send an email to ",
+      rightsAfter: " and we'll respond within 30 days.",
+    },
+    back: "Back to home",
+  },
+  notFound: {
+    eyebrow: "404",
+    title: "This road's a dead end — but every classic deserves a second chance.",
+    body: "The page you were looking for doesn't exist (any more). Head back to the workshop.",
+    cta: "Back to home",
   },
 };
 

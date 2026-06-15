@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -18,77 +19,67 @@ export const Route = createFileRoute("/privacy")({
 });
 
 function Privacy() {
+  const t = useT();
+  const s = t.privacy.sections;
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
       <main className="flex-1">
         <section className="container-edit" style={{ paddingBlock: "clamp(3.5rem,7vw,6rem)", maxWidth: "780px" }}>
           <ScrollReveal>
-            <p className="eyebrow">Juridisch</p>
+            <p className="eyebrow">{t.privacy.eyebrow}</p>
             <h1 className="mt-5" style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)" }}>
-              Privacy &amp; cookies
+              {t.privacy.title}
             </h1>
             <p className="mt-6" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
-              Laatste update: juni 2026. Deze verklaring is een plaatsing — definitieve juridische tekst wordt
-              toegevoegd na controle door Nomadix BV.
+              {t.privacy.lastUpdate}
             </p>
           </ScrollReveal>
 
           <div className="mt-12 space-y-10" style={{ color: "var(--charcoal-soft)", lineHeight: 1.75 }}>
             <ScrollReveal>
-              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>Verantwoordelijke</h2>
+              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>{s.responsibleTitle}</h2>
               <p className="mt-3">
-                Yeketi Motorworks — <strong>Baram Maaruf</strong><br />
-                Vredeplein 23, 3010 Kessel-Lo, België<br />
-                BTW BE 0694.858.510<br />
-                Contact: <a href="mailto:info@yeketimotorworks.com" style={{ color: "var(--brass)" }}>info@yeketimotorworks.com</a>
+                Yeketi Motorworks — <strong>Baram Maro</strong><br />
+                {s.responsibleAddr}<br />
+                {s.responsibleVat}<br />
+                {s.contactLabel} <a href="mailto:info@yeketimotorworks.com" style={{ color: "var(--brass)" }}>info@yeketimotorworks.com</a>
               </p>
             </ScrollReveal>
 
             <ScrollReveal>
-              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>Welke gegevens verzamelen wij</h2>
+              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>{s.dataTitle}</h2>
               <ul className="mt-3 list-disc pl-5 space-y-2">
-                <li>Contactgegevens die je zelf invult via het offerteformulier (naam, e-mail, telefoon).</li>
-                <li>Voertuiggegevens en foto&apos;s die je ons toestuurt voor een inschatting of restauratie.</li>
-                <li>Inloggegevens van het klantenportaal (e-mailadres voor magic-link login).</li>
+                {s.dataItems.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
             </ScrollReveal>
 
             <ScrollReveal>
-              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>Waarvoor gebruiken wij ze</h2>
-              <p className="mt-3">
-                Uitsluitend om je offerteaanvraag te beantwoorden, je restauratie voor te bereiden en uit te voeren,
-                en om je via het portaal en e-mail op de hoogte te houden van de voortgang.
-              </p>
+              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>{s.useTitle}</h2>
+              <p className="mt-3">{s.useBody}</p>
             </ScrollReveal>
 
             <ScrollReveal>
-              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>Cookies</h2>
-              <p className="mt-3">
-                Wij gebruiken alleen functionele cookies die noodzakelijk zijn voor het inloggen op het
-                klantenportaal. Geen tracking, geen advertentiecookies, geen analytics van derden.
-              </p>
+              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>{s.cookiesTitle}</h2>
+              <p className="mt-3">{s.cookiesBody}</p>
             </ScrollReveal>
 
             <ScrollReveal>
-              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>Bewaartermijn</h2>
-              <p className="mt-3">
-                Offerteaanvragen worden 24 maanden bewaard. Project- en restauratiedossiers worden zolang bewaard
-                als de wettelijke administratieplicht vereist (7 jaar).
-              </p>
+              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>{s.retentionTitle}</h2>
+              <p className="mt-3">{s.retentionBody}</p>
             </ScrollReveal>
 
             <ScrollReveal>
-              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>Jouw rechten</h2>
+              <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>{s.rightsTitle}</h2>
               <p className="mt-3">
-                Je hebt recht op inzage, correctie en verwijdering van je gegevens. Stuur een e-mail naar
-                {" "}<a href="mailto:info@yeketimotorworks.com" style={{ color: "var(--brass)" }}>info@yeketimotorworks.com</a>
-                {" "}en we reageren binnen 30 dagen.
+                {s.rightsBefore}
+                <a href="mailto:info@yeketimotorworks.com" style={{ color: "var(--brass)" }}>info@yeketimotorworks.com</a>
+                {s.rightsAfter}
               </p>
             </ScrollReveal>
 
             <div className="pt-6">
-              <Link to="/" className="btn-y">Terug naar home</Link>
+              <Link to="/" className="btn-y">{t.privacy.back}</Link>
             </div>
           </div>
         </section>
