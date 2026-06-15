@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useLang } from "@/lib/i18n";
 
 const KEY = "yeketi.cookie.ack.v1";
 
 export function CookieBanner() {
   const [show, setShow] = useState(false);
+  const { lang } = useLang();
 
   useEffect(() => {
     try {
@@ -33,21 +35,26 @@ export function CookieBanner() {
         border: "1px solid color-mix(in oklab, var(--gold) 35%, transparent)",
       }}
     >
-      <p className="text-sm leading-relaxed" style={{ color: "var(--cream)" }}>
-        Wij gebruiken alleen functionele cookies — nodig om in te loggen op het klantenportaal.
-        Geen tracking, geen advertenties.{" "}
-        <Link to="/privacy" className="underline" style={{ color: "var(--gold)" }}>
-          Lees meer
-        </Link>
-        .
-      </p>
+      {lang === "en" ? (
+        <p className="text-sm leading-relaxed" style={{ color: "var(--cream)" }}>
+          We only use functional cookies — needed to sign in to the client portal.
+          No tracking, no advertising.{" "}
+          <Link to="/privacy" className="underline" style={{ color: "var(--gold)" }}>Read more</Link>.
+        </p>
+      ) : (
+        <p className="text-sm leading-relaxed" style={{ color: "var(--cream)" }}>
+          Wij gebruiken alleen functionele cookies — nodig om in te loggen op het klantenportaal.
+          Geen tracking, geen advertenties.{" "}
+          <Link to="/privacy" className="underline" style={{ color: "var(--gold)" }}>Lees meer</Link>.
+        </p>
+      )}
       <button
         type="button"
         onClick={accept}
         className="btn-y-solid shrink-0"
         style={{ alignSelf: "flex-start" }}
       >
-        Begrepen
+        {lang === "en" ? "Got it" : "Begrepen"}
       </button>
     </div>
   );
