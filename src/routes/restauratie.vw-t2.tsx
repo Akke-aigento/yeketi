@@ -3,26 +3,36 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
-import afterImg from "@/assets/vw-t2-after.jpg";
-import handsImg from "@/assets/craftsman-hands.jpg";
-import teamImg from "@/assets/workshop-team.jpg";
-import heroImg from "@/assets/hero-workshop.jpg";
-import arrivalImg from "@/assets/oldtimer-arrival.jpg";
-import interiorImg from "@/assets/oldtimer-interior.jpg";
-import deliveryImg from "@/assets/oldtimer-delivery.jpg";
+import arrivalAsset from "@/assets/projects/vw-t2/t2-01-aankomst.jpg.asset.json";
+import inspectionAsset from "@/assets/projects/vw-t2/t2-03-inspectie-voor.jpg.asset.json";
+import strippenAsset from "@/assets/projects/vw-t2/t2-04-strippen.jpg.asset.json";
+import plamuurAsset from "@/assets/projects/vw-t2/t2-05-plamuur.jpg.asset.json";
+import trotsAsset from "@/assets/projects/vw-t2/t2-06-baraam-trots.jpg.asset.json";
+import eindcontroleAsset from "@/assets/projects/vw-t2/t2-06-eindcontrole-klant.jpg.asset.json";
+import onderwegAsset from "@/assets/projects/vw-t2/t2-07-onderweg.jpg.asset.json";
 
-const chapterImages = [arrivalImg, handsImg, teamImg, heroImg, interiorImg, deliveryImg];
+const chapterImages = [
+  arrivalAsset.url,
+  strippenAsset.url,
+  plamuurAsset.url,
+  trotsAsset.url,
+  eindcontroleAsset.url,
+  onderwegAsset.url,
+];
+const ogImage = onderwegAsset.url;
+// referenced to keep import used as a meaningful asset alias
+void inspectionAsset;
 
 export const Route = createFileRoute("/restauratie/vw-t2")({
   head: () => ({
     meta: [
       { title: "Restauratie — onze werkwijze · Yeketi Motorworks" },
-      { name: "description", content: "Van aankomst tot aflevering: hoe wij een klassieker in negen maanden terugbrengen in originele staat." },
+      { name: "description", content: "Van aankomst tot aflevering: hoe wij een klassieker in ongeveer drie maanden terugbrengen in originele staat — parallel werk in gespecialiseerde werkplaatsen." },
       { property: "og:title", content: "Restauratie — onze werkwijze" },
       { property: "og:description", content: "Chronologisch verslag van een volledige oldtimer-restauratie." },
       { property: "og:type", content: "article" },
-      { property: "og:image", content: afterImg },
-      { name: "twitter:image", content: afterImg },
+      { property: "og:image", content: ogImage },
+      { name: "twitter:image", content: ogImage },
       { property: "og:url", content: "https://yeketimotorworks.com/restauratie/vw-t2" },
     ],
     links: [{ rel: "canonical", href: "https://yeketimotorworks.com/restauratie/vw-t2" }],
@@ -50,7 +60,7 @@ function CaseStudy() {
 
         <section className="container-edit" style={{ paddingBlock: "clamp(4rem,8vw,7rem)" }}>
           <div className="grid lg:grid-cols-12 gap-10">
-            {/* timeline rail */}
+            {/* phase rail */}
             <aside className="hidden lg:block lg:col-span-1 relative">
               <div className="sticky top-28">
                 <div
@@ -66,7 +76,7 @@ function CaseStudy() {
                   className="eyebrow rotate-90 origin-top-left whitespace-nowrap"
                   style={{ transformOrigin: "0 0", marginTop: "-180px", marginLeft: "30px", color: "var(--brass)" }}
                 >
-                  Maand 1 — Maand 9
+                  Fase 01 — Fase 06
                 </p>
               </div>
             </aside>
