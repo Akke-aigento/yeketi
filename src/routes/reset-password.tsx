@@ -20,11 +20,28 @@ export const Route = createFileRoute("/reset-password")({
 function ResetPassword() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const currentUrl = typeof window !== "undefined" ? new URL(window.location.href) : null;
+    const hashParams = new URLSearchParams(currentUrl?.hash.replace(/^#/, "") ?? "");
+    const searchParams = currentUrl?.searchParams ?? new URLSearchParams();
+    const authError = hashParams.get("error_code") || searchParams.get("error_code");
+    const authDescription = hashParams.get("error_description") || searchParams.get("error_description");
+
+    if (authError) {
+      setLinkError(
+        authError === "otp_expired"
+          ? t.portal.resetLinkExpired
+          : authDescription?.replace(/\+/g, " ") || t.portal.resetLinkInvalid,
+      );
+      setReady(false);
+      return;
+    }
+
     // Supabase parses the recovery token from the URL hash and emits PASSWORD_RECOVERY.
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
@@ -75,6 +92,13 @@ function ResetPassword() {
                 <p className="mt-10 text-center" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
                   {t.portal.newPasswordSaved}
                 </p>
+              ) : linkError ? (
+                <div className="mt-10 text-center">
+                  <p style={{ color: "var(--oxide)", lineHeight: 1.7 }}>{linkError}</p>
+                  <Link to="/login" className="btn-y-solid mt-8 w-full">
+                    {t.portal.requestNewResetLink}
+                  </Link>
+                </div>
               ) : (
                 <form onSubmit={onSubmit} className="mt-10">
                   <label htmlFor="password" className="eyebrow block" style={{ color: "var(--charcoal-soft)" }}>
