@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.owns_project(uuid, uuid) TO authenticated;
