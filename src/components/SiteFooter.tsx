@@ -23,12 +23,12 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-2 text-sm" style={{ color: "var(--cream)" }}>
               <li>{t.footer.contact}</li>
               <li>
-                <a href={`mailto:${t.footer.email}`} className="hover:text-[var(--gold)] transition-colors">
-                  {t.footer.email}
+                <a href="mailto:info@yeketimotorworks.com" className="hover:text-[var(--gold)] transition-colors">
+                  info@yeketimotorworks.com
                 </a>
               </li>
               <li>
-                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-[var(--gold)] transition-colors">
+                <a href="https://www.instagram.com/barammaro?utm_source=qr&igsh=N3FsNzNuNG1wZGVk" target="_blank" rel="noreferrer" className="hover:text-[var(--gold)] transition-colors">
                   {t.footer.instagram}
                 </a>
               </li>
