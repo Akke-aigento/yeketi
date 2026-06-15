@@ -301,6 +301,12 @@ export const nl = {
     },
     back: "Terug naar home",
   },
+  notFound: {
+    eyebrow: "404",
+    title: "Deze weg loopt dood — maar elke klassieker verdient een tweede kans.",
+    body: "De pagina die je zocht bestaat niet (meer). Keer terug naar de werkplaats.",
+    cta: "Terug naar home",
+  },
 };
 
 export type Copy = typeof nl;
@@ -595,6 +601,12 @@ export const en: Copy = {
       rightsAfter: " and we'll respond within 30 days.",
     },
     back: "Back to home",
+  },
+  notFound: {
+    eyebrow: "404",
+    title: "This road's a dead end — but every classic deserves a second chance.",
+    body: "The page you were looking for doesn't exist (any more). Head back to the workshop.",
+    cta: "Back to home",
   },
 };
 

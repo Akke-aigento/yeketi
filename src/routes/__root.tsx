@@ -12,28 +12,29 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CookieBanner } from "../components/CookieBanner";
-import { LangProvider } from "../lib/i18n";
+import { LangProvider, useT } from "../lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
+  const t = useT();
   return (
     <div
       className="flex min-h-screen items-center justify-center px-6"
       style={{ background: "var(--cream, #F7F3EC)", color: "var(--charcoal, #221F1B)" }}
     >
       <div className="max-w-xl text-center">
-        <p className="eyebrow" style={{ color: "var(--brass, #B08D57)" }}>404</p>
+        <p className="eyebrow" style={{ color: "var(--brass, #B08D57)" }}>{t.notFound.eyebrow}</p>
         <h1
           className="mt-5"
           style={{ fontFamily: "var(--font-display, 'Marcellus', serif)", fontSize: "clamp(1.8rem,3.6vw,2.8rem)", lineHeight: 1.15 }}
         >
-          Deze weg loopt dood — maar elke klassieker verdient een tweede kans.
+          {t.notFound.title}
         </h1>
         <p className="mt-6" style={{ color: "var(--charcoal-soft, #4A463F)", lineHeight: 1.7 }}>
-          De pagina die je zocht bestaat niet (meer). Keer terug naar de werkplaats.
+          {t.notFound.body}
         </p>
         <div className="mt-10">
-          <Link to="/" className="btn-y-solid">Terug naar home</Link>
+          <Link to="/" className="btn-y-solid">{t.notFound.cta}</Link>
         </div>
       </div>
     </div>
@@ -131,7 +132,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           priceRange: "€€€",
           areaServed: ["NL", "BE", "DE", "LU", "FR"],
           sameAs: ["https://instagram.com/yeketimotorworks"],
-          founder: { "@type": "Person", name: "Baram Maaruf" },
+          founder: { "@type": "Person", name: "Baram Maro" },
           vatID: "BE0694858510",
           address: {
             "@type": "PostalAddress",
