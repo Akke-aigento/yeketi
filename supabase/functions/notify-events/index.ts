@@ -4,7 +4,6 @@
 // the DB webhook fires without a JWT.
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const WEBHOOK_SHARED_SECRET = Deno.env.get("WEBHOOK_SHARED_SECRET") ?? "";
 const ADMIN_NOTIFY_EMAIL = Deno.env.get("ADMIN_NOTIFY_EMAIL") ?? "";
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Yeketi Motorworks <onboarding@resend.dev>";
 const PUBLIC_SITE_URL = Deno.env.get("PUBLIC_SITE_URL") ?? "https://yeketimotorworks.com";
@@ -12,11 +11,27 @@ const REPLY_TO = Deno.env.get("REPLY_TO_EMAIL") ?? "info@yeketimotorworks.com";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-function timingSafeEqual(a: string, b: string) {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
+// Verifies the caller-supplied secret against the value stored in Supabase
+// Vault via a SECURITY DEFINER RPC. The edge function never holds the real
+// secret in its environment — Vault is the single source of truth.
+async function verifyWebhookSecret(provided: string): Promise<boolean> {
+  if (!provided) return false;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/verify_webhook_secret`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ provided }),
+    });
+    if (!r.ok) { console.error("verify_webhook_secret RPC", r.status, await r.text()); return false; }
+    return (await r.json()) === true;
+  } catch (e) {
+    console.error("verify_webhook_secret error", e);
+    return false;
+  }
 }
 
 async function sendEmail(opts: { to: string; subject: string; html: string; text?: string }) {
@@ -90,7 +105,7 @@ Deno.serve(async (req) => {
 
   // Shared-secret gate — required for any invocation.
   const provided = req.headers.get("x-webhook-secret") ?? "";
-  if (!WEBHOOK_SHARED_SECRET || !timingSafeEqual(provided, WEBHOOK_SHARED_SECRET)) {
+  if (!(await verifyWebhookSecret(provided))) {
     return new Response("Unauthorized", { status: 401 });
   }
 
