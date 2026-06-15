@@ -71,11 +71,17 @@ export const listCustomers = createServerFn({ method: "POST" })
       .select("id, full_name, email, phone, created_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
+    const { data: adminRoles } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin");
+    const adminIds = new Set((adminRoles ?? []).map((r) => r.user_id));
+    const customerProfiles = (profiles ?? []).filter((p) => !adminIds.has(p.id));
     const { data: projects } = await supabaseAdmin
       .from("projects")
       .select("id, customer_id, title, status, created_at, updated_at")
       .order("updated_at", { ascending: false });
-    return { profiles: profiles ?? [], projects: projects ?? [] };
+    return { profiles: customerProfiles, projects: projects ?? [] };
   });
 
 export const inviteCustomer = createServerFn({ method: "POST" })
