@@ -111,7 +111,13 @@ function ProjectAdmin() {
   }
   async function deleteUpdate(u: Update) {
     if (!confirm("Update verwijderen?")) return;
-    // Storage files are admin-only; we keep them and just drop the rows
+    // Verzamel foto-paden zodat we ze ook uit storage halen
+    const { data: ups } = await supabase
+      .from("update_photos").select("storage_path").eq("update_id", u.id);
+    const paths = (ups ?? []).map((x) => x.storage_path).filter(Boolean) as string[];
+    if (paths.length > 0) {
+      await supabase.storage.from("project-photos").remove(paths);
+    }
     await supabase.from("phase_updates").delete().eq("id", u.id);
     load();
   }
