@@ -65,9 +65,9 @@ function RecentWerk() {
                   VW T2 Westfalia — van schuurvondst tot bergpas.
                 </h2>
                 <p className="mt-4 max-w-2xl" style={{ color: "var(--charcoal-soft)", lineHeight: 1.75 }}>
-                  Een originele Westfalia camper, binnengebracht met sporen van jarenlang stilstaan. Plaatwerk, slaapdak, lak en
-                  techniek — alles ging eerst uit elkaar voor het er weer in mocht. Hieronder de chronologie, van eerste inspectie
-                  tot eerste rit door de bergen.
+                  Een originele Westfalia camper, binnengebracht met sporen van jarenlang stilstaan. Focus lag op plaatwerk,
+                  slaapdak en exterieur — techniek en interieur bleven in deze fase buiten beschouwing. Hieronder de chronologie,
+                  van eerste inspectie tot eerste rit door de bergen.
                 </p>
               </ScrollReveal>
 
