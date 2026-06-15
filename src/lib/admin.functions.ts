@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const PROD_SITE_URL = "https://yeketimotorworks.com";
+const RESET_REDIRECT = `${PROD_SITE_URL}/reset-password`;
+
 async function assertAdmin(ctx: { supabase: SupabaseLike; userId: string }) {
   const { data, error } = await ctx.supabase
     .from("profiles")
@@ -29,6 +32,40 @@ const DEFAULT_PHASES = [
   "Aflevering",
 ];
 
+// Find a user by email via the profiles table (scales beyond 200 users) and
+// hydrate their auth record so we can branch on email_confirmed_at.
+async function findUserByEmail(email: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("id, email")
+    .eq("email", email)
+    .maybeSingle();
+  if (!profile) return null;
+  const { data: u } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+  return u?.user ?? null;
+}
+
+// Send either an invite (new / unconfirmed user) or a password reset (already
+// confirmed). Returns the channel actually used so the UI can confirm to admin.
+async function inviteOrReset(email: string, fullName?: string | null) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const existing = await findUserByEmail(email);
+  if (existing && existing.email_confirmed_at) {
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+      redirectTo: RESET_REDIRECT,
+    });
+    if (error) throw error;
+    return { user: existing, channel: "reset" as const };
+  }
+  const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+    data: fullName ? { full_name: fullName } : undefined,
+    redirectTo: RESET_REDIRECT,
+  });
+  if (inv.error) throw inv.error;
+  return { user: inv.data.user, channel: "invite" as const };
+}
+
 export const listCustomers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -55,17 +92,7 @@ export const inviteCustomer = createServerFn({ method: "POST" })
     const email = data.email.trim().toLowerCase();
     if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Ongeldig e-mailadres");
 
-    // Find existing user
-    const list = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    let user = list.data.users.find((u) => u.email?.toLowerCase() === email);
-    if (!user) {
-      const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        data: { full_name: data.full_name ?? null },
-        redirectTo: `${process.env.PUBLIC_SITE_URL ?? ""}/reset-password`,
-      });
-      if (inv.error) throw inv.error;
-      user = inv.data.user;
-    }
+    const { user, channel } = await inviteOrReset(email, data.full_name ?? null);
     if (!user) throw new Error("Kon gebruiker niet aanmaken");
 
     await supabaseAdmin.from("profiles").upsert({
@@ -74,7 +101,7 @@ export const inviteCustomer = createServerFn({ method: "POST" })
       phone: data.phone ?? null,
       email,
     });
-    return { userId: user.id, email };
+    return { userId: user.id, email, channel };
   });
 
 export const resendInvite = createServerFn({ method: "POST" })
@@ -82,12 +109,9 @@ export const resendInvite = createServerFn({ method: "POST" })
   .inputValidator((input: { email: string }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context as never);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email.trim().toLowerCase(), {
-      redirectTo: `${process.env.PUBLIC_SITE_URL ?? ""}/reset-password`,
-    });
-    if (error) throw error;
-    return { ok: true };
+    const email = data.email.trim().toLowerCase();
+    const { channel } = await inviteOrReset(email, null);
+    return { ok: true, channel };
   });
 
 export const convertQuoteToProject = createServerFn({ method: "POST" })
@@ -101,18 +125,8 @@ export const convertQuoteToProject = createServerFn({ method: "POST" })
       .from("quote_requests").select("*").eq("id", data.quoteId).maybeSingle();
     if (qe || !q) throw qe ?? new Error("Aanvraag niet gevonden");
 
-    // Ensure user
     const email = (q.email as string).trim().toLowerCase();
-    const list = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    let user = list.data.users.find((u) => u.email?.toLowerCase() === email);
-    if (!user) {
-      const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        data: { full_name: q.naam },
-        redirectTo: `${process.env.PUBLIC_SITE_URL ?? ""}/reset-password`,
-      });
-      if (inv.error) throw inv.error;
-      user = inv.data.user;
-    }
+    const { user } = await inviteOrReset(email, q.naam as string);
     if (!user) throw new Error("Kon klant niet aanmaken");
 
     await supabaseAdmin.from("profiles").upsert({
