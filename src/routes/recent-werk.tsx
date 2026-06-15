@@ -8,7 +8,7 @@ import shot02 from "@/assets/projects/vw-t2/t2-02-inspectie-zij.jpg.asset.json";
 import shot03 from "@/assets/projects/vw-t2/t2-03-inspectie-voor.jpg.asset.json";
 import shot04 from "@/assets/projects/vw-t2/t2-04-strippen.jpg.asset.json";
 import shot05 from "@/assets/projects/vw-t2/t2-05-plamuur.jpg.asset.json";
-import shot06 from "@/assets/projects/vw-t2/t2-06-baraam-trots.jpg.asset.json";
+import shot06 from "@/assets/projects/vw-t2/t2-06-eindcontrole-klant.jpg.asset.json";
 import shot07 from "@/assets/projects/vw-t2/t2-07-onderweg.jpg.asset.json";
 
 export const Route = createFileRoute("/recent-werk")({
@@ -33,7 +33,7 @@ const t2Shots: Shot[] = [
   { src: shot02.url, alt: "VW T2 Westfalia zijaanzicht met opgeklapt slaapdak", ratio: "4/3", date: "Mei 2024", caption: "Slaapdak opgemeten, kap en scharnieren grondig nagekeken." },
   { src: shot04.url, alt: "VW T2 ontdaan van rubbers en ramen, klaar voor schuurwerk", ratio: "4/3", date: "Mei 2024", caption: "Ontmanteling — rubbers, ramen en sierlijsten gaan eruit voor het plaatwerk." },
   { src: shot05.url, alt: "VW T2 in plamuur, gemaskeerd voor spuitwerk", ratio: "4/3", date: "Mei 2024", caption: "Plamuur en schuurwerk — laag per laag tot het oppervlak weer strak is." },
-  { src: shot06.url, alt: "Baraam Yeketi naast de afgewerkte VW T2 Westfalia", ratio: "4/5", date: "Mei 2024", caption: "Eindcontrole — Baraam tekent pas af als élk detail klopt." },
+  { src: shot06.url, alt: "Baraam Yeketi en klant bij de afgewerkte VW T2 Westfalia", ratio: "4/3", date: "Mei 2024", caption: "Eindcontrole — Baraam tekent pas af als élk detail klopt." },
   { src: shot07.url, alt: "Gerestaureerde VW T2 Westfalia in een bergachtig landschap", ratio: "4/3", date: "Juni 2024", caption: "Onderweg — de bus rijdt weer waar hij thuishoort." },
 ];
 
