@@ -91,6 +91,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#221F1B" },
+      { property: "og:title", content: "Yeketi Motorworks — Restauratie van klassiekers" },
+      { name: "twitter:title", content: "Yeketi Motorworks — Restauratie van klassiekers" },
+      { name: "description", content: "Yeketi Motorworks: premium classic car restoration connecting owners with master craftsmen." },
+      { property: "og:description", content: "Yeketi Motorworks: premium classic car restoration connecting owners with master craftsmen." },
+      { name: "twitter:description", content: "Yeketi Motorworks: premium classic car restoration connecting owners with master craftsmen." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/TimPydBg63UjBhATfb8zJJR9ank2/social-images/social-1781522840245-og-share-1200x630.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/TimPydBg63UjBhATfb8zJJR9ank2/social-images/social-1781522840245-og-share-1200x630.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
