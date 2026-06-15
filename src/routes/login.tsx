@@ -23,6 +23,7 @@ function Login() {
   const [mode, setMode] = useState<"login" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +70,14 @@ function Login() {
         redirectTo,
       });
       if (err) {
-        setError(t.portal.sendError);
+        // Supabase returns 429 when the same address has been spammed recently.
+        const msg = err.message?.toLowerCase() ?? "";
+        const status = (err as { status?: number }).status;
+        if (status === 429 || msg.includes("rate") || msg.includes("too many")) {
+          setError(t.portal.rateLimited);
+        } else {
+          setError(t.portal.sendError);
+        }
         setStatus("idle");
         return;
       }
@@ -133,20 +141,53 @@ function Login() {
                     />
                     {mode === "login" && (
                       <>
-                        <label htmlFor="password" className="eyebrow block mt-6" style={{ color: "var(--charcoal-soft)" }}>
-                          {t.portal.passwordLabel}
-                        </label>
-                        <input
-                          id="password"
-                          type="password"
-                          autoComplete="current-password"
-                          required
-                          className="field-y mt-2"
-                          placeholder={t.portal.passwordPlaceholder}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          disabled={status === "sending"}
-                        />
+                        <div className="mt-6 flex items-baseline justify-between">
+                          <label htmlFor="password" className="eyebrow" style={{ color: "var(--charcoal-soft)" }}>
+                            {t.portal.passwordLabel}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => { setMode("forgot"); setError(null); }}
+                            className="text-sm"
+                            style={{ color: "var(--charcoal-soft)", borderBottom: "1px solid var(--charcoal-soft)" }}
+                          >
+                            {t.portal.forgot}
+                          </button>
+                        </div>
+                        <div className="mt-2" style={{ position: "relative" }}>
+                          <input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            autoComplete="current-password"
+                            required
+                            className="field-y"
+                            style={{ paddingRight: "3.25rem" }}
+                            placeholder={t.portal.passwordPlaceholder}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={status === "sending"}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((s) => !s)}
+                            aria-label={showPassword ? t.portal.hidePassword : t.portal.showPassword}
+                            style={{
+                              position: "absolute",
+                              right: "0.75rem",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              fontSize: "11px",
+                              letterSpacing: "0.18em",
+                              textTransform: "uppercase",
+                              color: "var(--charcoal-soft)",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {showPassword ? "Verberg" : "Toon"}
+                          </button>
+                        </div>
                       </>
                     )}
                     {error && (
@@ -163,15 +204,7 @@ function Login() {
                     </button>
                   </form>
                   <div className="mt-8 flex flex-col items-center gap-3 text-sm" style={{ color: "var(--charcoal-soft)" }}>
-                    {mode === "login" ? (
-                      <button
-                        type="button"
-                        onClick={() => { setMode("forgot"); setError(null); }}
-                        style={{ borderBottom: "1px solid var(--charcoal-soft)" }}
-                      >
-                        {t.portal.forgot}
-                      </button>
-                    ) : (
+                    {mode === "forgot" && (
                       <button
                         type="button"
                         onClick={() => { setMode("login"); setError(null); }}

@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { t } from "@/lib/copy";
 import logoHorizontalLight from "@/assets/yeketi-logo-horizontal-light.svg.asset.json";
 import { supabase } from "@/integrations/supabase/client";
+import { sendWelcomeAfterInvite } from "@/lib/email.functions";
 
 function getResetLinkError() {
   if (typeof window === "undefined") return null;
@@ -32,9 +34,12 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPassword() {
   const navigate = useNavigate();
+  const sendWelcome = useServerFn(sendWelcomeAfterInvite);
   const [ready, setReady] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(() => getResetLinkError());
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState<string | null>(null);
   const [isInvite, setIsInvite] = useState(false);
@@ -54,13 +59,33 @@ function ResetPassword() {
     }
 
     // Supabase parses the recovery token from the URL hash and emits PASSWORD_RECOVERY.
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+        setReady(true);
+        if (session?.user.email) setAccountEmail(session.user.email);
+      }
     });
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
+      if (data.session) {
+        setReady(true);
+        if (data.session.user.email) setAccountEmail(data.session.user.email);
+      }
     });
-    return () => sub.subscription.unsubscribe();
+
+    // If the recovery token never resolved (expired/invalid) and there is no
+    // active session, surface a clear error after a short grace period instead
+    // of leaving the form disabled forever.
+    const timeout = window.setTimeout(() => {
+      setReady((r) => {
+        if (!r) setLinkError(t.portal.linkExpiredAfterWait);
+        return r;
+      });
+    }, 4000);
+
+    return () => {
+      sub.subscription.unsubscribe();
+      window.clearTimeout(timeout);
+    };
   }, []);
 
   async function onSubmit(e: React.FormEvent) {
@@ -76,6 +101,10 @@ function ResetPassword() {
       setError(err.message || t.portal.sendError);
       setStatus("idle");
       return;
+    }
+    if (isInvite) {
+      // Fire-and-forget welcome mail; never block redirect on email delivery.
+      sendWelcome({ data: undefined }).catch((e) => console.warn("welcome mail failed", e));
     }
     setStatus("saved");
     setTimeout(() => navigate({ to: "/portaal" }), 1200);
@@ -96,11 +125,16 @@ function ResetPassword() {
               <div className="text-center">
                 <p className="eyebrow">{t.nav.portal}</p>
                 <h1 className="mt-5" style={{ fontSize: "clamp(1.8rem,3.4vw,2.6rem)" }}>
-                  {isInvite ? "Welkom — stel je wachtwoord in" : t.portal.newPasswordTitle}
+                  {isInvite ? t.portal.inviteWelcomeTitle : t.portal.newPasswordTitle}
                 </h1>
                 {isInvite && (
                   <p className="mt-4" style={{ color: "var(--charcoal-soft)", lineHeight: 1.6 }}>
-                    Kies een wachtwoord om je toegang tot het klantportaal te activeren.
+                    {t.portal.inviteWelcomeBody}
+                  </p>
+                )}
+                {accountEmail && (
+                  <p className="mt-3 text-sm" style={{ color: "var(--charcoal-soft)" }}>
+                    {t.portal.settingPasswordFor}: <strong style={{ color: "var(--charcoal)" }}>{accountEmail}</strong>
                   </p>
                 )}
               </div>
@@ -120,17 +154,40 @@ function ResetPassword() {
                   <label htmlFor="password" className="eyebrow block" style={{ color: "var(--charcoal-soft)" }}>
                     {t.portal.newPasswordLabel}
                   </label>
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={8}
-                    className="field-y mt-2"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={status === "saving" || !ready}
-                  />
+                  <div className="mt-2" style={{ position: "relative" }}>
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      className="field-y"
+                      style={{ paddingRight: "3.25rem" }}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={status === "saving" || !ready}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((s) => !s)}
+                      aria-label={showPassword ? t.portal.hidePassword : t.portal.showPassword}
+                      style={{
+                        position: "absolute",
+                        right: "0.75rem",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        fontSize: "11px",
+                        letterSpacing: "0.18em",
+                        textTransform: "uppercase",
+                        color: "var(--charcoal-soft)",
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {showPassword ? "Verberg" : "Toon"}
+                    </button>
+                  </div>
                   {error && (
                     <p className="mt-4 text-sm" style={{ color: "var(--oxide)", lineHeight: 1.6 }}>
                       {error}
@@ -138,7 +195,7 @@ function ResetPassword() {
                   )}
                   {!ready && (
                     <p className="mt-4 text-sm" style={{ color: "var(--charcoal-soft)", lineHeight: 1.6 }}>
-                      Recovery-link wordt geverifieerd…
+                      {t.portal.verifyingLink}
                     </p>
                   )}
                   <button
