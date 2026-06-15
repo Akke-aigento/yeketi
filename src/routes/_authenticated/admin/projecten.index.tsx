@@ -26,15 +26,19 @@ function ProjectenIndex() {
   const [customers, setCustomers] = useState<Record<string, Customer>>({});
   const [filter, setFilter] = useState<"all" | keyof typeof t.portal.statusLabels>("all");
   const [search, setSearch] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data: projs } = await supabase
+      setError(null);
+      const { data: projs, error: pe } = await supabase
         .from("projects")
         .select("id, title, status, vehicle_make, vehicle_model, vehicle_year, customer_id, updated_at")
         .order("updated_at", { ascending: false });
       if (!active) return;
+      if (pe) { setError(pe.message); return; }
       const list = (projs as Row[] | null) ?? [];
       setRows(list);
       const customerIds = Array.from(new Set(list.map((r) => r.customer_id)));
@@ -48,7 +52,7 @@ function ProjectenIndex() {
       }
     })();
     return () => { active = false; };
-  }, []);
+  }, [nonce]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -90,6 +94,12 @@ function ProjectenIndex() {
       </section>
 
       <section className="container-edit pb-12">
+        {error && (
+          <div className="text-sm" style={{ color: "var(--oxide)" }}>
+            Laden mislukt: {error}
+            <button onClick={() => setNonce((n) => n + 1)} className="btn-y-solid mt-3">Opnieuw proberen</button>
+          </div>
+        )}
         {rows === null && (
           <ul className="space-y-2" aria-label="Laden">
             {[0,1,2,3].map((i) => (
