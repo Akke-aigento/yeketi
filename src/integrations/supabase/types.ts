@@ -270,7 +270,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      __read_webhook_secret_once: { Args: never; Returns: string }
       dispatch_notify_event: { Args: { _payload: Json }; Returns: undefined }
       has_role: {
         Args: {
@@ -283,6 +282,7 @@ export type Database = {
         Args: { _project: string; _uid: string }
         Returns: boolean
       }
+      verify_webhook_secret: { Args: { provided: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin"
