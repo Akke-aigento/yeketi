@@ -37,6 +37,13 @@ function ResetPassword() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [isInvite, setIsInvite] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    if (hash.get("type") === "invite") setIsInvite(true);
+  }, []);
 
   useEffect(() => {
     const initialLinkError = getResetLinkError();
@@ -89,8 +96,13 @@ function ResetPassword() {
               <div className="text-center">
                 <p className="eyebrow">{t.nav.portal}</p>
                 <h1 className="mt-5" style={{ fontSize: "clamp(1.8rem,3.4vw,2.6rem)" }}>
-                  {t.portal.newPasswordTitle}
+                  {isInvite ? "Welkom — stel je wachtwoord in" : t.portal.newPasswordTitle}
                 </h1>
+                {isInvite && (
+                  <p className="mt-4" style={{ color: "var(--charcoal-soft)", lineHeight: 1.6 }}>
+                    Kies een wachtwoord om je toegang tot het klantportaal te activeren.
+                  </p>
+                )}
               </div>
               {status === "saved" ? (
                 <p className="mt-10 text-center" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
