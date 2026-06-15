@@ -1,9 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { AdminShell } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/image-compress";
 import { t } from "@/lib/copy";
+import { deletePhase as deletePhaseFn, deleteProject as deleteProjectFn } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/projecten/$id")({
   head: () => ({ meta: [{ title: "Project — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -26,6 +28,9 @@ type Customer = { id: string; full_name: string | null; email: string | null; ph
 
 function ProjectAdmin() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
+  const deletePhaseSrv = useServerFn(deletePhaseFn);
+  const deleteProjectSrv = useServerFn(deleteProjectFn);
   const [project, setProject] = useState<Project | null>(null);
   const [phases, setPhases] = useState<Phase[]>([]);
   const [updates, setUpdates] = useState<Update[]>([]);
@@ -92,8 +97,22 @@ function ProjectAdmin() {
   }
   async function deletePhase(p: Phase) {
     if (!confirm(`Fase "${p.name}" verwijderen? Alle updates en foto's gaan mee.`)) return;
-    await supabase.from("project_phases").delete().eq("id", p.id);
-    load();
+    try {
+      await deletePhaseSrv({ data: { phaseId: p.id } });
+      load();
+    } catch (e) {
+      alert((e as Error).message ?? "Verwijderen mislukt");
+    }
+  }
+  async function deleteProject() {
+    if (!project) return;
+    if (!confirm(`Project "${project.title}" volledig verwijderen? Alle fases, updates en foto's gaan mee.`)) return;
+    try {
+      await deleteProjectSrv({ data: { projectId: id } });
+      navigate({ to: "/admin/projecten" });
+    } catch (e) {
+      alert((e as Error).message ?? "Verwijderen mislukt");
+    }
   }
   async function setPhaseStatus(p: Phase, status: Phase["status"]) {
     await supabase.from("project_phases").update({ status }).eq("id", p.id);
@@ -185,6 +204,13 @@ function ProjectAdmin() {
             <button onClick={waCustomer} className="btn-y-solid mt-3 w-full">WhatsApp klant</button>
           </div>
         )}
+        <button
+          onClick={deleteProject}
+          className="mt-4 w-full text-xs uppercase tracking-[0.18em] py-2"
+          style={{ border: "1px solid var(--oxide)", color: "var(--oxide)", background: "transparent" }}
+        >
+          Project verwijderen
+        </button>
       </section>
 
       <section className="container-edit pb-3">

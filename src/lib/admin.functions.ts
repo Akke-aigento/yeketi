@@ -162,3 +162,123 @@ export const convertQuoteToProject = createServerFn({ method: "POST" })
 
     return { projectId: project.id };
   });
+
+// ---------------------------------------------------------------------------
+// Storage-aware deletes (D-1, D-2) and orphan janitor (S-5)
+// ---------------------------------------------------------------------------
+
+async function listAllUnder(bucket: string, prefix: string): Promise<string[]> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const out: string[] = [];
+  // Walk recursively – storage.list is one folder level at a time.
+  async function walk(p: string) {
+    const { data, error } = await supabaseAdmin.storage.from(bucket).list(p, {
+      limit: 1000,
+      sortBy: { column: "name", order: "asc" },
+    });
+    if (error) throw error;
+    for (const item of data ?? []) {
+      // Folders come back with id === null
+      const full = p ? `${p}/${item.name}` : item.name;
+      if (item.id === null) {
+        await walk(full);
+      } else {
+        out.push(full);
+      }
+    }
+  }
+  await walk(prefix);
+  return out;
+}
+
+async function removeInChunks(bucket: string, paths: string[]) {
+  if (paths.length === 0) return;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const chunk = 100;
+  for (let i = 0; i < paths.length; i += chunk) {
+    const { error } = await supabaseAdmin.storage.from(bucket).remove(paths.slice(i, i + chunk));
+    if (error) throw error;
+  }
+}
+
+export const deletePhase = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { phaseId: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Find every update photo path attached to this phase.
+    const { data: photos, error: pe } = await supabaseAdmin
+      .from("update_photos")
+      .select("storage_path, phase_updates!inner(phase_id)")
+      .eq("phase_updates.phase_id", data.phaseId);
+    if (pe) throw pe;
+    const paths = (photos ?? []).map((p) => p.storage_path).filter(Boolean) as string[];
+    await removeInChunks("project-photos", paths);
+    const { error: de } = await supabaseAdmin
+      .from("project_phases").delete().eq("id", data.phaseId);
+    if (de) throw de;
+    return { removedFiles: paths.length };
+  });
+
+export const deleteProject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { projectId: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Storage layout is `${projectId}/${updateId}/<file>` – nuke the whole prefix.
+    const paths = await listAllUnder("project-photos", data.projectId);
+    await removeInChunks("project-photos", paths);
+    const { error } = await supabaseAdmin.from("projects").delete().eq("id", data.projectId);
+    if (error) throw error;
+    return { removedFiles: paths.length };
+  });
+
+export const deleteQuoteRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { quoteId: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: q, error: qe } = await supabaseAdmin
+      .from("quote_requests").select("foto_urls").eq("id", data.quoteId).maybeSingle();
+    if (qe) throw qe;
+    const stored = (q?.foto_urls ?? []) as string[];
+    // Also sweep the submission folder(s) in case extra files were uploaded.
+    const prefixes = new Set<string>();
+    for (const p of stored) {
+      const slash = p.indexOf("/");
+      if (slash > 0) prefixes.add(p.slice(0, slash));
+    }
+    const folderPaths: string[] = [];
+    for (const pref of prefixes) {
+      folderPaths.push(...(await listAllUnder("quote-photos", pref)));
+    }
+    const all = Array.from(new Set([...stored, ...folderPaths]));
+    await removeInChunks("quote-photos", all);
+    const { error: de } = await supabaseAdmin
+      .from("quote_requests").delete().eq("id", data.quoteId);
+    if (de) throw de;
+    return { removedFiles: all.length };
+  });
+
+// Janitor: remove every quote-photos object not referenced by any quote_request.
+export const cleanupOrphanQuotePhotos = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const allPaths = await listAllUnder("quote-photos", "");
+    if (allPaths.length === 0) return { removedFiles: 0, scanned: 0 };
+    const { data: rows, error } = await supabaseAdmin
+      .from("quote_requests").select("foto_urls");
+    if (error) throw error;
+    const referenced = new Set<string>();
+    for (const r of rows ?? []) {
+      for (const p of (r.foto_urls ?? []) as string[]) referenced.add(p);
+    }
+    const orphans = allPaths.filter((p) => !referenced.has(p));
+    await removeInChunks("quote-photos", orphans);
+    return { removedFiles: orphans.length, scanned: allPaths.length };
+  });
