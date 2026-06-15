@@ -100,6 +100,30 @@ async function sbFetch(path: string) {
   return r.json();
 }
 
+// Persist a delivery failure so admins can see what didn't go out.
+// Best-effort — never throw from here, the trigger has already done its job.
+async function logFailure(eventType: string, payload: unknown, errorMessage: string) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/notify_event_failures`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        event_type: eventType,
+        source: "edge",
+        payload_summary: payload,
+        error_message: errorMessage.slice(0, 2000),
+      }),
+    });
+  } catch (e) {
+    console.error("notify_event_failures insert failed", e);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
