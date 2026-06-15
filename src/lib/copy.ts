@@ -542,6 +542,60 @@ export const en: Copy = {
       archived: "Archived",
     },
   },
+  recentWerk: {
+    eyebrow: "Recent restoration",
+    title: "Recent work.",
+    intro: "Each restoration gets its own story here. We start with the very first project — and build out from there, classic by classic.",
+    projectLabel: "Project 01 · 2024",
+    projectTitle: "VW T2 Westfalia — from barn find to mountain pass.",
+    projectBody:
+      "An original Westfalia camper, brought in with the marks of years of standing still. The focus was on bodywork, pop-top roof and exterior — mechanics and interior stayed out of scope at this stage. Below the chronology, from first inspection to first drive through the mountains.",
+    monthMay: "May 2024",
+    monthJun: "June 2024",
+    shots: {
+      aankomst: { alt: "VW T2 Westfalia on arrival, rear hatch open", caption: "Arrival — Baram and the owner walk through the state of the bus." },
+      inventaris: { alt: "VW T2 Westfalia front view in original two-tone paint", caption: "Inventory — all original parts kept wherever possible." },
+      slaapdak: { alt: "VW T2 Westfalia side view with pop-top roof raised", caption: "Pop-top measured, canvas and hinges thoroughly checked." },
+      ontmanteling: { alt: "VW T2 stripped of rubbers and windows, ready for sanding", caption: "Stripping — rubbers, windows and trim come off before the bodywork begins." },
+      plamuur: { alt: "VW T2 in filler, masked for spraying", caption: "Filler and sanding — layer by layer until the surface is straight again." },
+      eindcontrole: { alt: "Baram Maro and client beside the finished VW T2 Westfalia", caption: "Final check — Baram only signs off when every detail is right." },
+      onderweg: { alt: "Restored VW T2 Westfalia in a mountainous landscape", caption: "On the road — the bus drives again where it belongs." },
+    },
+    comingSoonLabel: "Project 02 · coming soon",
+    comingSoonBody:
+      "The next classic is already in the workshop. Photos and story will follow as the work progresses.",
+  },
+  privacy: {
+    eyebrow: "Legal",
+    title: "Privacy & cookies",
+    lastUpdate:
+      "Last update: June 2026. This statement is a placeholder — final legal text will be added after review by Nomadix BV.",
+    sections: {
+      responsibleTitle: "Data controller",
+      responsibleAddr: "Vredeplein 23, 3010 Kessel-Lo, Belgium",
+      responsibleVat: "VAT BE 0694.858.510",
+      contactLabel: "Contact:",
+      dataTitle: "What data we collect",
+      dataItems: [
+        "Contact details you fill in yourself via the quote form (name, email, phone).",
+        "Vehicle details and photos you send us for an estimate or restoration.",
+        "Login details for the client portal (email address for magic-link login).",
+      ],
+      useTitle: "What we use them for",
+      useBody:
+        "Strictly to answer your quote request, to prepare and carry out your restoration, and to keep you informed of progress via the portal and email.",
+      cookiesTitle: "Cookies",
+      cookiesBody:
+        "We only use functional cookies needed to sign in to the client portal. No tracking, no advertising cookies, no third-party analytics.",
+      retentionTitle: "Retention",
+      retentionBody:
+        "Quote requests are kept for 24 months. Project and restoration files are kept for as long as the legal record-keeping obligation requires (7 years).",
+      rightsTitle: "Your rights",
+      rightsBefore: "You have the right to access, correct and delete your data. Send an email to ",
+      rightsAfter: " and we'll respond within 30 days.",
+    },
+    back: "Back to home",
+  },
 };
 
 export type Lang = "nl" | "en";
