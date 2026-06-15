@@ -3,14 +3,13 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { t } from "@/lib/copy";
-import beforeImg from "@/assets/vw-t2-before.jpg";
-import afterImg from "@/assets/vw-t2-after.jpg";
-import arrivalImg from "@/assets/oldtimer-arrival.jpg";
-import handsImg from "@/assets/craftsman-hands.jpg";
-import interiorImg from "@/assets/oldtimer-interior.jpg";
-import deliveryImg from "@/assets/oldtimer-delivery.jpg";
-import workshopImg from "@/assets/hero-workshop.jpg";
-import teamImg from "@/assets/workshop-team.jpg";
+import shot01 from "@/assets/projects/vw-t2/t2-01-aankomst.jpg.asset.json";
+import shot02 from "@/assets/projects/vw-t2/t2-02-inspectie-zij.jpg.asset.json";
+import shot03 from "@/assets/projects/vw-t2/t2-03-inspectie-voor.jpg.asset.json";
+import shot04 from "@/assets/projects/vw-t2/t2-04-strippen.jpg.asset.json";
+import shot05 from "@/assets/projects/vw-t2/t2-05-plamuur.jpg.asset.json";
+import shot06 from "@/assets/projects/vw-t2/t2-06-baraam-trots.jpg.asset.json";
+import shot07 from "@/assets/projects/vw-t2/t2-07-onderweg.jpg.asset.json";
 
 export const Route = createFileRoute("/recent-werk")({
   head: () => ({
@@ -26,17 +25,16 @@ export const Route = createFileRoute("/recent-werk")({
   component: RecentWerk,
 });
 
-type Shot = { src: string; alt: string; ratio: string };
+type Shot = { src: string; alt: string; ratio: string; caption: string; date: string };
 
-const shots: Shot[] = [
-  { src: arrivalImg, alt: "Aankomst van een klassieker in de werkplaats", ratio: "4/3" },
-  { src: handsImg, alt: "Handen van een meester-ambachtsman", ratio: "4/5" },
-  { src: beforeImg, alt: "VW T2 — voor de restauratie", ratio: "4/3" },
-  { src: workshopImg, alt: "Werkplaats in Erbil", ratio: "4/3" },
-  { src: afterImg, alt: "VW T2 — na de restauratie", ratio: "4/3" },
-  { src: interiorImg, alt: "Gerestaureerd interieur van een oldtimer", ratio: "4/3" },
-  { src: teamImg, alt: "Het team in de werkplaats", ratio: "4/3" },
-  { src: deliveryImg, alt: "Spik en span gerestaureerde oldtimer bij aflevering", ratio: "4/3" },
+const t2Shots: Shot[] = [
+  { src: shot01.url, alt: "VW T2 Westfalia bij aankomst, achterklep open", ratio: "4/3", date: "Mei 2024", caption: "Aankomst — Baraam en de eigenaar overlopen de staat van de bus." },
+  { src: shot03.url, alt: "VW T2 Westfalia vooraanzicht in tweekleurige originele lak", ratio: "4/3", date: "Mei 2024", caption: "Inventaris — alle originele delen blijven behouden waar het kan." },
+  { src: shot02.url, alt: "VW T2 Westfalia zijaanzicht met opgeklapt slaapdak", ratio: "4/3", date: "Mei 2024", caption: "Slaapdak opgemeten, kap en scharnieren grondig nagekeken." },
+  { src: shot04.url, alt: "VW T2 ontdaan van rubbers en ramen, klaar voor schuurwerk", ratio: "4/3", date: "Mei 2024", caption: "Ontmanteling — rubbers, ramen en sierlijsten gaan eruit voor het plaatwerk." },
+  { src: shot05.url, alt: "VW T2 in plamuur, gemaskeerd voor spuitwerk", ratio: "4/3", date: "Mei 2024", caption: "Plamuur en schuurwerk — laag per laag tot het oppervlak weer strak is." },
+  { src: shot06.url, alt: "Baraam Yeketi naast de afgewerkte VW T2 Westfalia", ratio: "4/5", date: "Mei 2024", caption: "Eindcontrole — Baraam tekent pas af als élk detail klopt." },
+  { src: shot07.url, alt: "Gerestaureerde VW T2 Westfalia in een bergachtig landschap", ratio: "4/3", date: "Juni 2024", caption: "Onderweg — de bus rijdt weer waar hij thuishoort." },
 ];
 
 function RecentWerk() {
@@ -52,25 +50,78 @@ function RecentWerk() {
                 Recent werk.
               </h1>
               <p className="mt-5 max-w-xl italic-quote" style={{ color: "var(--charcoal-soft)", fontSize: "1.1rem" }}>
-                De beelden spreken voor zich.
+                Elke restauratie krijgt hier zijn eigen verhaal. We beginnen bij het allereerste project — en bouwen verder, bus per bus.
               </p>
             </ScrollReveal>
 
-            <div className="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {shots.map((s, i) => (
-                <ScrollReveal key={s.src} delay={(i % 3) * 80}>
-                  <figure style={{ border: "1px solid var(--charcoal)" }}>
-                    <img
-                      src={s.src}
-                      alt={s.alt}
-                      loading="lazy"
-                      className="w-full block"
-                      style={{ objectFit: "cover", aspectRatio: s.ratio }}
-                    />
-                  </figure>
-                </ScrollReveal>
-              ))}
-            </div>
+            {/* Project 01 — VW T2 Westfalia */}
+            <article className="mt-16 md:mt-20">
+              <ScrollReveal>
+                <div className="flex items-baseline gap-4 flex-wrap">
+                  <span className="eyebrow" style={{ color: "var(--brass)" }}>Project 01 · 2024</span>
+                  <span style={{ height: "1px", background: "var(--brass)", width: "60px" }} />
+                </div>
+                <h2 className="mt-4" style={{ fontSize: "clamp(1.8rem,3.6vw,2.8rem)" }}>
+                  VW T2 Westfalia — van schuurvondst tot bergpas.
+                </h2>
+                <p className="mt-4 max-w-2xl" style={{ color: "var(--charcoal-soft)", lineHeight: 1.75 }}>
+                  Een originele Westfalia camper, binnengebracht met sporen van jarenlang stilstaan. Plaatwerk, slaapdak, lak en
+                  techniek — alles ging eerst uit elkaar voor het er weer in mocht. Hieronder de chronologie, van eerste inspectie
+                  tot eerste rit door de bergen.
+                </p>
+              </ScrollReveal>
+
+              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {t2Shots.map((s, i) => (
+                  <ScrollReveal key={s.src} delay={(i % 3) * 80}>
+                    <figure style={{ border: "1px solid var(--charcoal)" }}>
+                      <img
+                        src={s.src}
+                        alt={s.alt}
+                        loading="lazy"
+                        className="w-full block"
+                        style={{ objectFit: "cover", aspectRatio: s.ratio }}
+                      />
+                      <figcaption
+                        style={{
+                          padding: "0.9rem 1rem 1rem",
+                          background: "var(--cream)",
+                          borderTop: "1px solid var(--charcoal)",
+                          fontSize: "0.85rem",
+                          color: "var(--charcoal-soft)",
+                          lineHeight: 1.55,
+                        }}
+                      >
+                        <span className="eyebrow" style={{ color: "var(--brass)", display: "block", marginBottom: "0.35rem" }}>
+                          {s.date}
+                        </span>
+                        {s.caption}
+                      </figcaption>
+                    </figure>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </article>
+
+            {/* Next-project placeholder */}
+            <ScrollReveal>
+              <div
+                className="mt-20 md:mt-28 text-center"
+                style={{
+                  border: "1px dashed var(--charcoal)",
+                  padding: "clamp(2.5rem,5vw,4rem) 1.5rem",
+                  background: "color-mix(in srgb, var(--cream) 70%, transparent)",
+                }}
+              >
+                <p className="eyebrow" style={{ color: "var(--brass)" }}>Project 02 · binnenkort</p>
+                <p
+                  className="mt-4 italic-quote mx-auto max-w-xl"
+                  style={{ color: "var(--charcoal-soft)", fontSize: "1.1rem", lineHeight: 1.6 }}
+                >
+                  De volgende klassieker staat al in de werkplaats. Foto's en verhaal volgen zodra het werk vordert.
+                </p>
+              </div>
+            </ScrollReveal>
           </div>
         </section>
       </main>
