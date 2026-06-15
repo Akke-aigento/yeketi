@@ -6,9 +6,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
     const user = (context as { user?: { id: string } }).user;
     if (!user) throw redirect({ to: "/login" });
-    const { data: profile } = await supabase
-      .from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
-    if (!profile?.is_admin) throw redirect({ to: "/portaal" });
+    const { data: isAdmin } = await supabase.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+    if (!isAdmin) throw redirect({ to: "/portaal" });
   },
   component: () => <Outlet />,
 });
