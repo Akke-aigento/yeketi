@@ -4,8 +4,7 @@ import { Plus, Minus } from "lucide-react";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { t } from "@/lib/copy";
-
+import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/diensten")({
   head: () => ({
     meta: [
@@ -34,6 +33,7 @@ export const Route = createFileRoute("/diensten")({
 });
 
 function Diensten() {
+  const t = useT();
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />

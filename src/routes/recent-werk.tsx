@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
 import shot01 from "@/assets/projects/vw-t2/t2-01-aankomst.jpg.asset.json";
 import shot02 from "@/assets/projects/vw-t2/t2-02-inspectie-zij.jpg.asset.json";
 import shot03 from "@/assets/projects/vw-t2/t2-03-inspectie-voor.jpg.asset.json";
@@ -38,6 +38,7 @@ const t2Shots: Shot[] = [
 ];
 
 function RecentWerk() {
+  const t = useT();
   return (
     <div className="min-h-screen flex flex-col">
       <SiteNav />
