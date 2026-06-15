@@ -120,7 +120,7 @@ export const nl = {
       { date: "Maand 5", t: "Mechaniek", d: "Het motorblok wordt volledig gereviseerd. Pakkingen, zuigers en kleppen worden vernieuwd; originele onderdelen worden waar mogelijk gerestaureerd in plaats van vervangen, om het karakter van de wagen te behouden." },
       { date: "Maand 6 – 7", t: "Lakwerk", d: "Meerdere lagen primer, plamuur en lak — exact volgens de originele kleurcode van de fabrikant. Met de hand gepolijst tot de oorspronkelijke diepte en glans terug zichtbaar zijn." },
       { date: "Maand 8", t: "Interieur", d: "Nieuwe binnenbekleding op maat in originele stof en kleur. Stuur, pedalen en schakelpook blijven het origineel — alles wat de eigenaar dagelijks aanraakt, draagt de patina van vijftig jaar geschiedenis." },
-      { date: "Maand 9", t: "Aflevering", d: "Eindcontrole, technische keuring en beveiligd transport tot voor de deur. De wagen rijdt opnieuw zijn eerste kilometers — een klassieker die nog generaties mee kan." },
+      { date: "Maand 9", t: "Aflevering", d: "Eindcontrole en beveiligd transport tot voor de deur. De wagen rijdt opnieuw zijn eerste kilometers — een klassieker die nog generaties mee kan." },
     ],
     closing:
       "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
