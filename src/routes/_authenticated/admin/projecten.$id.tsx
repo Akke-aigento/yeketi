@@ -369,6 +369,24 @@ function ProjectAdmin() {
           onSaved={() => { setShowNew(false); load(); }}
         />
       )}
+      <PromptModal
+        open={phaseNamePrompt !== null}
+        title={phaseNamePrompt?.initial ? "Fase hernoemen" : "Nieuwe fase"}
+        initial={phaseNamePrompt?.initial ?? ""}
+        placeholder="Naam van de fase"
+        confirmLabel="Opslaan"
+        onSave={async (v) => { await phaseNamePrompt?.onSave(v); }}
+        onClose={() => setPhaseNamePrompt(null)}
+      />
+      <ConfirmModal
+        open={confirmState !== null}
+        title={confirmState?.title ?? ""}
+        message={confirmState?.message ?? ""}
+        destructive={confirmState?.destructive}
+        confirmLabel="Verwijder"
+        onConfirm={async () => { await confirmState?.onConfirm(); }}
+        onClose={() => setConfirmState(null)}
+      />
     </AdminShell>
   );
 }
