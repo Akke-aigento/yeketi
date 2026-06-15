@@ -224,7 +224,7 @@ export const nl = {
       archived: "Gearchiveerd",
     },
   },
-} as const;
+};
 
 export type Copy = typeof nl;
 
