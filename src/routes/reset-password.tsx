@@ -7,6 +7,19 @@ import { t } from "@/lib/copy";
 import logoHorizontalLight from "@/assets/yeketi-logo-horizontal-light.svg.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 
+function getResetLinkError() {
+  if (typeof window === "undefined") return null;
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const searchParams = new URLSearchParams(window.location.search);
+  const authError = hashParams.get("error_code") || searchParams.get("error_code") || hashParams.get("error") || searchParams.get("error");
+  const authDescription = hashParams.get("error_description") || searchParams.get("error_description");
+
+  if (!authError) return null;
+  return authError === "otp_expired"
+    ? t.portal.resetLinkExpired
+    : authDescription?.replace(/\+/g, " ") || t.portal.resetLinkInvalid;
+}
+
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
@@ -20,24 +33,15 @@ export const Route = createFileRoute("/reset-password")({
 function ResetPassword() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
-  const [linkError, setLinkError] = useState<string | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(() => getResetLinkError());
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const currentUrl = typeof window !== "undefined" ? new URL(window.location.href) : null;
-    const hashParams = new URLSearchParams(currentUrl?.hash.replace(/^#/, "") ?? "");
-    const searchParams = currentUrl?.searchParams ?? new URLSearchParams();
-    const authError = hashParams.get("error_code") || searchParams.get("error_code");
-    const authDescription = hashParams.get("error_description") || searchParams.get("error_description");
-
-    if (authError) {
-      setLinkError(
-        authError === "otp_expired"
-          ? t.portal.resetLinkExpired
-          : authDescription?.replace(/\+/g, " ") || t.portal.resetLinkInvalid,
-      );
+    const initialLinkError = getResetLinkError();
+    if (initialLinkError) {
+      setLinkError(initialLinkError);
       setReady(false);
       return;
     }
