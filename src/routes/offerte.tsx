@@ -67,13 +67,21 @@ function Offerte() {
 
     setStatus("sending");
     try {
+      const submissionPrefix = crypto.randomUUID();
       const foto_urls: string[] = [];
       for (const f of files) {
-        const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const path = `${crypto.randomUUID()}-${safe}`;
+        if (!f.type.startsWith("image/")) {
+          throw new Error("Alleen afbeeldingen toegestaan.");
+        }
+        if (f.size > 8 * 1024 * 1024) {
+          throw new Error("Een foto is groter dan 8MB.");
+        }
+        const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
+        const path = `${submissionPrefix}/${Date.now()}-${safe}`;
         const { error: upErr } = await supabase.storage.from("quote-photos").upload(path, f, {
           cacheControl: "3600",
           upsert: false,
+          contentType: f.type,
         });
         if (upErr) throw upErr;
         foto_urls.push(path);
