@@ -17,6 +17,7 @@ type ProjectRow = {
 function Dashboard() {
   const [projects, setProjects] = useState<ProjectRow[] | null>(null);
   const [newQuotes, setNewQuotes] = useState<number | null>(null);
+  const [stale, setStale] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -27,9 +28,41 @@ function Dashboard() {
       ]);
       if (!active) return;
       const rows = (p.data ?? []).filter((r) => r.status !== "archived" && r.status !== "delivered");
-      rows.sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime());
-      setProjects(rows as ProjectRow[]);
+      // Stale = active project waarvan laatste phase_update ouder is dan 7d (of nooit een update)
+      const projectIds = rows.map((r) => r.id);
+      let lastUpdateByProject = new Map<string, string>();
+      if (projectIds.length > 0) {
+        const { data: phases } = await supabase
+          .from("project_phases").select("id, project_id").in("project_id", projectIds);
+        const phaseToProject = new Map<string, string>();
+        (phases ?? []).forEach((ph) => phaseToProject.set(ph.id, ph.project_id));
+        const phaseIds = (phases ?? []).map((ph) => ph.id);
+        if (phaseIds.length > 0) {
+          const { data: updates } = await supabase
+            .from("phase_updates").select("phase_id, created_at")
+            .in("phase_id", phaseIds)
+            .order("created_at", { ascending: false });
+          (updates ?? []).forEach((u) => {
+            const pid = phaseToProject.get(u.phase_id);
+            if (pid && !lastUpdateByProject.has(pid)) lastUpdateByProject.set(pid, u.created_at);
+          });
+        }
+      }
+      const now = Date.now();
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+      const rowsAnnotated = rows.map((r) => ({
+        ...r,
+        last_update_at: lastUpdateByProject.get(r.id) ?? r.created_at,
+      }));
+      const staleCount = rowsAnnotated.filter(
+        (r) => now - new Date(r.last_update_at).getTime() >= sevenDaysMs,
+      ).length;
+      rowsAnnotated.sort(
+        (a, b) => new Date(a.last_update_at).getTime() - new Date(b.last_update_at).getTime(),
+      );
+      setProjects(rowsAnnotated as ProjectRow[]);
       setNewQuotes(q.count ?? 0);
+      setStale(staleCount);
     })();
     return () => { active = false; };
   }, []);
@@ -37,11 +70,12 @@ function Dashboard() {
   return (
     <AdminShell title="Vandaag">
       <section className="container-edit" style={{ paddingBottom: "2rem" }}>
-        <div className="grid grid-cols-2 gap-3 mt-2">
+        <div className="grid grid-cols-3 gap-2 mt-2">
           <Stat label="Actieve projecten" value={projects?.length} accent="var(--brass)" />
           <Link to="/admin/offertes" className="block">
             <Stat label="Nieuwe offertes" value={newQuotes} accent="var(--oxide)" />
           </Link>
+          <Stat label="Stil ≥ 7 dagen" value={stale} accent={stale && stale > 0 ? "var(--oxide)" : "var(--charcoal-soft)"} />
         </div>
 
         <h2 className="mt-8" style={{ fontSize: "1.1rem" }}>Projecten — oudste update eerst</h2>
@@ -55,20 +89,29 @@ function Dashboard() {
           )}
           {projects?.map((p) => {
             const b = statusBadge(p.status);
+            const lastIso = (p as ProjectRow & { last_update_at?: string }).last_update_at ?? p.updated_at;
+            const days = Math.floor((Date.now() - new Date(lastIso).getTime()) / (24 * 3600 * 1000));
+            const isStale = days >= 7;
             return (
               <li key={p.id}>
                 <Link
                   to="/admin/projecten/$id"
                   params={{ id: p.id }}
                   className="flex items-center justify-between gap-3 px-3 py-3"
-                  style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}
+                  style={{
+                    border: "1px solid " + (isStale ? "var(--oxide)" : "var(--charcoal)"),
+                    background: "var(--cream-deep)",
+                  }}
                 >
                   <div className="min-w-0">
                     <div className="truncate" style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
                       {p.title}
                     </div>
                     <div className="text-xs truncate" style={{ color: "var(--charcoal-soft)" }}>
-                      {[p.vehicle_make, p.vehicle_model].filter(Boolean).join(" ")} · update {timeAgo(p.updated_at)} geleden
+                      {[p.vehicle_make, p.vehicle_model].filter(Boolean).join(" ")} · update{" "}
+                      <span style={{ color: isStale ? "var(--oxide)" : "var(--charcoal-soft)" }}>
+                        {timeAgo(lastIso)} geleden
+                      </span>
                     </div>
                   </div>
                   <span

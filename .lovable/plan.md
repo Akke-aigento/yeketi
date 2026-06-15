@@ -1,77 +1,63 @@
-## Analyse — wat werkt, wat niet
+## Status van wat er al staat ✅
 
-### 1. Afzender van mails (jouw grootste pijnpunt)
-- **Supabase auth-mails** (invite + wachtwoord reset) gaan nu via het default Supabase-mailsysteem. Afzender = iets als `noreply@mail.app.supabase.io`. Geen Yeketi branding, vaak in spam.
-- **Resend-mails** (offerte naar admin + fase-updates naar klant) gaan via `notify-events`. `FROM_EMAIL` secret is gezet, maar als fallback staat `onboarding@resend.dev` — als de secret niet exact klopt, krijg je dat lelijke testadres.
-- Er is **wél** een geverifieerd e-maildomein in de workspace (`sellqo.app`) maar dat hoort bij een ander project — niet bij Yeketi. Voor een propere afzender `noreply@yeketimotorworks.com` (of `mail@…`) moet er een Yeketi-subdomein geverifieerd worden, en moeten daarna de auth-mailtemplates gescaffold worden zodat invites/resets via jouw domein + jouw branding gaan.
+Veel ligt er al — ik ga niet vanaf nul herbouwen. Snelle inventaris:
 
-### 2. Invite/reset flow — functioneel
-- Invite stuurt naar `/reset-password` met `type=invite` in de hash. Reset-page detecteert dat en past de titel aan. ✅ werkt sinds vorige fix.
-- Maar `redirectTo` gebruikt `process.env.PUBLIC_SITE_URL`. Als die secret ooit naar de preview-URL wijst, komen klanten in preview-omgeving terecht in plaats van productie.
-- `resendInvite` faalt hard als de gebruiker al bestaat én bevestigd is. Geen nette melding in de UI.
-- `listUsers({ page: 1, perPage: 200 })` is een tijdbom: zodra er >200 users zijn, wordt een bestaande klant niet meer gevonden en wordt er opnieuw uitgenodigd / faalt het.
-- Geen check op `email_confirmed_at` bij convert-quote — als iemand ooit een aanvraag deed en nu reageert, krijgt hij geen nieuwe invite-link.
+- **DB & RLS:** alle tabellen bestaan (`profiles`, `projects`, `project_phases`, `phase_updates`, `update_photos`, `quote_requests`). RLS staat correct met `is_admin()` + `owns_project()` security-definer functies. Trigger `auto_activate_next_phase` werkt al.
+- **Storage:** private bucket `project-photos` bestaat.
+- **Routes:** `/portaal`, `/portaal/$projectId`, `/admin`, `/admin/offertes`, `/admin/projecten/$id`, `/admin/klanten` bestaan allemaal (132–393 regels per file).
+- **Quote conversion:** `convertQuoteToProject` server-fn werkt en seed't de 7 default fases.
 
-### 3. Login / reset-password UX
-- `/login`: bij "wachtwoord vergeten" zie je geen onderscheid tussen "mail verstuurd" en "mailadres bestaat niet" (Supabase verbergt dit bewust, prima — maar copy mag duidelijker).
-- `/reset-password`:
-  - Als de hash ongeldig/verlopen is en er is **geen** sessie, blijft het formulier zichtbaar maar disabled met "Recovery-link wordt geverifieerd…" — dat hangt voor altijd. Beter: na ~3s timeout → tonen "link ongeldig, vraag een nieuwe aan".
-  - Geen "wachtwoord tonen" toggle, geen sterkte-indicator.
-  - Bij invite staat er `Welkom — stel je wachtwoord in` maar geen vermelding van het e-mailadres waarvoor je het wachtwoord zet. Verwarrend als iemand meerdere adressen heeft.
-- Login-page heeft geen "wachtwoord tonen" en de "wachtwoord vergeten"-link staat onder de submit-knop — gebruikelijker is naast het wachtwoordveld.
-
-### 4. Mail-template (Resend, fase-updates en offerte naar admin)
-- Template ziet er goed uit (cream/charcoal/brass), maar:
-  - Geen plain-text fallback → slechtere deliverability + spam score hoger.
-  - Geen `Reply-To` header → klant kan niet zomaar antwoorden op een update.
-  - Geen unsubscribe / footer met fysiek adres → minder pro, hogere spam-kans.
-  - Logo ontbreekt visueel (alleen tekst-eyebrow).
-
-### 5. Overige observaties
-- Geen welkomstmail nadat invite-gebruiker zijn wachtwoord heeft gezet ("je portaal is klaar, bekijk je project").
-- Geen rate-limit-melding bij te veel reset-pogingen (Supabase geeft 429 → je toont generieke "iets ging mis").
-- Geen e-mail aan de klant bij `convertQuoteToProject` met uitleg "je hebt nu een portaal".
+⚠️ **Verschil met je spec:** quote_requests gebruikt Nederlandse kolomnamen (`naam`, `telefoon`, `merk`, `model`, `bouwjaar`, `type_werk`, `beschrijving`). Spec vraagt Engelse namen. Voorstel: NL behouden — alles is daar al op gewired.
 
 ---
 
-## Verbeterplan (volgorde van impact)
+## Wat ik wil afmaken (gefaseerd, in volgorde)
 
-### Stap 1 — Yeketi-domein voor mail opzetten (grootste win voor afzender)
-Setup-dialog tonen voor een Yeketi-subdomein (bv. `mail.yeketimotorworks.com`). Na verificatie:
-- `scaffold_auth_email_templates` → invite-, recovery-, magic-link- en e-mail-change-templates in Yeketi-stijl (zelfde cream/charcoal/brass als `notify-events`).
-- Afzender invites/resets wordt `Yeketi Motorworks <noreply@mail.yeketimotorworks.com>`.
-- `FROM_EMAIL` secret updaten naar hetzelfde adres zodat fase-update- en admin-mails dezelfde afzender krijgen.
-- `Reply-To` toevoegen aan Resend-calls met `info@yeketimotorworks.com` (of door jou gekozen adres).
+### Fase 1 — Audit & QA van bestaande flow (geen nieuwe features, eerst zeker weten dat huidige werkt)
+- Lees elke bestaande route door, draai Playwright als admin én klant tegen preview.
+- Verifieer RLS écht: klant A logt in → kan klant B niet zien (DB-query test via `requireSupabaseAuth`).
+- Verifieer dat alle `update_photos` via **signed URLs** geserveerd worden (niet public).
+- Lijst van concrete gaps & bugs maak ik klaar voor jou.
 
-### Stap 2 — Invite/reset robuuster maken (`src/lib/admin.functions.ts`)
-- Vervang `listUsers({ perPage: 200 })` door `getUserByEmail` (admin API) zodat het schaalbaar is.
-- Detecteer bestaande, al-bevestigde gebruikers en stuur dan een **password reset** in plaats van een nieuwe invite (anders krijgt klant "invite already accepted"-error).
-- `redirectTo` hardcoderen op publieke productie-URL (`https://yeketimotorworks.com/reset-password`) i.p.v. env-var die kan afwijken.
+### Fase 2 — Klantportaal afwerken (`/portaal/$projectId`)
+- **Visuele tijdlijn** met verticale rail: brass-gevulde dot (done), pulserende ring (active), hollow outline (pending).
+- **Lightbox** voor foto's: swipe op mobile, pijltjes op desktop, esc/tap to close.
+- "Nog niet gestart" placeholder onder pending fases.
+- Skeleton-states op lijst + tijdlijn.
+- `prefers-reduced-motion` → puls uit.
 
-### Stap 3 — `/reset-password` polijsten
-- Timeout van 4s op "Recovery-link wordt geverifieerd…" → toon dan `linkError` flow met "vraag nieuwe link aan".
-- Toon het e-mailadres van de sessie bovenaan ("Je stelt een wachtwoord in voor: `klant@example.com`").
-- Wachtwoord-tonen toggle + minimale sterkte-indicator (≥8 tekens, gemixt).
-- Bij invite: na opslaan → redirect direct naar `/portaal` (al zo) + één toast "Welkom, je portaal staat klaar".
+### Fase 3 — Admin update-flow ≤ 3 taps (`/admin/projecten/$id`)
+- Sticky `+ Nieuwe update` knop (bottom op mobile).
+- Stap 1 fase-picker (default = active), stap 2 body, stap 3 foto's via `<input capture="environment" multiple>`.
+- **Client-side image compress** naar max 1920px / ~300KB JPEG vóór upload (er bestaat al `src/lib/image-compress.ts` — herbruiken).
+- Upload **per foto** met progress + retry per stuk (niet all-or-nothing).
+- Edit/delete per update; delete verwijdert ook storage-objects.
+- "WhatsApp klant" knop met prefilled bericht.
 
-### Stap 4 — `/login` polijsten
-- "Wachtwoord vergeten?" link verplaatsen onder het wachtwoordveld (rechts uitgelijnd).
-- Wachtwoord-tonen toggle.
-- Bij `forgot`-flow: copy duidelijker ("Als dit adres bekend is, ontvang je binnen enkele minuten een link.").
-- 429-detectie → "Je hebt al een link opgevraagd, controleer je mailbox of probeer over een paar minuten opnieuw."
+### Fase 4 — Admin project-management
+- Fasemanager: add / rename / remove / **drag-to-reorder**.
+- Edit project info + status, bevestigdialog voor destructieve acties.
+- Optimistic UI op status changes.
 
-### Stap 5 — Mail-template upgraden (`notify-events`)
-- Plain-text variant meesturen (`text:` veld in Resend payload).
-- `reply_to` toevoegen.
-- Footer uitbreiden met fysiek adres + één-regelige uitleg "Je ontvangt deze mail omdat je een lopend project hebt bij Yeketi Motorworks."
-- Inline Yeketi-logo (kleine PNG/CID of een gehoste URL) boven de eyebrow.
+### Fase 5 — Admin dashboard & overige
+- **Dashboard stats**: actieve projecten, nieuwe offertes, projecten zonder update in ≥7 dagen.
+- "Stale eerst" sorting op actieve projectenlijst.
+- `/admin/projecten` index: filter op status, search op voertuig/klant.
+- Offertes: status pipeline (new → contacted → quoted → won → lost) inline editable, WhatsApp + Bel + "Maak project" knoppen.
+- Klanten: invite/resend + edit naam/telefoon (al deels aanwezig).
 
-### Stap 6 — Welkomstmail na eerste wachtwoord
-- Na succesvolle `updateUser({ password })` bij `type=invite`: server-fn die één welkomstmail stuurt met directe link naar het portaal.
+### Fase 6 — Polish & verificatie
+- Loading skeletons overal.
+- Confirm-dialogs op alle destructieve acties.
+- Playwright-test door volledige flow: klant logt in → ziet alleen eigen project → admin maakt update → klant ziet update + foto via signed URL.
 
 ---
 
-## Wat ik nodig heb van jou voor we beginnen
-1. **Welk subdomein** wil je voor mail? Voorstel: `mail.yeketimotorworks.com` (afzender wordt dan `noreply@mail.yeketimotorworks.com`).
-2. **Reply-to adres** dat klanten mogen mailen (bv. `info@yeketimotorworks.com` of `baraam@…`).
-3. **Akkoord op volgorde**: start ik met stap 1 (domein-setup, grootste impact op afzender) of wil je liever eerst stap 2+3 (flow robuuster) en daarna mail-branding?
+## Wat ik je moet vragen vóór ik start
+
+1. **Volgorde**: wil je fase 1→6 in deze volgorde (veiligste — eerst audit, dan invullen wat ontbreekt), of meteen door op een specifieke fase? *Aanrader: ik doe **fase 1 (audit)** eerst en lever je een korte lijst met gevonden gaps. Dan beslis jij waar we naar springen.*
+2. **Quote-request kolomnamen NL houden?** Verstandig — anders breekt veel bestaande code. Bevestig.
+3. **WhatsApp-bericht copy** voor admin-knoppen: oké met *"Hoi {voornaam}, er staat een nieuwe update van je {vehicle} klaar in je Yeketi portaal: {url}"*?
+4. Eerder vandaag stond de domein-setup voor `mail.yeketimotorworks.com` open — wil je dat ik die afzonderlijk afwerk zodra de DNS verified is, of mag dat parallel?
+
+Geef antwoord op deze 4 en ik begin met **fase 1 (audit + Playwright sweep)** zodat we niets dubbel bouwen.

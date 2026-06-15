@@ -135,25 +135,13 @@ function PortalProject() {
                   }}
                 />
                 {phases.map((phase, idx) => {
-                  const dotStyle: React.CSSProperties = {
-                    position: "absolute",
-                    left: 0,
-                    top: "4px",
-                    width: "21px",
-                    height: "21px",
-                    borderRadius: "999px",
-                    border: "1px solid var(--brass)",
-                    background: "transparent",
-                  };
-                  if (phase.status === "done") {
-                    dotStyle.background = "var(--brass)";
-                  } else if (phase.status === "active") {
-                    dotStyle.boxShadow = "0 0 0 0 rgba(176,131,44,0.6)";
-                    dotStyle.animation = "yeketi-pulse 2s ease-out infinite";
-                  }
+                  const dotClass =
+                    "timeline-dot" +
+                    (phase.status === "done" ? " is-done" : "") +
+                    (phase.status === "active" ? " is-active" : "");
                   return (
                     <li key={phase.id} className="relative" style={{ marginBottom: idx === phases.length - 1 ? 0 : "3.5rem" }}>
-                      <span aria-hidden style={dotStyle} />
+                      <span aria-hidden className={dotClass} style={{ position: "absolute", left: 0, top: "4px" }} />
                       <ScrollReveal>
                         <h2 style={{ fontSize: "clamp(1.4rem,2.4vw,1.8rem)" }}>{phase.name}</h2>
                         {phase.updates.length === 0 && (
@@ -210,6 +198,22 @@ function PortalProject() {
           role="dialog"
           aria-modal="true"
           onClick={() => setLightbox(null)}
+          onTouchStart={(e) => {
+            (e.currentTarget as HTMLDivElement & { _tsx?: number })._tsx = e.touches[0]?.clientX;
+          }}
+          onTouchEnd={(e) => {
+            const startX = (e.currentTarget as HTMLDivElement & { _tsx?: number })._tsx;
+            const endX = e.changedTouches[0]?.clientX;
+            if (startX == null || endX == null) return;
+            const dx = endX - startX;
+            if (Math.abs(dx) < 50) return;
+            setLightbox((lb) => lb && {
+              ...lb,
+              index: dx < 0
+                ? (lb.index + 1) % lb.urls.length
+                : (lb.index - 1 + lb.urls.length) % lb.urls.length,
+            });
+          }}
           style={{
             position: "fixed",
             inset: 0,
