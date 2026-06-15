@@ -28,12 +28,12 @@ export const Route = createFileRoute("/recent-werk")({
 type Shot = { src: string; alt: string; ratio: string; caption: string; date: string };
 
 const t2Shots: Shot[] = [
-  { src: shot01.url, alt: "VW T2 Westfalia bij aankomst, achterklep open", ratio: "4/3", date: "Mei 2024", caption: "Aankomst — Baraam en de eigenaar overlopen de staat van de bus." },
+  { src: shot01.url, alt: "VW T2 Westfalia bij aankomst, achterklep open", ratio: "4/3", date: "Mei 2024", caption: "Aankomst — Baram en de eigenaar overlopen de staat van de bus." },
   { src: shot03.url, alt: "VW T2 Westfalia vooraanzicht in tweekleurige originele lak", ratio: "4/3", date: "Mei 2024", caption: "Inventaris — alle originele delen blijven behouden waar het kan." },
   { src: shot02.url, alt: "VW T2 Westfalia zijaanzicht met opgeklapt slaapdak", ratio: "4/3", date: "Mei 2024", caption: "Slaapdak opgemeten, kap en scharnieren grondig nagekeken." },
   { src: shot04.url, alt: "VW T2 ontdaan van rubbers en ramen, klaar voor schuurwerk", ratio: "4/3", date: "Mei 2024", caption: "Ontmanteling — rubbers, ramen en sierlijsten gaan eruit voor het plaatwerk." },
   { src: shot05.url, alt: "VW T2 in plamuur, gemaskeerd voor spuitwerk", ratio: "4/3", date: "Mei 2024", caption: "Plamuur en schuurwerk — laag per laag tot het oppervlak weer strak is." },
-  { src: shot06.url, alt: "Baraam Yeketi en klant bij de afgewerkte VW T2 Westfalia", ratio: "4/3", date: "Mei 2024", caption: "Eindcontrole — Baraam tekent pas af als élk detail klopt." },
+  { src: shot06.url, alt: "Baram Maaruf en klant bij de afgewerkte VW T2 Westfalia", ratio: "4/3", date: "Mei 2024", caption: "Eindcontrole — Baram tekent pas af als élk detail klopt." },
   { src: shot07.url, alt: "Gerestaureerde VW T2 Westfalia in een bergachtig landschap", ratio: "4/3", date: "Juni 2024", caption: "Onderweg — de bus rijdt weer waar hij thuishoort." },
 ];
 
