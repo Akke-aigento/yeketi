@@ -3,12 +3,9 @@ import { ArrowRight } from "lucide-react";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { BeforeAfter } from "@/components/BeforeAfter";
 import { t } from "@/lib/copy";
 import heroImg from "@/assets/hero-workshop.jpg";
 import handsImg from "@/assets/craftsman-hands.jpg";
-import beforeImg from "@/assets/vw-t2-before.jpg";
-import afterImg from "@/assets/vw-t2-after.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -226,33 +223,19 @@ function Why() {
 function Recent() {
   return (
     <section style={{ paddingBlock: "clamp(4rem,9vw,8rem)", borderTop: "1px solid var(--charcoal)" }}>
-      <div className="container-edit grid gap-12 lg:grid-cols-12 lg:gap-16 items-center">
-        <div className="lg:col-span-5">
-          <ScrollReveal>
-            <p className="eyebrow">{t.recent.eyebrow}</p>
-            <h2 className="mt-5" style={{ fontSize: "clamp(1.8rem,3.4vw,2.8rem)" }}>
-              {t.recent.title}
-            </h2>
-            <p className="mt-5" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
-              {t.recent.body}
-            </p>
-            <Link to={t.recent.href} className="btn-y mt-8">
-              {t.recent.cta} <ArrowRight size={16} />
-            </Link>
-          </ScrollReveal>
-        </div>
-        <div className="lg:col-span-7">
-          <ScrollReveal delay={120}>
-            <BeforeAfter
-              before={beforeImg}
-              after={afterImg}
-              alt="VW T2 voor en na restauratie"
-            />
-            <p className="mt-3 text-xs" style={{ color: "var(--charcoal-soft)", fontStyle: "italic" }}>
-              Sleep om voor en na te vergelijken.
-            </p>
-          </ScrollReveal>
-        </div>
+      <div className="container-edit max-w-3xl">
+        <ScrollReveal>
+          <p className="eyebrow">{t.recent.eyebrow}</p>
+          <h2 className="mt-5" style={{ fontSize: "clamp(1.8rem,3.4vw,2.8rem)" }}>
+            {t.recent.title}
+          </h2>
+          <p className="mt-5" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
+            {t.recent.body}
+          </p>
+          <Link to={t.recent.href} className="btn-y mt-8">
+            {t.recent.cta} <ArrowRight size={16} />
+          </Link>
+        </ScrollReveal>
       </div>
     </section>
   );
