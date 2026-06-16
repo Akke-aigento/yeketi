@@ -1,9 +1,19 @@
 // Shared email layout (TS / server-fn side). Mirrors
 // supabase/functions/_shared/email-template.ts — keep in sync.
 
+export type Locale = "nl" | "en";
+
 export const COMPANY_LINE =
   "Yeketi Motorworks · Vredeplein 23, 3010 Kessel-Lo · info@yeketimotorworks.com · yeketimotorworks.com";
-export const REPLY_TO_DEFAULT = "info@yeketimotorworks.com";
+
+const DO_NOT_REPLY: Record<Locale, string> = {
+  nl: "Antwoord niet op deze e-mail — reageren doe je veilig in je portaal via de knop hierboven.",
+  en: "Please don't reply to this email — respond securely in your portal using the button above.",
+};
+const REPLY_FALLBACK_NOTE: Record<Locale, (addr: string) => string> = {
+  nl: (a) => `Lukt het niet? Stuur ons dan een bericht via ${a}.`,
+  en: (a) => `If that's not possible, you can reach us at ${a}.`,
+};
 
 export type EmailButton = { label: string; url: string };
 export type EmailLayoutOpts = {
@@ -16,6 +26,8 @@ export type EmailLayoutOpts = {
   secondaryCta?: EmailButton;
   footerNote?: string;
   replyTo?: string;
+  locale?: Locale;
+  isCustomer?: boolean;
 };
 
 export function escapeHtml(s: string): string {
@@ -47,7 +59,8 @@ function button(btn: EmailButton): string {
 }
 
 export function renderEmail(opts: EmailLayoutOpts): string {
-  const reply = opts.replyTo ?? REPLY_TO_DEFAULT;
+  const locale: Locale = opts.locale ?? "nl";
+  const reply = opts.replyTo ?? "info@yeketimotorworks.com";
   const pre = opts.preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;font-size:1px;line-height:1px;">${escapeHtml(opts.preheader)}</div>` : "";
   const eyebrow = opts.eyebrow ? `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:#B0832C;margin-bottom:14px;">${escapeHtml(opts.eyebrow)}</div>` : "";
   const intro = opts.intro ? `<p style="margin:0 0 18px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#4A453E;">${escapeHtml(opts.intro)}</p>` : "";
@@ -55,8 +68,14 @@ export function renderEmail(opts: EmailLayoutOpts): string {
   const cta = opts.cta ? `<div style="padding:22px 0 8px;text-align:center;">${button(opts.cta)}</div>` : "";
   const secondary = opts.secondaryCta ? `<div style="text-align:center;padding:6px 0 4px;"><a href="${escapeHtml(opts.secondaryCta.url)}" style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#4A453E;text-decoration:underline;">${escapeHtml(opts.secondaryCta.label)}</a></div>` : "";
   const footerExtra = opts.footerNote ? `<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(opts.footerNote)}</p>` : "";
+  const portalNotice = opts.isCustomer
+    ? `<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(DO_NOT_REPLY[locale])}</p>`
+    : "";
+  const replyLine = opts.isCustomer
+    ? `<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(REPLY_FALLBACK_NOTE[locale](reply))}</p>`
+    : `<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">Antwoord op deze mail komt rechtstreeks bij ons binnen via ${escapeHtml(reply)}.</p>`;
 
-  return `<!doctype html><html lang="nl"><head>
+  return `<!doctype html><html lang="${locale}"><head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="color-scheme" content="light only"/>
@@ -84,7 +103,8 @@ ${pre}
       <tr><td style="padding:0 24px 36px;text-align:center;">
         <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(COMPANY_LINE)}</p>
         ${footerExtra}
-        <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">Antwoord op deze mail komt rechtstreeks bij ons binnen via ${escapeHtml(reply)}.</p>
+        ${portalNotice}
+        ${replyLine}
         <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:1;color:#B0832C;font-style:italic;letter-spacing:0.06em;">unity in craftsmanship</p>
       </td></tr>
     </table>
