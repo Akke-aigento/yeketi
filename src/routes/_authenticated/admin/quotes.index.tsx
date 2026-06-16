@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { createBlankQuote } from "@/lib/quotes.functions";
 import { toast } from "sonner";
+import { OffertesTabs } from "@/components/OffertesTabs";
 
 export const Route = createFileRoute("/_authenticated/admin/quotes/")({
   head: () => ({ meta: [{ title: "Offertes — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -82,6 +83,7 @@ function QuotesIndex() {
 
   return (
     <AdminShell title="Offertes">
+      <OffertesTabs />
       <section className="container-edit" style={{ paddingBottom: "3rem" }}>
         <button onClick={newQuote} disabled={busy} className="btn-y-solid w-full">
           {busy ? "Bezig…" : "+ Nieuwe offerte"}
