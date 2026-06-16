@@ -280,3 +280,15 @@
 @media (prefers-reduced-motion: reduce) {
   .skeleton-y { animation: none; }
 }
+
+/* Admin refresh button — brass icon, optional spin while busy */
+@keyframes yeketi-spin {
+  to { transform: rotate(360deg); }
+}
+.yeketi-spin {
+  animation: yeketi-spin 0.9s linear infinite;
+  transform-origin: 50% 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .yeketi-spin { animation: none; }
+}
