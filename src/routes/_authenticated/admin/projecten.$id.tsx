@@ -38,6 +38,8 @@ function ProjectAdmin() {
   const [updates, setUpdates] = useState<Update[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -61,6 +63,14 @@ function ProjectAdmin() {
       const phRows = (ph.data as Phase[] | null) ?? [];
       setPhases(phRows);
       setCustomer((c.data as Customer | null) ?? null);
+      const proj = p.data as Project | null;
+      if (proj?.cover_photo_url) {
+        const { data: signed } = await supabase.storage
+          .from("project-photos").createSignedUrl(proj.cover_photo_url, 3600);
+        setCoverUrl(signed?.signedUrl ?? null);
+      } else {
+        setCoverUrl(null);
+      }
       if (phRows.length > 0) {
         const { data: u, error: ue } = await supabase
           .from("phase_updates").select("*")
@@ -100,6 +110,27 @@ function ProjectAdmin() {
     const { error } = await supabase.from("projects").update(patch).eq("id", id);
     if (error) { toast.error("Project bijwerken mislukt", { description: error.message }); return; }
     load();
+  }
+
+  async function uploadCover(file: File) {
+    if (!project) return;
+    setUploadingCover(true);
+    try {
+      const blob = await compressImage(file);
+      const path = `${id}/cover/${Date.now()}.jpg`;
+      const up = await supabase.storage.from("project-photos").upload(path, blob, {
+        contentType: "image/jpeg", upsert: false,
+      });
+      if (up.error) throw up.error;
+      const { error: ue } = await supabase.from("projects").update({ cover_photo_url: path }).eq("id", id);
+      if (ue) throw ue;
+      toast.success("Cover bijgewerkt");
+      load();
+    } catch (e) {
+      toast.error("Cover uploaden mislukt", { description: (e as Error).message });
+    } finally {
+      setUploadingCover(false);
+    }
   }
 
   async function addPhase() {
@@ -227,8 +258,36 @@ function ProjectAdmin() {
   return (
     <AdminShell>
       <div className="container-edit pt-3 pb-2">
-        <Link to="/admin" className="eyebrow" style={{ color: "var(--charcoal-soft)" }}>← Dashboard</Link>
+        <Link to="/admin/projecten" className="eyebrow" style={{ color: "var(--charcoal-soft)" }}>← Projecten</Link>
       </div>
+
+      {/* Cover hero */}
+      <section className="container-edit pb-4">
+        <div
+          className="relative"
+          style={{
+            aspectRatio: "21/9",
+            background: coverUrl ? `center/cover url(${coverUrl})` : "var(--charcoal)",
+            color: "var(--gold)",
+            display: "grid", placeItems: "center",
+            border: "1px solid var(--charcoal)",
+            fontFamily: "var(--font-display)", fontSize: "3rem",
+          }}
+        >
+          {!coverUrl && (project.vehicle_make?.[0] ?? project.title[0] ?? "·")}
+          <label
+            className="absolute bottom-2 right-2 text-[10px] uppercase tracking-[0.15em] px-3 py-1.5 cursor-pointer"
+            style={{ background: "rgba(34,31,27,0.78)", color: "var(--gold)", border: "1px solid var(--brass)" }}
+          >
+            {uploadingCover ? "Bezig…" : (coverUrl ? "Cover wijzigen" : "+ Cover foto")}
+            <input
+              type="file" accept="image/*" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCover(f); e.target.value = ""; }}
+              disabled={uploadingCover}
+            />
+          </label>
+        </div>
+      </section>
 
       <section className="container-edit pb-4">
         <input
