@@ -100,6 +100,19 @@ async function sbFetch(path: string) {
   return r.json();
 }
 
+// Resolves Baram's personal alert address. Prefers the value stored in
+// app_settings (key='admin_notify_email'); falls back to ADMIN_NOTIFY_EMAIL.
+async function resolveAdminNotifyEmail(): Promise<string> {
+  try {
+    const rows = await sbFetch(`app_settings?key=eq.admin_notify_email&select=value`);
+    const v = rows?.[0]?.value;
+    if (typeof v === "string" && v.trim()) return v.trim();
+  } catch (e) {
+    console.warn("resolveAdminNotifyEmail fallback", (e as Error).message);
+  }
+  return ADMIN_NOTIFY_EMAIL;
+}
+
 // Persist a delivery failure so admins can see what didn't go out.
 // Best-effort — never throw from here, the trigger has already done its job.
 async function logFailure(eventType: string, payload: unknown, errorMessage: string) {
@@ -176,7 +189,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (body.table === "quote_requests" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
+    if (body.table === "quote_requests" && body.type === "INSERT" && body.record) {
+      const adminTo = await resolveAdminNotifyEmail();
+      if (!adminTo) return new Response("ok");
       const r = body.record;
       const vehicle = [r.merk, r.model, r.bouwjaar].filter(Boolean).join(" ") || (r.type_werk as string) || "onbekend voertuig";
       const rows: Array<[string, string]> = [
@@ -194,7 +209,7 @@ Deno.serve(async (req) => {
         .join("");
       try {
         await sendEmail({
-          to: ADMIN_NOTIFY_EMAIL,
+          to: adminTo,
           subject: `Nieuwe offerteaanvraag — ${vehicle} (${r.naam})`,
           ...(() => {
             const tpl = {
@@ -230,7 +245,8 @@ Deno.serve(async (req) => {
         // Customer-facing "quote sent" is already covered by the in-app sendQuote
         // server fn (sends with PDF attachment). Here we notify the ADMIN on
         // customer responses (akkoord / afgewezen).
-        if (ADMIN_NOTIFY_EMAIL && prevStatus === "verstuurd" && (status === "akkoord" || status === "afgewezen")) {
+        const adminTo = await resolveAdminNotifyEmail();
+        if (adminTo && prevStatus === "verstuurd" && (status === "akkoord" || status === "afgewezen")) {
           const accepted = status === "akkoord";
           const reason = String(r.response_reason ?? "").trim();
           const tpl = {
@@ -244,7 +260,7 @@ Deno.serve(async (req) => {
             ctaUrl: adminUrl,
           };
           await sendEmail({
-            to: ADMIN_NOTIFY_EMAIL,
+            to: adminTo,
             subject: accepted ? `Offerte ${quoteNumber} geaccepteerd — ${title}` : `Offerte ${quoteNumber} afgewezen — ${title}`,
             html: emailTemplate(tpl),
             text: plainText(tpl),
@@ -259,7 +275,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (body.table === "update_reactions" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
+    if (body.table === "update_reactions" && body.type === "INSERT" && body.record) {
+      const adminTo = await resolveAdminNotifyEmail();
+      if (!adminTo) return new Response("ok");
       const r = body.record as Record<string, unknown>;
       const phaseUpdateId = String(r.phase_update_id ?? "");
       const authorId = String(r.author_id ?? "");
@@ -291,13 +309,49 @@ Deno.serve(async (req) => {
           ctaUrl: projectUrl,
         };
         await sendEmail({
-          to: ADMIN_NOTIFY_EMAIL,
+          to: adminTo,
           subject: `Nieuwe reactie — ${vehicle}`,
           html: emailTemplate(tpl),
           text: plainText(tpl),
         });
       } catch (e) {
         await logFailure("update_reactions", { phase_update_id: phaseUpdateId, author_id: authorId }, (e as Error).message);
+      }
+    }
+
+    if (body.table === "messages" && body.type === "INSERT" && body.record) {
+      const adminTo = await resolveAdminNotifyEmail();
+      if (!adminTo) return new Response("ok");
+      const r = body.record as Record<string, unknown>;
+      const sender = String(r.sender ?? "");
+      if (sender !== "klant") return new Response("ok");
+      const conversationId = String(r.conversation_id ?? "");
+      const authorId = String(r.author_id ?? "");
+      const msgBody = String(r.body ?? "");
+      try {
+        const convos = await sbFetch(`conversations?id=eq.${conversationId}&select=subject,contact_profile_id`);
+        const conv = convos[0];
+        if (!conv) return new Response("ok");
+        const profiles = await sbFetch(`profiles?id=eq.${authorId || conv.contact_profile_id}&select=full_name,email`);
+        const profile = profiles[0] ?? {};
+        const who = profile.full_name || profile.email || "Een klant";
+        const subject = conv.subject || "Nieuw bericht";
+        const adminUrl = `${PUBLIC_SITE_URL}/admin/berichten/${conversationId}`;
+        const preview = msgBody.length > 240 ? msgBody.slice(0, 240) + "…" : msgBody;
+        const tpl = {
+          headline: `Nieuw bericht van ${who}`,
+          intro: `<strong>${subject.replace(/</g, "&lt;")}</strong><br/><br/><em style="color:#4A453E;">"${preview.replace(/</g, "&lt;")}"</em>`,
+          ctaLabel: "Antwoord in admin",
+          ctaUrl: adminUrl,
+        };
+        await sendEmail({
+          to: adminTo,
+          subject: `Nieuw bericht — ${who}`,
+          html: emailTemplate(tpl),
+          text: plainText(tpl),
+        });
+      } catch (e) {
+        await logFailure("conversation_message", { conversation_id: conversationId, author_id: authorId }, (e as Error).message);
       }
     }
 

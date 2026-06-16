@@ -63,6 +63,14 @@ export function PortalHeader() {
           >
             {t.portal.overviewTitle}
           </Link>
+          <Link
+            to="/portaal/berichten"
+            className="text-[12px] tracking-[0.22em] uppercase"
+            style={{ color: "var(--charcoal)" }}
+            activeProps={{ style: { color: "var(--brass)" } }}
+          >
+            Berichten
+          </Link>
           <button onClick={handleLogout} className="btn-y" type="button">
             {t.portal.logout}
           </button>

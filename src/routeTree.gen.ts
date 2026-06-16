@@ -24,14 +24,17 @@ import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authenticated/portaal.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedPortaalBerichtenRouteImport } from './routes/_authenticated/portaal.berichten'
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 import { Route as AuthenticatedAdminOffertesRouteImport } from './routes/_authenticated/admin/offertes'
 import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authenticated/admin/klanten'
+import { Route as AuthenticatedAdminInstellingenRouteImport } from './routes/_authenticated/admin/instellingen'
 import { Route as AuthenticatedAdminRecentWerkIndexRouteImport } from './routes/_authenticated/admin/recent-werk.index'
 import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_authenticated/admin/quotes.index'
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
 import { Route as AuthenticatedAdminBerichtenIndexRouteImport } from './routes/_authenticated/admin/berichten.index'
 import { Route as AuthenticatedPortaalOfferteIdRouteImport } from './routes/_authenticated/portaal.offerte.$id'
+import { Route as AuthenticatedPortaalBerichtenIdRouteImport } from './routes/_authenticated/portaal.berichten.$id'
 import { Route as AuthenticatedAdminRecentWerkIdRouteImport } from './routes/_authenticated/admin/recent-werk.$id'
 import { Route as AuthenticatedAdminQuotesIdRouteImport } from './routes/_authenticated/admin/quotes.$id'
 import { Route as AuthenticatedAdminProjectenIdRouteImport } from './routes/_authenticated/admin/projecten.$id'
@@ -112,6 +115,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedPortaalBerichtenRoute =
+  AuthenticatedPortaalBerichtenRouteImport.update({
+    id: '/portaal/berichten',
+    path: '/portaal/berichten',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPortaalProjectIdRoute =
   AuthenticatedPortaalProjectIdRouteImport.update({
     id: '/portaal/$projectId',
@@ -128,6 +137,12 @@ const AuthenticatedAdminKlantenRoute =
   AuthenticatedAdminKlantenRouteImport.update({
     id: '/klanten',
     path: '/klanten',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminInstellingenRoute =
+  AuthenticatedAdminInstellingenRouteImport.update({
+    id: '/instellingen',
+    path: '/instellingen',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminRecentWerkIndexRoute =
@@ -159,6 +174,12 @@ const AuthenticatedPortaalOfferteIdRoute =
     id: '/portaal/offerte/$id',
     path: '/portaal/offerte/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPortaalBerichtenIdRoute =
+  AuthenticatedPortaalBerichtenIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedPortaalBerichtenRoute,
   } as any)
 const AuthenticatedAdminRecentWerkIdRoute =
   AuthenticatedAdminRecentWerkIdRouteImport.update({
@@ -198,15 +219,18 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/instellingen': typeof AuthenticatedAdminInstellingenRoute
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/portaal/berichten': typeof AuthenticatedPortaalBerichtenRouteWithChildren
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
   '/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
+  '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
@@ -225,15 +249,18 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/instellingen': typeof AuthenticatedAdminInstellingenRoute
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/portaal/berichten': typeof AuthenticatedPortaalBerichtenRouteWithChildren
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
   '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
   '/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
+  '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/admin/berichten': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
@@ -255,15 +282,18 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/_authenticated/admin/instellingen': typeof AuthenticatedAdminInstellingenRoute
   '/_authenticated/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/_authenticated/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/_authenticated/portaal/berichten': typeof AuthenticatedPortaalBerichtenRouteWithChildren
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/_authenticated/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/_authenticated/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/_authenticated/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
   '/_authenticated/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
+  '/_authenticated/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/_authenticated/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/_authenticated/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
@@ -285,15 +315,18 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/restauratie/vw-t2'
+    | '/admin/instellingen'
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/portaal/berichten'
     | '/admin/'
     | '/portaal/'
     | '/admin/berichten/$id'
     | '/admin/projecten/$id'
     | '/admin/quotes/$id'
     | '/admin/recent-werk/$id'
+    | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
     | '/admin/berichten/'
     | '/admin/projecten/'
@@ -312,15 +345,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/admin/instellingen'
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/portaal/berichten'
     | '/admin'
     | '/portaal'
     | '/admin/berichten/$id'
     | '/admin/projecten/$id'
     | '/admin/quotes/$id'
     | '/admin/recent-werk/$id'
+    | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
     | '/admin/berichten'
     | '/admin/projecten'
@@ -341,15 +377,18 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/restauratie/vw-t2'
+    | '/_authenticated/admin/instellingen'
     | '/_authenticated/admin/klanten'
     | '/_authenticated/admin/offertes'
     | '/_authenticated/portaal/$projectId'
+    | '/_authenticated/portaal/berichten'
     | '/_authenticated/admin/'
     | '/_authenticated/portaal/'
     | '/_authenticated/admin/berichten/$id'
     | '/_authenticated/admin/projecten/$id'
     | '/_authenticated/admin/quotes/$id'
     | '/_authenticated/admin/recent-werk/$id'
+    | '/_authenticated/portaal/berichten/$id'
     | '/_authenticated/portaal/offerte/$id'
     | '/_authenticated/admin/berichten/'
     | '/_authenticated/admin/projecten/'
@@ -479,6 +518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/portaal/berichten': {
+      id: '/_authenticated/portaal/berichten'
+      path: '/portaal/berichten'
+      fullPath: '/portaal/berichten'
+      preLoaderRoute: typeof AuthenticatedPortaalBerichtenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/portaal/$projectId': {
       id: '/_authenticated/portaal/$projectId'
       path: '/portaal/$projectId'
@@ -498,6 +544,13 @@ declare module '@tanstack/react-router' {
       path: '/klanten'
       fullPath: '/admin/klanten'
       preLoaderRoute: typeof AuthenticatedAdminKlantenRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/instellingen': {
+      id: '/_authenticated/admin/instellingen'
+      path: '/instellingen'
+      fullPath: '/admin/instellingen'
+      preLoaderRoute: typeof AuthenticatedAdminInstellingenRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/recent-werk/': {
@@ -535,6 +588,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortaalOfferteIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/portaal/berichten/$id': {
+      id: '/_authenticated/portaal/berichten/$id'
+      path: '/$id'
+      fullPath: '/portaal/berichten/$id'
+      preLoaderRoute: typeof AuthenticatedPortaalBerichtenIdRouteImport
+      parentRoute: typeof AuthenticatedPortaalBerichtenRoute
+    }
     '/_authenticated/admin/recent-werk/$id': {
       id: '/_authenticated/admin/recent-werk/$id'
       path: '/recent-werk/$id'
@@ -567,6 +627,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminInstellingenRoute: typeof AuthenticatedAdminInstellingenRoute
   AuthenticatedAdminKlantenRoute: typeof AuthenticatedAdminKlantenRoute
   AuthenticatedAdminOffertesRoute: typeof AuthenticatedAdminOffertesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -582,6 +643,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminInstellingenRoute: AuthenticatedAdminInstellingenRoute,
     AuthenticatedAdminKlantenRoute: AuthenticatedAdminKlantenRoute,
     AuthenticatedAdminOffertesRoute: AuthenticatedAdminOffertesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -603,9 +665,24 @@ const AuthenticatedAdminRouteRouteWithChildren =
     AuthenticatedAdminRouteRouteChildren,
   )
 
+interface AuthenticatedPortaalBerichtenRouteChildren {
+  AuthenticatedPortaalBerichtenIdRoute: typeof AuthenticatedPortaalBerichtenIdRoute
+}
+
+const AuthenticatedPortaalBerichtenRouteChildren: AuthenticatedPortaalBerichtenRouteChildren =
+  {
+    AuthenticatedPortaalBerichtenIdRoute: AuthenticatedPortaalBerichtenIdRoute,
+  }
+
+const AuthenticatedPortaalBerichtenRouteWithChildren =
+  AuthenticatedPortaalBerichtenRoute._addFileChildren(
+    AuthenticatedPortaalBerichtenRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedPortaalProjectIdRoute: typeof AuthenticatedPortaalProjectIdRoute
+  AuthenticatedPortaalBerichtenRoute: typeof AuthenticatedPortaalBerichtenRouteWithChildren
   AuthenticatedPortaalIndexRoute: typeof AuthenticatedPortaalIndexRoute
   AuthenticatedPortaalOfferteIdRoute: typeof AuthenticatedPortaalOfferteIdRoute
 }
@@ -613,6 +690,8 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedPortaalProjectIdRoute: AuthenticatedPortaalProjectIdRoute,
+  AuthenticatedPortaalBerichtenRoute:
+    AuthenticatedPortaalBerichtenRouteWithChildren,
   AuthenticatedPortaalIndexRoute: AuthenticatedPortaalIndexRoute,
   AuthenticatedPortaalOfferteIdRoute: AuthenticatedPortaalOfferteIdRoute,
 }
