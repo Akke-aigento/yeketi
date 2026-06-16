@@ -94,6 +94,7 @@ function QuoteEditor() {
 
   async function save() {
     if (!quote) return;
+    if (saving) return;
     setSaving(true);
     try {
       const { error: qe } = await supabase.from("quotes").update({
@@ -311,10 +312,10 @@ function QuoteEditor() {
              style={{ background: "var(--cream)", borderTop: "1px solid var(--charcoal)" }}>
           {editable ? (
             <>
-              <button disabled={saving || !dirty} onClick={save} className="btn-y">
+              <button disabled={saving || !dirty} aria-busy={saving} onClick={save} className="btn-y">
                 {saving ? "Bewaren…" : dirty ? "Bewaar concept" : "Bewaard"}
               </button>
-              <button disabled={sending} onClick={askSend} className="btn-y-solid">
+              <button disabled={sending} aria-busy={sending} onClick={askSend} className="btn-y-solid">
                 {sending ? "Versturen…" : "Verstuur naar klant"}
               </button>
             </>

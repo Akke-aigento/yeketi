@@ -204,6 +204,7 @@ function ProjectAdmin() {
   }
   async function confirmPublishToRecentWork() {
     if (!publishConsent) return;
+    if (publishing) return;
     setPublishing(true);
     try {
       const res = await publishToRecentWork({ data: { projectId: id, consent: true } });
@@ -504,10 +505,11 @@ function ProjectAdmin() {
                 <span>De klant gaf toestemming om dit project publiek te tonen.</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => setPublishOpen(false)} disabled={publishing} className="btn-y">Annuleer</button>
+                <button onClick={() => setPublishOpen(false)} disabled={publishing} aria-busy={publishing} className="btn-y">Annuleer</button>
                 <button
                   onClick={confirmPublishToRecentWork}
                   disabled={!publishConsent || publishing}
+                  aria-busy={publishing}
                   className="btn-y-solid"
                 >
                   {publishing ? "Bezig…" : "Maak concept"}
@@ -707,17 +709,17 @@ function NewUpdateModal({
             )}
           </div>
           {!published && (
-            <button onClick={submit} disabled={busy} className="btn-y-solid w-full">
+            <button onClick={submit} disabled={busy} aria-busy={busy} className="btn-y-solid w-full">
               {busy ? "Versturen…" : "Publiceer update"}
             </button>
           )}
           {published && failedCount > 0 && (
-            <button onClick={retryFailed} disabled={busy} className="btn-y-solid w-full">
+            <button onClick={retryFailed} disabled={busy} aria-busy={busy} className="btn-y-solid w-full">
               {busy ? "Bezig…" : `Probeer ${failedCount} mislukte opnieuw`}
             </button>
           )}
           {published && (
-            <button onClick={finish} disabled={busy} className="btn-y w-full">
+            <button onClick={finish} disabled={busy} aria-busy={busy} className="btn-y w-full">
               {allDone || failedCount === 0 ? "Klaar" : "Sluiten — mislukte foto's overslaan"}
             </button>
           )}

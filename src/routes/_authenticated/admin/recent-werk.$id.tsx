@@ -87,6 +87,7 @@ function PublicationEditor() {
 
   async function saveAll() {
     if (!pub) return;
+    if (saving) return;
     setSaving(true);
     try {
       if (Object.keys(dirtyPub).length > 0) {
@@ -117,6 +118,7 @@ function PublicationEditor() {
 
   async function uploadCover(file: File) {
     if (!pub) return;
+    if (coverUploading) return;
     setCoverUploading(true);
     try {
       const blob = await compressImage(file, { aspectRatio: RECENT_WORK_ASPECT, maxEdge: 1920, quality: 0.8 });
@@ -265,6 +267,7 @@ function PublicationEditor() {
           <button
             onClick={saveAll}
             disabled={!isDirty || saving}
+            aria-busy={saving}
             className="btn-y-solid"
             style={{ flex: 1 }}
           >
@@ -450,6 +453,7 @@ function UploadQueueModal({
           <button
             onClick={async () => { setBusy(true); try { await onConfirm(); } finally { setBusy(false); } }}
             disabled={busy || queue.length === 0}
+            aria-busy={busy}
             className="btn-y-solid w-full"
           >
             {busy ? "Bezig…" : `Upload ${queue.length} foto${queue.length === 1 ? "" : "'s"}`}

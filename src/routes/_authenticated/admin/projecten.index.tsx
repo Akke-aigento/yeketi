@@ -308,6 +308,7 @@ function NewProjectModal({ onClose, onCreated }: { onClose: () => void; onCreate
   }, [allCustomers, custQuery]);
 
   async function submit() {
+    if (busy) return;
     setBusy(true);
     try {
       let cid = customerId;
@@ -455,7 +456,7 @@ function NewProjectModal({ onClose, onCreated }: { onClose: () => void; onCreate
             </label>
           </div>
 
-          <button onClick={submit} disabled={busy} className="btn-y-solid w-full">
+          <button onClick={submit} disabled={busy} aria-busy={busy} className="btn-y-solid w-full">
             {busy ? "Aanmaken…" : "Project aanmaken"}
           </button>
         </div>

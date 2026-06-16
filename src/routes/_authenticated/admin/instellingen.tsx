@@ -77,7 +77,7 @@ function Instellingen() {
               )}
             </label>
             <div className="flex items-center gap-3">
-              <button type="submit" disabled={saving} className="btn-y-solid">
+              <button type="submit" disabled={saving} aria-busy={saving} className="btn-y-solid">
                 {saving ? "Opslaan…" : "Opslaan"}
               </button>
               {saved === "ok" && (
@@ -251,6 +251,7 @@ function AdminInviteSection() {
             <button
               type="submit"
               disabled={busy || confirm.trim().toUpperCase() !== CONFIRM_PHRASE || !email.trim()}
+              aria-busy={busy}
               className="btn-y-solid"
               style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
             >
@@ -310,6 +311,7 @@ function AdminInviteSection() {
                   type="button"
                   onClick={onRemove}
                   disabled={removeBusy || removeConfirm.trim().toUpperCase() !== "VERWIJDER ADMIN"}
+                  aria-busy={removeBusy}
                   className="btn-y-solid"
                   style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
                 >

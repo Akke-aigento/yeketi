@@ -39,12 +39,14 @@ function Klanten() {
   useEffect(() => { load(); }, []);
 
   async function onInvite(form: { email: string; full_name: string; phone: string }) {
+    if (busy) return;
     setBusy("invite");
     try { await invite({ data: form }); setShowInvite(false); load(); }
     catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
     finally { setBusy(null); }
   }
   async function onResend(email: string) {
+    if (busy) return;
     setBusy(email);
     try { await resend({ data: { email } }); alert("Uitnodiging opnieuw gestuurd."); }
     catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
@@ -52,6 +54,7 @@ function Klanten() {
   }
 
   async function onMessage(p: Profile) {
+    if (busy) return;
     setBusy(`msg-${p.id}`);
     try {
       const r = await openConv({ data: { profileId: p.id } });
@@ -62,6 +65,7 @@ function Klanten() {
 
   async function onEditSave(form: { full_name: string; phone: string; email: string; locale: "nl" | "en" }) {
     if (!editing) return;
+    if (busy) return;
     setBusy("edit");
     try {
       await update({ data: { profileId: editing.id, full_name: form.full_name, phone: form.phone, email: form.email, locale: form.locale } });
@@ -72,6 +76,7 @@ function Klanten() {
 
   async function onRemove() {
     if (!removing) return;
+    if (removeBusy) return;
     if (removeConfirm.trim().toUpperCase() !== "VERWIJDER KLANT") {
       alert("Typ exact: VERWIJDER KLANT");
       return;
@@ -110,6 +115,7 @@ function Klanten() {
                       <button
                         onClick={() => onMessage(p)}
                         disabled={busy === `msg-${p.id}`}
+                        aria-busy={busy === `msg-${p.id}`}
                         className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
                         style={{ color: "var(--charcoal)" }}
                       >
@@ -126,6 +132,7 @@ function Klanten() {
                         <button
                           onClick={() => onResend(p.email!)}
                           disabled={busy === p.email}
+                          aria-busy={busy === p.email}
                           className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
                           style={{ color: "var(--charcoal-soft)" }}
                         >
@@ -215,7 +222,7 @@ function InviteModal({ onClose, onSave, busy }: { onClose: () => void; onSave: (
             <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>Telefoon</span>
             <input className="field-y" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </label>
-          <button onClick={() => onSave({ email, full_name, phone })} disabled={busy || !email} className="btn-y-solid w-full mt-2">
+          <button onClick={() => onSave({ email, full_name, phone })} disabled={busy || !email} aria-busy={busy} className="btn-y-solid w-full mt-2">
             {busy ? "Versturen…" : "Stuur inloglink"}
           </button>
         </div>
@@ -272,6 +279,7 @@ function DeleteCustomerModal({ profile, projectCount, confirm, setConfirm, busy,
               type="button"
               onClick={onConfirm}
               disabled={busy || !ok}
+              aria-busy={busy}
               className="btn-y-solid"
               style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
             >
@@ -336,7 +344,7 @@ function EditCustomerModal({ profile, onClose, onSave, onDelete, busy }: {
               ))}
             </div>
           </label>
-          <button onClick={() => onSave({ full_name, phone, email, locale })} disabled={busy} className="btn-y-solid w-full mt-2">
+          <button onClick={() => onSave({ full_name, phone, email, locale })} disabled={busy} aria-busy={busy} className="btn-y-solid w-full mt-2">
             {busy ? "Opslaan…" : "Opslaan"}
           </button>
           <div className="hairline opacity-25" />

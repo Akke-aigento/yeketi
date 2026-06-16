@@ -292,3 +292,49 @@
 @media (prefers-reduced-motion: reduce) {
   .yeketi-spin { animation: none; }
 }
+
+/* ------------------------------------------------------------------
+ * Tap responsiveness — kill the 300ms mobile click delay everywhere
+ * we have interactive controls. Safe on desktop.
+ * ------------------------------------------------------------------ */
+@layer base {
+  button, a, [role="button"], summary, label, input[type="checkbox"], input[type="radio"], select {
+    touch-action: manipulation;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Universal busy state for branded buttons. Any button using one of
+ * the .btn-y* utilities gets an inline spinner + wait cursor as soon
+ * as it receives aria-busy="true". Components opt in by mirroring
+ * their existing `disabled={busy}` with `aria-busy={busy}`.
+ * ------------------------------------------------------------------ */
+.btn-y[aria-busy="true"],
+.btn-y-solid[aria-busy="true"],
+.btn-y-ghost-cream[aria-busy="true"] {
+  cursor: wait;
+  position: relative;
+}
+.btn-y[aria-busy="true"]::before,
+.btn-y-solid[aria-busy="true"]::before,
+.btn-y-ghost-cream[aria-busy="true"]::before {
+  content: "";
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 999px;
+  animation: yeketi-spin 0.7s linear infinite;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-y[aria-busy="true"]::before,
+  .btn-y-solid[aria-busy="true"]::before,
+  .btn-y-ghost-cream[aria-busy="true"]::before {
+    animation: none;
+    border-top-color: currentColor;
+    opacity: 0.55;
+  }
+}
