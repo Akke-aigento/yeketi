@@ -115,6 +115,55 @@ export const resendInvite = createServerFn({ method: "POST" })
     return { ok: true, channel };
   });
 
+// Invite a new admin. Requires explicit confirmation phrase to avoid sending
+// admin invites to customers by accident.
+export const inviteAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { email: string; full_name?: string; confirm: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as never);
+    if (data.confirm !== "IK WIL EEN ADMIN UITNODIGEN") {
+      throw new Error("Bevestiging onjuist");
+    }
+    const email = data.email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Ongeldig e-mailadres");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { user, channel } = await inviteOrReset(email, data.full_name ?? null);
+    if (!user) throw new Error("Kon gebruiker niet aanmaken");
+
+    await supabaseAdmin.from("profiles").upsert({
+      id: user.id,
+      full_name: data.full_name ?? null,
+      email,
+    });
+    // Grant admin role (idempotent via unique constraint).
+    const { error: re } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: user.id, role: "admin" }, { onConflict: "user_id,role" });
+    if (re) throw re;
+    return { userId: user.id, email, channel };
+  });
+
+export const listAdmins = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: roles, error } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin");
+    if (error) throw error;
+    const ids = (roles ?? []).map((r) => r.user_id);
+    if (ids.length === 0) return { admins: [] as { id: string; email: string | null; full_name: string | null }[] };
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("id, email, full_name")
+      .in("id", ids);
+    return { admins: profiles ?? [] };
+  });
+
 export const convertQuoteToProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { quoteId: string }) => input)
