@@ -33,13 +33,12 @@ export function AdminBottomNav({ email }: { email: string | null }) {
     (async () => {
       const [reqRes, convRes] = await Promise.all([
         supabase.from("quote_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
-        supabase.from("conversations").select("id, last_customer_message_at, last_seen_by_admin_at").eq("status", "open"),
+        supabase.from("conversations").select("id, last_message_at, admin_last_seen_at"),
       ]);
       const requests = reqRes.count ?? 0;
-      const messages = (convRes.data ?? []).reduce((n, c: { last_customer_message_at: string | null; last_seen_by_admin_at: string | null }) => {
-        if (!c.last_customer_message_at) return n;
-        if (!c.last_seen_by_admin_at) return n + 1;
-        return new Date(c.last_customer_message_at) > new Date(c.last_seen_by_admin_at) ? n + 1 : n;
+      const messages = (convRes.data ?? []).reduce((n, c) => {
+        const seen = c.admin_last_seen_at ? new Date(c.admin_last_seen_at).getTime() : 0;
+        return new Date(c.last_message_at).getTime() > seen ? n + 1 : n;
       }, 0);
       if (active) setCounts({ messages, requests });
     })();
