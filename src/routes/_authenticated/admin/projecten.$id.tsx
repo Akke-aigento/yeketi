@@ -11,6 +11,24 @@ import { ConfirmModal, PromptModal } from "@/components/AdminModals";
 import { publishProjectToRecentWork as publishProjectToRecentWorkFn } from "@/lib/recent-work.functions";
 import { fetchReactionsByUpdate, type ReactionView } from "@/lib/portal";
 import { ReactionThread } from "@/components/ReactionThread";
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export const Route = createFileRoute("/_authenticated/admin/projecten/$id")({
   head: () => ({ meta: [{ title: "Project — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -231,6 +249,33 @@ function ProjectAdmin() {
     const firstError = results.find((r) => r.error)?.error;
     if (firstError) { toast.error("Herschikken mislukt", { description: firstError.message }); return; }
     load();
+  }
+  async function persistPhaseOrder(ordered: Phase[]) {
+    // Assign sequential sort_order = index, persist any that changed.
+    const changed = ordered
+      .map((p, i) => ({ p, sort_order: i }))
+      .filter(({ p, sort_order }) => p.sort_order !== sort_order);
+    if (changed.length === 0) return;
+    const results = await Promise.all(
+      changed.map(({ p, sort_order }) =>
+        supabase.from("project_phases").update({ sort_order }).eq("id", p.id),
+      ),
+    );
+    const firstError = results.find((r) => r.error)?.error;
+    if (firstError) {
+      toast.error("Herschikken mislukt", { description: firstError.message });
+      load();
+    }
+  }
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = phases.findIndex((p) => p.id === active.id);
+    const newIndex = phases.findIndex((p) => p.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = arrayMove(phases, oldIndex, newIndex);
+    setPhases(next); // optimistic
+    void persistPhaseOrder(next);
   }
   async function deleteUpdate(u: Update) {
     setConfirmState({
