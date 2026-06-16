@@ -217,6 +217,67 @@ function InviteModal({ onClose, onSave, busy }: { onClose: () => void; onSave: (
   );
 }
 
+function DeleteCustomerModal({ profile, projectCount, confirm, setConfirm, busy, onClose, onConfirm }: {
+  profile: Profile;
+  projectCount: number;
+  confirm: string;
+  setConfirm: (v: string) => void;
+  busy: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const ok = confirm.trim().toUpperCase() === "VERWIJDER KLANT";
+  return (
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+      <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "2px solid var(--oxide)" }}>
+        <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--oxide)", color: "var(--cream)" }}>
+          <span style={{ fontFamily: "var(--font-display)" }}>Klant volledig verwijderen</span>
+          <button onClick={onClose} style={{ color: "var(--cream)" }}>✕</button>
+        </div>
+        <div className="px-4 py-4 space-y-4">
+          <div className="flex items-start gap-3">
+            <span aria-hidden className="text-xl leading-none" style={{ color: "var(--oxide)" }}>⚠</span>
+            <div className="text-sm" style={{ color: "var(--charcoal)", lineHeight: 1.6 }}>
+              Je staat op het punt om <strong>{profile.full_name || profile.email}</strong> volledig uit het systeem te verwijderen.
+              Dit verwijdert: het account (login), het profiel,
+              {projectCount > 0 ? <> <strong>{projectCount} project{projectCount === 1 ? "" : "en"}</strong> met alle fasen, updates en foto's,</> : null}
+              {" "}alle conversaties en berichten, en alle reacties.
+              Verzonden offertes blijven bewaard zonder klantkoppeling voor de boekhouding.
+              Deze actie is <strong>definitief en onomkeerbaar</strong>.
+            </div>
+          </div>
+          <label className="block">
+            <span className="text-[11px] uppercase tracking-[0.2em]" style={{ color: "var(--oxide)" }}>
+              Typ ter bevestiging: <strong>VERWIJDER KLANT</strong>
+            </span>
+            <input
+              type="text"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className="field-y mt-2 w-full"
+              autoComplete="off"
+              spellCheck={false}
+              autoFocus
+            />
+          </label>
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={busy || !ok}
+              className="btn-y-solid"
+              style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
+            >
+              {busy ? "Bezig…" : "Definitief verwijderen"}
+            </button>
+            <button type="button" onClick={onClose} className="btn-y-ghost">Annuleren</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EditCustomerModal({ profile, onClose, onSave, busy }: {
   profile: Profile;
   onClose: () => void;
