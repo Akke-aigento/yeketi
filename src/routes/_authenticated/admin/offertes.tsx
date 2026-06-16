@@ -425,7 +425,11 @@ function PhotoGrid({
   onMount: () => void;
   onOpen: (url: string) => void;
 }) {
-  useEffect(() => { onMount(); }, [onMount]);
+  // Trigger the signed-URL fetch once when the grid first appears. onMount
+  // is recreated each parent render, so we intentionally fire only on mount
+  // and rely on the parent's own cache guard to dedupe.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { onMount(); }, []);
   if (!urls) {
     return (
       <div className="grid grid-cols-3 gap-1">
