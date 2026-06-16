@@ -150,7 +150,7 @@ function PortalProject() {
                     (phase.status === "active" ? " is-active" : "");
                   return (
                     <li key={phase.id} className="relative" style={{ marginBottom: idx === phases.length - 1 ? 0 : "3.5rem" }}>
-                      <span aria-hidden className={dotClass} style={{ position: "absolute", left: 0, top: "4px" }} />
+                      <span aria-hidden className={dotClass} style={{ position: "absolute", left: "calc(-2.25rem - 0.5px)", top: "0.5rem" }} />
                       <ScrollReveal>
                         <h2 style={{ fontSize: "clamp(1.4rem,2.4vw,1.8rem)" }}>{phase.name}</h2>
                         {phase.updates.length === 0 && (
