@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminShell, statusBadge } from "@/components/AdminShell";
-import { listCustomers, inviteCustomer, resendInvite } from "@/lib/admin.functions";
+import { listCustomers, inviteCustomer, resendInvite, deleteCustomer } from "@/lib/admin.functions";
 import { updateCustomer, findOrCreateConversationForContact } from "@/lib/messages.functions";
 import { t } from "@/lib/copy";
 
@@ -19,12 +19,16 @@ function Klanten() {
   const invite = useServerFn(inviteCustomer);
   const resend = useServerFn(resendInvite);
   const update = useServerFn(updateCustomer);
+  const remove = useServerFn(deleteCustomer);
   const openConv = useServerFn(findOrCreateConversationForContact);
   const nav = useNavigate();
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [showInvite, setShowInvite] = useState(false);
   const [editing, setEditing] = useState<Profile | null>(null);
+  const [removing, setRemoving] = useState<Profile | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState("");
+  const [removeBusy, setRemoveBusy] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
@@ -64,6 +68,20 @@ function Klanten() {
       setEditing(null); load();
     } catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
     finally { setBusy(null); }
+  }
+
+  async function onRemove() {
+    if (!removing) return;
+    if (removeConfirm.trim().toUpperCase() !== "VERWIJDER KLANT") {
+      alert("Typ exact: VERWIJDER KLANT");
+      return;
+    }
+    setRemoveBusy(true);
+    try {
+      await remove({ data: { userId: removing.id, confirm: "VERWIJDER KLANT" } });
+      setRemoving(null); setRemoveConfirm(""); load();
+    } catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
+    finally { setRemoveBusy(false); }
   }
 
   return (
@@ -113,6 +131,13 @@ function Klanten() {
                         {busy === p.email ? "…" : "Stuur link"}
                       </button>
                     )}
+                    <button
+                      onClick={() => { setRemoving(p); setRemoveConfirm(""); }}
+                      className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
+                      style={{ color: "var(--oxide)" }}
+                    >
+                      Verwijder
+                    </button>
                   </div>
                 </div>
                 {pr.length > 0 && (
@@ -144,6 +169,17 @@ function Klanten() {
 
       {showInvite && <InviteModal onClose={() => setShowInvite(false)} onSave={onInvite} busy={busy === "invite"} />}
       {editing && <EditCustomerModal profile={editing} onClose={() => setEditing(null)} onSave={onEditSave} busy={busy === "edit"} />}
+      {removing && (
+        <DeleteCustomerModal
+          profile={removing}
+          projectCount={projects.filter((x) => x.customer_id === removing.id).length}
+          confirm={removeConfirm}
+          setConfirm={setRemoveConfirm}
+          busy={removeBusy}
+          onClose={() => { setRemoving(null); setRemoveConfirm(""); }}
+          onConfirm={onRemove}
+        />
+      )}
     </AdminShell>
   );
 }
@@ -175,6 +211,67 @@ function InviteModal({ onClose, onSave, busy }: { onClose: () => void; onSave: (
           <button onClick={() => onSave({ email, full_name, phone })} disabled={busy || !email} className="btn-y-solid w-full mt-2">
             {busy ? "Versturen…" : "Stuur inloglink"}
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteCustomerModal({ profile, projectCount, confirm, setConfirm, busy, onClose, onConfirm }: {
+  profile: Profile;
+  projectCount: number;
+  confirm: string;
+  setConfirm: (v: string) => void;
+  busy: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const ok = confirm.trim().toUpperCase() === "VERWIJDER KLANT";
+  return (
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+      <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "2px solid var(--oxide)" }}>
+        <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--oxide)", color: "var(--cream)" }}>
+          <span style={{ fontFamily: "var(--font-display)" }}>Klant volledig verwijderen</span>
+          <button onClick={onClose} style={{ color: "var(--cream)" }}>✕</button>
+        </div>
+        <div className="px-4 py-4 space-y-4">
+          <div className="flex items-start gap-3">
+            <span aria-hidden className="text-xl leading-none" style={{ color: "var(--oxide)" }}>⚠</span>
+            <div className="text-sm" style={{ color: "var(--charcoal)", lineHeight: 1.6 }}>
+              Je staat op het punt om <strong>{profile.full_name || profile.email}</strong> volledig uit het systeem te verwijderen.
+              Dit verwijdert: het account (login), het profiel,
+              {projectCount > 0 ? <> <strong>{projectCount} project{projectCount === 1 ? "" : "en"}</strong> met alle fasen, updates en foto's,</> : null}
+              {" "}alle conversaties en berichten, en alle reacties.
+              Verzonden offertes blijven bewaard zonder klantkoppeling voor de boekhouding.
+              Deze actie is <strong>definitief en onomkeerbaar</strong>.
+            </div>
+          </div>
+          <label className="block">
+            <span className="text-[11px] uppercase tracking-[0.2em]" style={{ color: "var(--oxide)" }}>
+              Typ ter bevestiging: <strong>VERWIJDER KLANT</strong>
+            </span>
+            <input
+              type="text"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className="field-y mt-2 w-full"
+              autoComplete="off"
+              spellCheck={false}
+              autoFocus
+            />
+          </label>
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={busy || !ok}
+              className="btn-y-solid"
+              style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
+            >
+              {busy ? "Bezig…" : "Definitief verwijderen"}
+            </button>
+            <button type="button" onClick={onClose} className="btn-y-ghost">Annuleren</button>
+          </div>
         </div>
       </div>
     </div>

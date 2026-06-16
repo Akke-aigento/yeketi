@@ -375,3 +375,48 @@ export const cleanupOrphanQuotePhotos = createServerFn({ method: "POST" })
     await removeInChunks("quote-photos", orphans);
     return { removedFiles: orphans.length, scanned: allPaths.length };
   });
+
+// Volledig verwijderen van een klant: alle projectfoto's uit storage,
+// daarna het auth-account → cascade ruimt profiel, projecten, fasen,
+// updates, foto-records, reacties, conversaties en berichten op.
+// Offertes (quotes) blijven bestaan met customer_id = NULL voor de
+// boekhouding. Vereist bevestigingszin "VERWIJDER KLANT".
+export const deleteCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; confirm: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as never);
+    if (data.confirm !== "VERWIJDER KLANT") {
+      throw new Error("Bevestiging onjuist");
+    }
+    const ctx = context as { userId: string };
+    if (data.userId === ctx.userId) {
+      throw new Error("Je kunt jezelf niet als klant verwijderen");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Veiligheidsrem: weiger als deze gebruiker admin is.
+    const { data: isAdminRole } = await supabaseAdmin
+      .from("user_roles").select("user_id").eq("user_id", data.userId).eq("role", "admin").maybeSingle();
+    if (isAdminRole) {
+      throw new Error("Deze gebruiker is admin – trek eerst de admin-rol in via Instellingen");
+    }
+
+    // 1) Wis alle project-foto's in storage (de DB-cascade ruimt records op,
+    //    maar storage-bestanden moeten expliciet verwijderd worden).
+    const { data: projects } = await supabaseAdmin
+      .from("projects").select("id").eq("customer_id", data.userId);
+    let removedFiles = 0;
+    for (const p of projects ?? []) {
+      const paths = await listAllUnder("project-photos", p.id);
+      await removeInChunks("project-photos", paths);
+      removedFiles += paths.length;
+    }
+
+    // 2) Harde verwijdering – cascade doet profiles, projects, phases,
+    //    phase_updates, update_photos, update_reactions, conversations,
+    //    messages en user_roles. quotes.customer_id wordt op NULL gezet.
+    const { error: de } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (de) throw de;
+    return { ok: true, removedFiles };
+  });
