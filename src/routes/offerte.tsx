@@ -211,6 +211,12 @@ function Offerte() {
                 <p className="md:col-span-2" style={{ color: "var(--oxide)" }}>{errorMsg}</p>
               )}
 
+              {/* Honeypot — leave empty */}
+              <div className="md:col-span-2" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
+
               <div className="md:col-span-2 mt-4">
                 <button type="submit" className="btn-y-solid" disabled={status === "sending"}>
                   {status === "sending" ? t.offerte.labels.sending : t.offerte.labels.submit}
