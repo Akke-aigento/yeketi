@@ -1,62 +1,97 @@
+
 ## Doel
-Mobile admin-navigatie vervangen door een vaste bottom tab bar met "Meer"-sheet, en de tab-volgorde herordenen volgens de natuurlijke werkfunnel. Desktop behoudt huidige top-nav (geen scroll nodig op die breedte). Geen wijzigingen aan logic, RLS, of data.
 
-## Nieuwe tab-volgorde (overal)
-`Dashboard · Berichten · Aanvragen · Offertes · Projecten · Klanten · Recent Werk · Instellingen`
+Een duidelijk rood bolletje op "Berichten" tonen wanneer er ongelezen berichten
+zijn — zowel in het klantportaal (header) als in admin (bottom-nav én desktop
+top-nav). Vandaag is er enkel een goud bolletje in de admin bottom-nav, en aan
+klantzijde helemaal niets.
 
-Volgt de funnel: inbox → lead → offerte → werk → klant → marketing → config.
+## Wat klopt nu al
 
-## Mobile bottom tab bar
+- Admin heeft `conversations.admin_last_seen_at`. Bij openen van een gesprek
+  zet `getConversation` die op `now()`. AdminBottomNav telt ongelezen
+  conversaties (`last_message_at > admin_last_seen_at`) en toont nu een
+  goud bolletje.
 
-### Layout
-Vaste balk onderaan het scherm (alleen `< sm`), in Yeketi-stijl:
-- Achtergrond `var(--charcoal)`, bovenrand `var(--brass)`, `safe-area-inset-bottom` padding.
-- 5 slots, gelijke breedte:
-  1. **Dashboard** (icoon: gauge)
-  2. **Berichten** (icoon: message-square, met unread badge in `var(--gold)`)
-  3. **Aanvragen** (icoon: inbox, met "nieuw"-badge)
-  4. **Projecten** (icoon: wrench)
-  5. **Meer** (icoon: more-horizontal) — opent sheet
-- Icoon ~20px + label `text-[10px] uppercase tracking-[0.18em]`. Actief = `var(--gold)`, inactief = `var(--cream)` op 65% opacity, met dunne gold accent-streep boven.
-- Hoofd-content krijgt `pb-20 sm:pb-0` zodat niets onder de balk verdwijnt.
+## Wat er ontbreekt / fout zit
 
-### "Meer"-sheet
-shadcn `Sheet` (side="bottom"), rustige editorial lijst:
-- Offertes
-- Klanten
-- Recent Werk
-- Instellingen
-- divider
-- Email-adres (read-only) + "Uitloggen" knop in `var(--gold)`
-- "Naar de site →" link
+1. **Geen tracking aan klantzijde** — `conversations` heeft geen
+   `customer_last_seen_at`, dus we kunnen niet weten of de klant het laatste
+   admin-bericht al heeft gezien.
+2. **Geen badge in `PortalHeader`** op de "Berichten"-link.
+3. **Goud i.p.v. rood** in admin — de gebruiker wil expliciet rood
+   ("rood notificatietje").
+4. **Geen badge in de admin desktop top-nav** (`AdminShell`), enkel in de
+   mobiele bottom-nav.
 
-Sluit automatisch bij route-wissel. Respecteert `prefers-reduced-motion`.
+## Aanpak
 
-### Desktop (`sm:` en hoger)
-Huidige top-nav blijft, maar:
-- Tabs herordend volgens nieuwe volgorde.
-- `overflow-x-auto` + mask-fade weg (niet meer nodig — 8 tabs passen op desktop).
-- Bottom bar verborgen (`sm:hidden`).
+### 1. Database (migratie)
 
-## Top-header op mobile
-Vereenvoudigen nu de tabs naar beneden gaan:
-- Alleen logo "Yeketi Admin" links + "Uitloggen" rechts.
-- Geen tweede rij meer. Veel rustiger.
+Nieuwe migratie:
+- Kolom `conversations.customer_last_seen_at timestamptz` toevoegen.
+- Geen RLS-/policy-wijzigingen — bestaande policies dekken `UPDATE` door de
+  klant op zijn eigen conversation al. (Verifiëren; indien niet, een nauwe
+  `UPDATE`-policy toevoegen die enkel `customer_last_seen_at` mag muteren door
+  `contact_profile_id = auth.uid()`. Géén bestaande policies aanraken.)
 
-## Badges
-- Berichten-tab toont rode/gouden dot bij ongelezen klant-berichten (hergebruik bestaande unread-query uit dashboard).
-- Aanvragen-tab toont dot bij status `new` aanvragen.
-- In "Meer"-knop: dot als er iets in de overflow-tabs aandacht vraagt (bv. instellingen-warning) — voor nu alleen visueel voorzien, geen logica vereist.
+### 2. Server-functies (`src/lib/messages.functions.ts`)
 
-## Portal-header
-Portal heeft maar 2 echte tabs (Overzicht, Berichten) + Admin-link voor admins. Daar is geen bottom bar nodig — huidige aanpak werkt prima, niet aanraken behalve eventueel de Admin-link consistenter maken. **Geen wijziging in deze ronde** tenzij gewenst.
+- `getMyConversation` → na ophalen van de conversation `customer_last_seen_at`
+  bumpen naar `now()` (zoals `getConversation` dat doet voor admin).
+- Nieuwe lichte server-fn `getMyUnreadMessagesCount` (vereist auth) — telt of
+  er een eigen conversation is waar `last_message_at > customer_last_seen_at`
+  EN het laatste bericht niet van de klant zelf komt. Returnt `{ unread: 0|1 }`
+  (één conversation per klant, dus volstaat boolean-achtig).
+- Geen wijziging aan business logic of mail-pipeline.
+
+### 3. Klantportaal (`src/components/PortalHeader.tsx`)
+
+- Bij mount `getMyUnreadMessagesCount` ophalen.
+- Rood bolletje rechtsboven de "Berichten"-link tonen wanneer `unread > 0`.
+- Re-fetch bij route-wissel (eenvoudige `useRouterState`-trigger zoals in
+  `AdminBottomNav`).
+
+### 4. Admin
+
+- **`AdminBottomNav.tsx`**: kleur van `Dot` van `var(--gold)` naar
+  `var(--oxide)` (de bestaande rode/roest-token) zodat het visueel een
+  notificatie wordt. Logica blijft identiek.
+- **`AdminShell.tsx`** (desktop top-nav): zelfde teller-hook
+  (conversations + quote_requests count zoals in bottom-nav) en hetzelfde
+  rode bolletje naast "Berichten" en "Aanvragen". Eén gedeelde helper om
+  duplicatie te vermijden: `src/hooks/useAdminUnreadCounts.ts` die de
+  bestaande query uit `AdminBottomNav` herbruikt.
+
+### 5. Niet doen
+
+- Geen wijzigingen aan RLS-rollen, auth-flows, mail-templates of
+  notify-events pipeline.
+- Geen polling / realtime subscriptions toevoegen — refetch bij navigatie
+  volstaat (zelfde patroon als nu).
+
+## Technische details
+
+```text
+conversations
+├── admin_last_seen_at         (bestaand)  → bumped door getConversation
+└── customer_last_seen_at      (nieuw)     → bumped door getMyConversation
+
+Badge-logica:
+- Klant: unread = (laatste bericht != klant) AND last_message_at > customer_last_seen_at
+- Admin: unread conv-count = aantal conversaties met last_message_at > admin_last_seen_at
+- Admin: unread requests   = quote_requests waar status = 'new'
+```
+
+Rode kleur: hergebruik bestaande token `var(--oxide)` (al in het palet,
+gebruikt voor "Sluiten" en `lost`-status), zodat de notificatie binnen de
+huidige design tokens blijft.
 
 ## Bestanden
-- `src/components/AdminShell.tsx` — tabs-array herordenen, mobile top-nav vereenvoudigen, desktop nav schoonmaken, bottom bar renderen via nieuwe component, `pb-20 sm:pb-0` op main.
-- `src/components/AdminBottomNav.tsx` (nieuw) — bottom bar + "Meer"-sheet, unread badges.
-- Hergebruik bestaande Supabase queries voor badge-counts (geen nieuwe RPC's).
 
-## Wat we NIET doen
-- Geen wijziging aan routes, loaders, RLS, server functions.
-- Geen iconen-only desktop variant.
-- Geen portal-navigatie wijzigen.
+- **Nieuw**: `supabase/migrations/<ts>_add_customer_last_seen_at.sql`
+- **Nieuw**: `src/hooks/useAdminUnreadCounts.ts`
+- **Gewijzigd**: `src/lib/messages.functions.ts` (bump + nieuwe fn)
+- **Gewijzigd**: `src/components/PortalHeader.tsx` (badge)
+- **Gewijzigd**: `src/components/AdminBottomNav.tsx` (kleur + hook)
+- **Gewijzigd**: `src/components/AdminShell.tsx` (badge op desktop nav)
