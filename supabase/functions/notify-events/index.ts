@@ -319,6 +319,42 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (body.table === "messages" && body.type === "INSERT" && body.record) {
+      const adminTo = await resolveAdminNotifyEmail();
+      if (!adminTo) return new Response("ok");
+      const r = body.record as Record<string, unknown>;
+      const sender = String(r.sender ?? "");
+      if (sender !== "klant") return new Response("ok");
+      const conversationId = String(r.conversation_id ?? "");
+      const authorId = String(r.author_id ?? "");
+      const msgBody = String(r.body ?? "");
+      try {
+        const convos = await sbFetch(`conversations?id=eq.${conversationId}&select=subject,contact_profile_id`);
+        const conv = convos[0];
+        if (!conv) return new Response("ok");
+        const profiles = await sbFetch(`profiles?id=eq.${authorId || conv.contact_profile_id}&select=full_name,email`);
+        const profile = profiles[0] ?? {};
+        const who = profile.full_name || profile.email || "Een klant";
+        const subject = conv.subject || "Nieuw bericht";
+        const adminUrl = `${PUBLIC_SITE_URL}/admin/berichten/${conversationId}`;
+        const preview = msgBody.length > 240 ? msgBody.slice(0, 240) + "…" : msgBody;
+        const tpl = {
+          headline: `Nieuw bericht van ${who}`,
+          intro: `<strong>${subject.replace(/</g, "&lt;")}</strong><br/><br/><em style="color:#4A453E;">"${preview.replace(/</g, "&lt;")}"</em>`,
+          ctaLabel: "Antwoord in admin",
+          ctaUrl: adminUrl,
+        };
+        await sendEmail({
+          to: adminTo,
+          subject: `Nieuw bericht — ${who}`,
+          html: emailTemplate(tpl),
+          text: plainText(tpl),
+        });
+      } catch (e) {
+        await logFailure("conversation_message", { conversation_id: conversationId, author_id: authorId }, (e as Error).message);
+      }
+    }
+
     return new Response("ok", { status: 200 });
   } catch (e) {
     console.error(e);
