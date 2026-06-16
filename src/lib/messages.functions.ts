@@ -321,7 +321,7 @@ export const updateCustomer = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context as unknown as AdminCtx);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: Record<string, unknown> = {};
+    const patch: { full_name?: string | null; phone?: string | null; email?: string } = {};
     if (typeof data.full_name !== "undefined") patch.full_name = data.full_name?.toString().trim() || null;
     if (typeof data.phone !== "undefined") patch.phone = data.phone?.toString().trim() || null;
     if (typeof data.email !== "undefined" && data.email) {
