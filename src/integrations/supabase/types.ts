@@ -194,6 +194,41 @@ export type Database = {
           },
         ]
       }
+      quote_lines: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          quote_id: string
+          sort_order: number
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          quote_id: string
+          sort_order?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          quote_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_lines_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_requests: {
         Row: {
           beschrijving: string | null
@@ -238,6 +273,71 @@ export type Database = {
           type_werk?: string
         }
         Relationships: []
+      }
+      quotes: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          id: string
+          intro_text: string
+          notes_text: string
+          quote_number: string | null
+          quote_request_id: string | null
+          responded_at: string | null
+          response_reason: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["quote_doc_status"]
+          title: string
+          total_amount: number
+          updated_at: string
+          valid_until: string | null
+          vehicle_label: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          intro_text?: string
+          notes_text?: string
+          quote_number?: string | null
+          quote_request_id?: string | null
+          responded_at?: string | null
+          response_reason?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_doc_status"]
+          title?: string
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          vehicle_label?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          intro_text?: string
+          notes_text?: string
+          quote_number?: string | null
+          quote_request_id?: string | null
+          responded_at?: string | null
+          response_reason?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_doc_status"]
+          title?: string
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          vehicle_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recent_work_items: {
         Row: {
@@ -385,6 +485,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      next_quote_number: { Args: never; Returns: string }
       owns_project: {
         Args: { _project: string; _uid: string }
         Returns: boolean
@@ -401,6 +502,7 @@ export type Database = {
         | "transport_return"
         | "delivered"
         | "archived"
+      quote_doc_status: "concept" | "verstuurd" | "akkoord" | "afgewezen"
       quote_status: "new" | "contacted" | "quoted" | "won" | "lost"
       recent_work_status: "draft" | "published"
     }
@@ -540,6 +642,7 @@ export const Constants = {
         "delivered",
         "archived",
       ],
+      quote_doc_status: ["concept", "verstuurd", "akkoord", "afgewezen"],
       quote_status: ["new", "contacted", "quoted", "won", "lost"],
       recent_work_status: ["draft", "published"],
     },
