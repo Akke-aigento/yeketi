@@ -418,6 +418,7 @@ export type Database = {
           notes_text: string
           quote_number: string | null
           quote_request_id: string | null
+          reminder_sent_at: string | null
           responded_at: string | null
           response_reason: string | null
           sent_at: string | null
@@ -436,6 +437,7 @@ export type Database = {
           notes_text?: string
           quote_number?: string | null
           quote_request_id?: string | null
+          reminder_sent_at?: string | null
           responded_at?: string | null
           response_reason?: string | null
           sent_at?: string | null
@@ -454,6 +456,7 @@ export type Database = {
           notes_text?: string
           quote_number?: string | null
           quote_request_id?: string | null
+          reminder_sent_at?: string | null
           responded_at?: string | null
           response_reason?: string | null
           sent_at?: string | null
