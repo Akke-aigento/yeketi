@@ -28,14 +28,27 @@ function Login() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  // If user is already signed in, send them to the portal.
+  // If user is already signed in, send them to the right place.
   useEffect(() => {
     let active = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (active && data.session) navigate({ to: "/portaal" });
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) navigate({ to: "/portaal" });
+    async function go() {
+      const { data } = await supabase.auth.getSession();
+      if (!active || !data.session) return;
+      const { data: isAdmin } = await supabase.rpc("has_role", {
+        _user_id: data.session.user.id,
+        _role: "admin",
+      });
+      navigate({ to: isAdmin ? "/admin" : "/portaal" });
+    }
+    go();
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        const { data: isAdmin } = await supabase.rpc("has_role", {
+          _user_id: session.user.id,
+          _role: "admin",
+        });
+        navigate({ to: isAdmin ? "/admin" : "/portaal" });
+      }
     });
     return () => { active = false; sub.subscription.unsubscribe(); };
   }, [navigate]);
