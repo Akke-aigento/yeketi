@@ -116,13 +116,13 @@ function Offertes() {
 
   async function convertNow(q: Quote) {
     setConfirmState({
-      title: "Project & portaaluitnodiging",
-      message: `${q.naam} heeft al een profiel uit de aanvraag. We maken nu een project aan en sturen de eerste portaaluitnodiging naar ${q.email}. Doorgaan?`,
+      title: "Project aanmaken",
+      message: `${q.naam} is bij de aanvraag al uitgenodigd voor het portaal. We maken nu enkel het project aan. Doorgaan?`,
       onConfirm: async () => {
         setBusy(q.id);
         try {
           await convert({ data: { quoteId: q.id } });
-          toast.success("Project aangemaakt en portaaluitnodiging verstuurd.");
+          toast.success("Project aangemaakt.");
           load();
         } catch (e) {
           toast.error("Fout bij aanmaken", { description: (e as Error).message });
@@ -304,7 +304,7 @@ function Offertes() {
                       aria-busy={busy === q.id}
                       className="btn-y-solid w-full"
                     >
-                      {busy === q.id ? "Bezig…" : "Maak project & verstuur portaaluitnodiging"}
+                      {busy === q.id ? "Bezig…" : "Maak project aan"}
                     </button>
                     <button
                       onClick={async () => {

@@ -147,8 +147,9 @@ export const guardQuoteSubmission = createServerFn({ method: "POST" })
   });
 
 // After an anon offerte insert succeeds, the client calls this to ensure a
-// silent profile + conversation get created for first-time leads (no invite
-// email sent — Baram contacts them personally).
+// profile + conversation exist for the lead and a portal invite is sent
+// (same behaviour as the contact form). Existing profiles are not re-mailed
+// — findOrInviteUser short-circuits when a profile already exists.
 export const linkQuoteRequestToConversation = createServerFn({ method: "POST" })
   .inputValidator((input: { quoteRequestId: string }) => input)
   .handler(async ({ data }) => {
@@ -160,7 +161,7 @@ export const linkQuoteRequestToConversation = createServerFn({ method: "POST" })
     const email = (qr.email ?? "").toString().toLowerCase().trim();
     if (!EMAIL_RE.test(email)) return { ok: false } as const;
     const qrLocale = (qr as { locale?: string }).locale === "en" ? "en" : "nl";
-    const { userId } = await findOrInviteUser(email, qr.naam ?? null, { skipInvite: true, locale: qrLocale });
+    const { userId } = await findOrInviteUser(email, qr.naam ?? null, { locale: qrLocale });
     const subject = [qr.merk, qr.model, qr.bouwjaar].filter(Boolean).join(" ") || "Offerteaanvraag";
     const convId = await ensureConversation(userId, "quote_request", subject);
     // If trigger didn't write the systeem message (because profile didn't exist yet), write it now.

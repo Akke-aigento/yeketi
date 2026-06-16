@@ -228,11 +228,24 @@ export const convertQuoteToProject = createServerFn({ method: "POST" })
     if (qe || !q) throw qe ?? new Error("Aanvraag niet gevonden");
 
     const email = (q.email as string).trim().toLowerCase();
-    const { user } = await inviteOrReset(email, q.naam as string);
-    if (!user) throw new Error("Kon klant niet aanmaken");
+    // Profile already exists: created (and invited) when the customer submitted
+    // the public offerte form. Look it up; only fall back to a silent create
+    // if it's somehow missing — never send a second invite/reset here.
+    let { data: profile } = await supabaseAdmin
+      .from("profiles").select("id").eq("email", email).maybeSingle();
+    if (!profile) {
+      const { data: created, error: ce } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        email_confirm: false,
+        user_metadata: q.naam ? { full_name: q.naam as string } : undefined,
+      });
+      if (ce || !created.user) throw ce ?? new Error("Kon klant niet aanmaken");
+      profile = { id: created.user.id };
+    }
+    const userId = profile.id as string;
 
     await supabaseAdmin.from("profiles").upsert({
-      id: user.id,
+      id: userId,
       full_name: q.naam,
       phone: q.telefoon,
       email,
@@ -241,7 +254,7 @@ export const convertQuoteToProject = createServerFn({ method: "POST" })
     const title = [q.merk, q.model, q.bouwjaar].filter(Boolean).join(" ") || (q.type_werk as string);
     const { data: project, error: pe } = await supabaseAdmin
       .from("projects").insert({
-        customer_id: user.id,
+        customer_id: userId,
         vehicle_make: q.merk,
         vehicle_model: q.model,
         vehicle_year: q.bouwjaar,
