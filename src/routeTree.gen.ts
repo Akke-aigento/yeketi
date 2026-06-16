@@ -17,6 +17,7 @@ import { Route as OverRouteImport } from './routes/over'
 import { Route as OfferteRouteImport } from './routes/offerte'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DienstenRouteImport } from './routes/diensten'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
@@ -74,6 +75,11 @@ const LoginRoute = LoginRouteImport.update({
 const DienstenRoute = DienstenRouteImport.update({
   id: '/diensten',
   path: '/diensten',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -181,6 +187,7 @@ const AuthenticatedAdminBerichtenIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/diensten': typeof DienstenRoute
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/diensten': typeof DienstenRoute
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/contact': typeof ContactRoute
   '/diensten': typeof DienstenRoute
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/contact'
     | '/diensten'
     | '/login'
     | '/offerte'
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/contact'
     | '/diensten'
     | '/login'
     | '/offerte'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/contact'
     | '/diensten'
     | '/login'
     | '/offerte'
@@ -348,6 +360,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ContactRoute: typeof ContactRoute
   DienstenRoute: typeof DienstenRoute
   LoginRoute: typeof LoginRoute
   OfferteRoute: typeof OfferteRoute
@@ -415,6 +428,13 @@ declare module '@tanstack/react-router' {
       path: '/diensten'
       fullPath: '/diensten'
       preLoaderRoute: typeof DienstenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -603,6 +623,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ContactRoute: ContactRoute,
   DienstenRoute: DienstenRoute,
   LoginRoute: LoginRoute,
   OfferteRoute: OfferteRoute,
