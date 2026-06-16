@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { submitContactForm } from "@/lib/messages.functions";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/contact")({
 });
 
 function Contact() {
+  const t = useT();
   const submit = useServerFn(submitContactForm);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -28,6 +30,7 @@ function Contact() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (status === "sending") return;
     setErrorMsg(null);
     const fd = new FormData(e.currentTarget);
     setStatus("sending");
@@ -45,7 +48,7 @@ function Contact() {
       (e.target as HTMLFormElement).reset();
     } catch (err) {
       setStatus("err");
-      setErrorMsg((err as Error).message || "Er ging iets mis. Probeer opnieuw.");
+      setErrorMsg((err as Error).message || t.contact.error);
     }
   };
 
@@ -55,11 +58,10 @@ function Contact() {
       <main className="flex-1">
         <section className="container-edit" style={{ paddingBlock: "clamp(3.5rem,7vw,6rem)", maxWidth: "780px" }}>
           <ScrollReveal>
-            <p className="eyebrow">Contact</p>
-            <h1 className="mt-5" style={{ fontSize: "clamp(2.2rem,5vw,3.6rem)" }}>Stuur een bericht</h1>
+            <p className="eyebrow">{t.contact.eyebrow}</p>
+            <h1 className="mt-5" style={{ fontSize: "clamp(2.2rem,5vw,3.6rem)" }}>{t.contact.title}</h1>
             <p className="mt-6" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
-              Een vraag, een idee, of gewoon zin om eens te praten over een klassieker?
-              Schrijf een bericht. Baram antwoordt persoonlijk.
+              {t.contact.intro}
             </p>
           </ScrollReveal>
 
@@ -67,19 +69,18 @@ function Contact() {
             <ScrollReveal>
               <div className="mt-12" style={{ border: "1px solid var(--brass)", padding: "2.5rem" }}>
                 <p className="italic-quote" style={{ color: "var(--brass)", fontSize: "1.35rem" }}>
-                  Bedankt — je bericht is binnen.
+                  {t.contact.successTitle}
                 </p>
                 <p className="mt-4" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
-                  We sturen je ook een uitnodiging voor het portaal, zodat je het antwoord
-                  en alle vervolgberichten op één plek terugvindt.
+                  {t.contact.successBody}
                 </p>
-                <Link to="/" className="btn-y mt-8 inline-flex">Terug naar de site</Link>
+                <Link to="/" className="btn-y mt-8 inline-flex">{t.contact.back}</Link>
               </div>
             </ScrollReveal>
           ) : (
             <form onSubmit={onSubmit} className="mt-12 grid gap-6">
               <div>
-                <span className="eyebrow block mb-3">Taal · antwoord per mail</span>
+                <span className="eyebrow block mb-3">{t.contact.langLabel}</span>
                 <div className="flex gap-2">
                   {(["nl", "en"] as const).map((l) => (
                     <button
@@ -93,21 +94,21 @@ function Contact() {
                         color: locale === l ? "var(--cream)" : "var(--charcoal)",
                       }}
                     >
-                      {l === "nl" ? "Nederlands" : "English"}
+                      {l === "nl" ? t.contact.langNl : t.contact.langEn}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="eyebrow block mb-3" htmlFor="naam">Naam *</label>
+                <label className="eyebrow block mb-3" htmlFor="naam">{t.contact.nameLabel} *</label>
                 <input id="naam" name="naam" required maxLength={120} className="field-y" />
               </div>
               <div>
-                <label className="eyebrow block mb-3" htmlFor="email">E-mail *</label>
+                <label className="eyebrow block mb-3" htmlFor="email">{t.contact.emailLabel} *</label>
                 <input id="email" name="email" type="email" required maxLength={255} className="field-y" />
               </div>
               <div>
-                <label className="eyebrow block mb-3" htmlFor="bericht">Bericht *</label>
+                <label className="eyebrow block mb-3" htmlFor="bericht">{t.contact.messageLabel} *</label>
                 <textarea id="bericht" name="bericht" required rows={6} maxLength={3000} className="field-y" style={{ resize: "vertical" }} />
               </div>
               {/* Honeypot */}
@@ -117,8 +118,9 @@ function Contact() {
               </div>
               {errorMsg && <p style={{ color: "var(--oxide)" }}>{errorMsg}</p>}
               <div>
-                <button type="submit" className="btn-y-solid" disabled={status === "sending"}>
-                  {status === "sending" ? "Versturen…" : "Verstuur bericht"}
+                <button type="submit" className="btn-y-solid inline-flex items-center gap-2" disabled={status === "sending"}>
+                  {status === "sending" && <Spinner />}
+                  {status === "sending" ? t.contact.sending : t.contact.submit}
                 </button>
               </div>
             </form>
@@ -127,5 +129,22 @@ function Contact() {
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: "inline-block",
+        width: 14,
+        height: 14,
+        border: "2px solid currentColor",
+        borderTopColor: "transparent",
+        borderRadius: "50%",
+        animation: "yeketi-spin 0.7s linear infinite",
+      }}
+    />
   );
 }

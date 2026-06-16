@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent, type FormEvent } from "react";
 import { z } from "zod";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -39,18 +39,18 @@ function Offerte() {
   const guard = useServerFn(guardQuoteSubmission);
   const link = useServerFn(linkQuoteRequestToConversation);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
-  const [photoCount, setPhotoCount] = useState(0);
+  const [photos, setPhotos] = useState<File[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [locale, setLocale] = useState<"nl" | "en">("nl");
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (status === "sending") return;
     setErrorMsg(null);
     const form = e.currentTarget;
     const fd = new FormData(form);
     const hp = String(fd.get("website") ?? "");
-    const fileInput = form.elements.namedItem("fotos") as HTMLInputElement | null;
-    const files = fileInput?.files ? Array.from(fileInput.files) : [];
+    const files = photos;
     if (files.length > 5) {
       setErrorMsg(t.offerte.photoTooMany);
       return;
@@ -112,12 +112,30 @@ function Offerte() {
       catch (e) { console.warn("conversation link failed", e); }
       setStatus("ok");
       form.reset();
-      setPhotoCount(0);
+      setPhotos([]);
     } catch (err) {
       console.error(err);
       setStatus("err");
       setErrorMsg(t.offerte.error);
     }
+  };
+
+  const addFiles = (incoming: FileList | File[] | null) => {
+    if (!incoming) return;
+    const arr = Array.from(incoming).filter((f) => f.type.startsWith("image/"));
+    setPhotos((prev) => {
+      const merged = [...prev];
+      for (const f of arr) {
+        if (merged.length >= 5) break;
+        // skip dupes (by name + size)
+        if (merged.some((m) => m.name === f.name && m.size === f.size)) continue;
+        merged.push(f);
+      }
+      return merged;
+    });
+  };
+  const removeFile = (idx: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== idx));
   };
 
   return (
@@ -213,20 +231,18 @@ function Offerte() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="eyebrow block mb-3" htmlFor="fotos">{t.offerte.labels.fotos}</label>
-                <input
-                  id="fotos"
-                  name="fotos"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => setPhotoCount(e.currentTarget.files?.length ?? 0)}
-                  className="block w-full text-sm"
-                  style={{ paddingBlock: "0.5rem", color: "var(--charcoal-soft)" }}
+                <PhotoUploader
+                  label={t.offerte.labels.fotos}
+                  addLabel={t.offerte.addPhotos}
+                  hint={t.offerte.addPhotosHint}
+                  optional={t.offerte.photosOptional}
+                  count={photos.length}
+                  countLabel={t.offerte.photosChosen(photos.length)}
+                  removeLabel={t.offerte.removePhoto}
+                  files={photos}
+                  onAdd={addFiles}
+                  onRemove={removeFile}
                 />
-                <p className="mt-2 text-xs" style={{ color: "var(--charcoal-soft)" }}>
-                  {photoCount > 0 ? t.offerte.photosChosen(photoCount) : t.offerte.photosOptional}
-                </p>
               </div>
 
               {errorMsg && (
@@ -240,7 +256,25 @@ function Offerte() {
               </div>
 
               <div className="md:col-span-2 mt-4">
-                <button type="submit" className="btn-y-solid" disabled={status === "sending"}>
+                <button
+                  type="submit"
+                  className="btn-y-solid inline-flex items-center gap-2"
+                  disabled={status === "sending"}
+                >
+                  {status === "sending" && (
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        display: "inline-block",
+                        width: 14,
+                        height: 14,
+                        border: "2px solid currentColor",
+                        borderTopColor: "transparent",
+                        borderRadius: "50%",
+                        animation: "yeketi-spin 0.7s linear infinite",
+                      }}
+                    />
+                  )}
                   {status === "sending" ? t.offerte.labels.sending : t.offerte.labels.submit}
                 </button>
               </div>
@@ -270,6 +304,156 @@ function Field({
         {label} {required && <span style={{ color: "var(--oxide)" }}>*</span>}
       </label>
       <input id={name} name={name} type={type} required={required} className="field-y" />
+    </div>
+  );
+}
+
+function PhotoUploader({
+  label,
+  addLabel,
+  hint,
+  optional,
+  count,
+  countLabel,
+  removeLabel,
+  files,
+  onAdd,
+  onRemove,
+}: {
+  label: string;
+  addLabel: string;
+  hint: string;
+  optional: string;
+  count: number;
+  countLabel: string;
+  removeLabel: string;
+  files: File[];
+  onAdd: (f: FileList | File[] | null) => void;
+  onRemove: (i: number) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [urls, setUrls] = useState<string[]>([]);
+  const [dragging, setDragging] = useState(false);
+
+  useEffect(() => {
+    const next = files.map((f) => URL.createObjectURL(f));
+    setUrls(next);
+    return () => { next.forEach((u) => URL.revokeObjectURL(u)); };
+  }, [files]);
+
+  const onDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragging(false);
+    onAdd(e.dataTransfer.files);
+  };
+
+  const full = count >= 5;
+
+  return (
+    <div>
+      <span className="eyebrow block mb-3">{label}</span>
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={onDrop}
+        onClick={() => !full && inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if ((e.key === "Enter" || e.key === " ") && !full) {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        style={{
+          cursor: full ? "not-allowed" : "pointer",
+          border: `1.5px dashed ${dragging ? "var(--brass)" : "var(--charcoal)"}`,
+          background: dragging ? "color-mix(in oklab, var(--brass) 8%, transparent)" : "transparent",
+          padding: "1.5rem",
+          textAlign: "center",
+          transition: "border-color .15s, background .15s",
+          opacity: full ? 0.55 : 1,
+        }}
+      >
+        <div style={{ fontSize: "0.95rem", color: "var(--charcoal)", fontWeight: 500 }}>
+          + {addLabel}
+        </div>
+        <div className="mt-2 text-xs" style={{ color: "var(--charcoal-soft)" }}>
+          {hint}
+        </div>
+      </div>
+      <input
+        ref={inputRef}
+        id="fotos"
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={(e) => { onAdd(e.target.files); e.target.value = ""; }}
+        style={{ display: "none" }}
+      />
+      <p className="mt-3 text-xs" style={{ color: count > 0 ? "var(--brass)" : "var(--charcoal-soft)" }}>
+        {count > 0 ? countLabel : optional}
+      </p>
+      {count > 0 && (
+        <ul
+          className="mt-3 grid gap-3"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", listStyle: "none", padding: 0 }}
+        >
+          {files.map((f, i) => (
+            <li
+              key={`${f.name}-${i}`}
+              style={{ position: "relative", border: "1px solid var(--charcoal)", background: "var(--cream)" }}
+            >
+              <div style={{ aspectRatio: "1 / 1", overflow: "hidden", background: "#000" }}>
+                {urls[i] && (
+                  <img
+                    src={urls[i]}
+                    alt={f.name}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                )}
+              </div>
+              <div
+                className="text-[11px]"
+                style={{
+                  padding: "6px 8px",
+                  color: "var(--charcoal)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={f.name}
+              >
+                {f.name}
+              </div>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onRemove(i); }}
+                aria-label={removeLabel}
+                style={{
+                  position: "absolute",
+                  top: 4,
+                  right: 4,
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "var(--charcoal)",
+                  color: "var(--cream)",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  lineHeight: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
