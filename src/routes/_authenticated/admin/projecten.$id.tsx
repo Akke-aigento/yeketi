@@ -484,6 +484,8 @@ function ProjectAdmin() {
                   onDelete={() => deletePhase(p)}
                   onSetStatus={(s) => setPhaseStatus(p, s)}
                   onDeleteUpdate={(u) => deleteUpdate(u)}
+                  onDeletePhoto={(ph) => deletePhoto(ph)}
+                  onAddPhotos={(u, files) => addPhotosToUpdate(u, files)}
                 />
               ))}
             </ol>
