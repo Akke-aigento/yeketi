@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated/admin/klanten")({
   component: Klanten,
 });
 
-type Profile = { id: string; full_name: string | null; email: string | null; phone: string | null };
+type Profile = { id: string; full_name: string | null; email: string | null; phone: string | null; locale: "nl" | "en" | null };
 type Project = { id: string; customer_id: string; title: string; status: keyof typeof t.portal.statusLabels };
 
 function Klanten() {
@@ -60,11 +60,11 @@ function Klanten() {
     finally { setBusy(null); }
   }
 
-  async function onEditSave(form: { full_name: string; phone: string; email: string }) {
+  async function onEditSave(form: { full_name: string; phone: string; email: string; locale: "nl" | "en" }) {
     if (!editing) return;
     setBusy("edit");
     try {
-      await update({ data: { profileId: editing.id, full_name: form.full_name, phone: form.phone, email: form.email } });
+      await update({ data: { profileId: editing.id, full_name: form.full_name, phone: form.phone, email: form.email, locale: form.locale } });
       setEditing(null); load();
     } catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
     finally { setBusy(null); }
@@ -103,7 +103,7 @@ function Klanten() {
                         {p.full_name || p.email}
                       </div>
                       <div className="mt-1 text-xs truncate" style={{ color: "var(--charcoal-soft)", letterSpacing: "0.04em" }}>
-                        {p.email}{p.phone ? ` · ${p.phone}` : ""}
+                        {p.email}{p.phone ? ` · ${p.phone}` : ""} · {(p.locale ?? "nl").toUpperCase()}
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:shrink-0">
