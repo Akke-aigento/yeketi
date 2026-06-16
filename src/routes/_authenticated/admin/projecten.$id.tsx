@@ -258,7 +258,7 @@ function ProjectAdmin() {
       },
     });
   }
-  async function addPhotosToUpdate(u: Update, files: FileList | null) {
+  async function addPhotosToUpdate(u: Update, files: File[]) {
     if (!files || files.length === 0) return;
     const existing = photos.filter((p) => p.update_id === u.id).length;
     let okCount = 0;
@@ -267,7 +267,7 @@ function ProjectAdmin() {
         const f = files[i];
         const blob = await compressImage(f);
         const safeIdx = String(existing + i).padStart(3, "0");
-        const path = `${id}/${u.id}/${Date.now()}-${safeIdx}.jpg`;
+        const path = `${id}/${u.id}/${Date.now()}-${safeIdx}-${i}.jpg`;
         const up = await supabase.storage.from("project-photos").upload(path, blob, {
           contentType: "image/jpeg", upsert: false,
         });
@@ -584,7 +584,7 @@ function SortablePhaseItem({
   onSetStatus: (s: Phase["status"]) => void;
   onDeleteUpdate: (u: Update) => void;
   onDeletePhoto: (ph: Photo) => void;
-  onAddPhotos: (u: Update, files: FileList | null) => void;
+  onAddPhotos: (u: Update, files: File[]) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: phase.id });
   const style: React.CSSProperties = {
@@ -683,7 +683,11 @@ function SortablePhaseItem({
                   + Foto's toevoegen
                   <input
                     type="file" accept="image/*" multiple className="hidden"
-                    onChange={(e) => { onAddPhotos(u, e.target.files); e.target.value = ""; }}
+                    onChange={(e) => {
+                      const picked = e.target.files ? Array.from(e.target.files) : [];
+                      e.target.value = "";
+                      onAddPhotos(u, picked);
+                    }}
                   />
                 </label>
                 <ReactionThread
