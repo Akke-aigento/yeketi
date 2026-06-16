@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminRefreshKey } from "@/hooks/useAdminRefresh";
 
 export function useAdminUnreadCounts() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const refreshKey = useAdminRefreshKey();
   const [counts, setCounts] = useState<{ messages: number; requests: number }>({ messages: 0, requests: 0 });
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export function useAdminUnreadCounts() {
       if (active) setCounts({ messages, requests });
     })();
     return () => { active = false; };
-  }, [pathname]);
+  }, [pathname, refreshKey]);
 
   return counts;
 }

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AdminShell, statusBadge, timeAgo } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { t } from "@/lib/copy";
+import { useAdminRefreshKey, useAdminInterval } from "@/hooks/useAdminRefresh";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin — Yeketi" }, { name: "robots", content: "noindex" }] }),
@@ -26,6 +27,8 @@ type ActivityItem = {
 };
 
 function Dashboard() {
+  const refreshKey = useAdminRefreshKey();
+  useAdminInterval(60_000);
   const [projects, setProjects] = useState<ProjectRow[] | null>(null);
   const [newQuotes, setNewQuotes] = useState<number | null>(null);
   const [stale, setStale] = useState<number | null>(null);
@@ -176,7 +179,7 @@ function Dashboard() {
       });
     })();
     return () => { active = false; };
-  }, []);
+  }, [refreshKey]);
 
   const greeting = useMemo(() => {
     const h = now.getHours();
