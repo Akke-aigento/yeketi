@@ -47,15 +47,19 @@ export const nl = {
   },
   why: {
     eyebrow: "Waarom Yeketi",
-    title: "Drie redenen die het verschil maken.",
+    title: "Vier redenen die het verschil maken.",
     items: [
       {
         t: "Eerlijke prijs",
-        d: "Restauratie aan een fractie van wat dezelfde ingreep in een Europese werkplaats kost — zonder ooit aan kwaliteit in te boeten.",
+        d: "Vakwerk van een niveau dat hier zeldzaam is geworden — aan een prijs die scherper ligt dan een restauratie in België, zonder in te boeten op kwaliteit.",
       },
       {
         t: "Kortere doorlooptijd",
         d: "Wij denken in weken en maanden, niet in jaren. De werkplaats werkt met meerdere ambachtslieden op één project.",
+      },
+      {
+        t: "Traditioneel vakwerk",
+        d: "Plaatstaal wordt bij ons autogeen gelast — met gas- en zuurstofvlam, zoals het hoort bij een oldtimer. Een techniek die in Europa bijna verdwenen is, maar de juiste blijft: de las loopt mee met het staal, geeft minder spanning op het paneel en houdt generaties mee.",
       },
       {
         t: "Persoonlijke begeleiding",
