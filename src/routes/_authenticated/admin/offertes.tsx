@@ -8,6 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/AdminModals";
 import { useAdminRefreshKey } from "@/hooks/useAdminRefresh";
+import { OffertesTabs } from "@/components/OffertesTabs";
 
 export const Route = createFileRoute("/_authenticated/admin/offertes")({
   head: () => ({ meta: [{ title: "Aanvragen — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -120,7 +121,8 @@ function Offertes() {
   }
 
   return (
-    <AdminShell title="Aanvragen">
+    <AdminShell title="Offertes">
+      <OffertesTabs />
       <section className="container-edit" style={{ paddingBottom: "3rem" }}>
         <div className="flex justify-end pt-2">
           <button onClick={runCleanup} className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>
