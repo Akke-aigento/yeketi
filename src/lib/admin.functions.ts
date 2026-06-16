@@ -68,7 +68,7 @@ export const listCustomers = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: profiles, error } = await supabaseAdmin
       .from("profiles")
-      .select("id, full_name, email, phone, created_at")
+      .select("id, full_name, email, phone, locale, created_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
     const { data: adminRoles } = await supabaseAdmin
