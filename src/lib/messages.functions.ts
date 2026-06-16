@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 // ──────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -361,22 +363,7 @@ export const unreadConversationCount = createServerFn({ method: "POST" })
 // Customer portal (RLS-enforced via the authenticated client)
 // ──────────────────────────────────────────────────────────────────────────
 
-type AuthCtx = {
-  supabase: {
-    from: (t: string) => {
-      select: (cols: string, opts?: Record<string, unknown>) => {
-        eq: (c: string, v: unknown) => {
-          maybeSingle: () => Promise<{ data: { id: string; status: string; subject: string | null; contact_profile_id: string } | null; error: unknown }>;
-          order: (c: string, o: { ascending: boolean }) => Promise<{ data: Array<{ id: string; sender: string; author_id: string | null; body: string; created_at: string }> | null; error: unknown }>;
-        };
-      };
-      insert: (row: Record<string, unknown>) => {
-        select: (cols: string) => { single: () => Promise<{ data: { id: string } | null; error: unknown }> };
-      };
-    };
-  };
-  userId: string;
-};
+type AuthCtx = { supabase: SupabaseClient<Database>; userId: string };
 
 export const getMyConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -428,15 +415,13 @@ export const sendCustomerMessage = createServerFn({ method: "POST" })
       convId = created.id;
     }
 
-    const ins = await (ctx.supabase as unknown as {
-      from: (t: string) => { insert: (r: Record<string, unknown>) => Promise<{ error: unknown }> };
-    }).from("messages").insert({
+    const ins = await ctx.supabase.from("messages").insert({
       conversation_id: convId,
       author_id: ctx.userId,
       sender: "klant",
       body,
     });
-    if ((ins as { error: unknown }).error) {
+    if (ins.error) {
       throw new Error("Bericht kon niet verstuurd worden.");
     }
     return { ok: true, conversationId: convId } as const;
