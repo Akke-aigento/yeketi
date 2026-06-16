@@ -1,8 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { renderEmail, renderPlainText, escapeHtml } from "./email-template.server";
 
 const PUBLIC_SITE_URL = "https://yeketimotorworks.com";
 const REPLY_TO = "info@yeketimotorworks.com";
+
+function eur(n: number) {
+  return new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(n);
+}
 
 type SupabaseLike = {
   rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
@@ -119,11 +124,14 @@ export const sendQuoteToCustomer = createServerFn({ method: "POST" })
         quoteNumber,
         portalUrl: `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`,
         intro: q.intro_text,
+        total: Number(q.total_amount),
+        vehicle: q.vehicle_label,
       });
       const text = quoteEmailText({
         firstName,
         quoteNumber,
         portalUrl: `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`,
+        total: Number(q.total_amount),
       });
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -197,48 +205,86 @@ export const downloadQuotePdf = createServerFn({ method: "POST" })
 
 // --- Email templates -------------------------------------------------------
 
-function quoteEmailHtml(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; intro: string }) {
-  const hi = opts.firstName ? `Hoi ${opts.firstName},` : "Beste,";
-  const introPreview = opts.intro
-    ? opts.intro.split("\n").slice(0, 2).join("<br/>").replace(/</g, "&lt;")
-    : "Hieronder vind je de offerte. De PDF zit als bijlage, en je kan ze ook in je portaal bekijken en goedkeuren.";
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#F7F3EC;font-family:Georgia,'Times New Roman',serif;color:#221F1B;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F7F3EC;padding:32px 16px;">
-    <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;background:#FFFFFF;border:1px solid #221F1B;">
-        <tr><td style="padding:28px 28px 0;">
-          <div style="font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:#B0832C;font-family:Arial,Helvetica,sans-serif;">Yeketi Motorworks · Offerte ${opts.quoteNumber}</div>
-        </td></tr>
-        <tr><td style="padding:18px 28px 4px;">
-          <h1 style="margin:0;font-family:'Marcellus',Georgia,serif;font-weight:400;font-size:26px;line-height:1.2;">Je offerte staat klaar</h1>
-        </td></tr>
-        <tr><td style="padding:14px 28px 8px;">
-          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.65;color:#4A453E;">${hi}</p>
-        </td></tr>
-        <tr><td style="padding:8px 28px 20px;">
-          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:#4A453E;">${introPreview}</p>
-        </td></tr>
-        <tr><td style="padding:0 28px 36px;">
-          <a href="${opts.portalUrl}" style="display:inline-block;background:#B0832C;color:#F7F3EC;text-decoration:none;padding:14px 26px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;border:1px solid #B0832C;">Open in je portaal</a>
-        </td></tr>
-        <tr><td style="padding:18px 28px 24px;border-top:1px solid #EFE8DB;">
-          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#4A453E;letter-spacing:0.04em;">Yeketi Motorworks · Antwerpen · Erbil<br/>Antwoord op deze mail komt rechtstreeks bij ons binnen via ${REPLY_TO}.<br/><em style="font-family:Georgia,'Times New Roman',serif;color:#B0832C;">unity in craftsmanship</em></p>
-        </td></tr>
+function quoteEmailLayout(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; intro: string; total: number; vehicle?: string | null }) {
+  const hi = opts.firstName ? `Hoi ${opts.firstName}, ` : "";
+  const introPreview = (opts.intro || "")
+    .split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 2).join(" ");
+  const totalStr = eur(opts.total);
+  return {
+    preheader: `Offerte ${opts.quoteNumber} · ${totalStr}`,
+    eyebrow: `Offerte ${opts.quoteNumber}`,
+    headline: opts.vehicle ? `Je offerte voor ${opts.vehicle}` : "Je offerte staat klaar",
+    intro: `${hi}we hebben je offerte uitgewerkt. De volledige PDF zit in bijlage; je kan ze ook in je portaal openen om te aanvaarden of te weigeren.`,
+    bodyHtml: `
+      ${introPreview ? `<p style="margin:0 0 18px;color:#4A453E;">${escapeHtml(introPreview)}</p>` : ""}
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 8px;border:1px solid #EFE8DB;background:#F7F3EC;width:100%;">
+        <tr>
+          <td style="padding:14px 18px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#6B6459;letter-spacing:0.18em;text-transform:uppercase;">Totaal</td>
+          <td style="padding:14px 18px;text-align:right;font-family:Georgia,'Times New Roman',serif;font-size:20px;color:#221F1B;">${escapeHtml(totalStr)}</td>
+        </tr>
       </table>
-    </td></tr>
-  </table></body></html>`;
+    `,
+    cta: { label: "Bekijk je offerte", url: opts.portalUrl },
+    footerNote: "De PDF van de offerte zit als bijlage bij deze mail.",
+  };
 }
 
-function quoteEmailText(opts: { firstName: string | null; quoteNumber: string; portalUrl: string }) {
-  const hi = opts.firstName ? `Hoi ${opts.firstName},` : "Beste,";
-  return `${hi}
-
-Je offerte ${opts.quoteNumber} staat klaar. Je vindt de PDF in bijlage en kan ze ook in je portaal bekijken en goedkeuren:
-
-${opts.portalUrl}
-
-Vragen? Antwoord gewoon op deze mail (${REPLY_TO}).
-
-— Yeketi Motorworks
-unity in craftsmanship`;
+function quoteEmailHtml(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; intro: string; total: number; vehicle?: string | null }) {
+  return renderEmail(quoteEmailLayout(opts));
 }
+
+function quoteEmailText(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; total: number }) {
+  return renderPlainText(quoteEmailLayout({ ...opts, intro: "", vehicle: null }));
+}
+
+// --- Reminder for unresponded sent quotes (K · #17) ------------------------
+
+// Called by pg_cron via /api/public/hooks/quote-reminders. Sends ONE gentle
+// nudge per quote: status='verstuurd' for >= 7 days and reminder_sent_at IS NULL.
+export const runQuoteReminders = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: quotes, error } = await supabaseAdmin
+      .from("quotes")
+      .select("id, quote_number, title, total_amount, customer_id, sent_at")
+      // @ts-expect-error reminder_sent_at lives in DB; types may lag the migration
+      .eq("status", "verstuurd").is("reminder_sent_at", null).lte("sent_at", cutoff);
+    if (error) throw error;
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    if (!RESEND_API_KEY) return { processed: 0, sent: 0, reason: "no_resend_key" };
+    const FROM_EMAIL = process.env.FROM_EMAIL ?? "Yeketi Motorworks <info@yeketimotorworks.com>";
+    let sent = 0;
+    for (const q of quotes ?? []) {
+      if (!q.customer_id) continue;
+      const { data: profile } = await supabaseAdmin
+        .from("profiles").select("email, full_name").eq("id", q.customer_id).maybeSingle();
+      if (!profile?.email) continue;
+      const first = profile.full_name ? String(profile.full_name).split(" ")[0] : null;
+      const portalUrl = `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`;
+      const layout = {
+        preheader: `Offerte ${q.quote_number} wacht nog op je antwoord`,
+        eyebrow: `Offerte ${q.quote_number}`,
+        headline: "Een vriendelijke herinnering",
+        intro: `${first ? `Hoi ${first}, ` : ""}we wilden even checken — je offerte voor ${q.title} staat nog open. Geen haast, maar mocht je vragen hebben of de offerte willen bespreken, antwoord gerust op deze mail.`,
+        cta: { label: "Bekijk je offerte", url: portalUrl },
+      };
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: FROM_EMAIL, to: [profile.email], reply_to: REPLY_TO,
+          subject: `Herinnering — offerte ${q.quote_number}`,
+          html: renderEmail(layout), text: renderPlainText(layout),
+        }),
+      });
+      if (res.ok) {
+        // @ts-expect-error reminder_sent_at lives in DB
+        await supabaseAdmin.from("quotes").update({ reminder_sent_at: new Date().toISOString() }).eq("id", q.id);
+        sent++;
+      } else {
+        console.error("reminder send failed", res.status, await res.text());
+      }
+    }
+    return { processed: quotes?.length ?? 0, sent };
+  });
