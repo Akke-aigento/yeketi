@@ -439,6 +439,12 @@ function ProjectAdmin() {
                               ))}
                             </div>
                           )}
+                          <ReactionThread
+                            updateId={u.id}
+                            initial={reactions.get(u.id) ?? []}
+                            canDelete
+                            placeholder="Antwoord als Yeketi…"
+                          />
                         </li>
                       );
                     })}
