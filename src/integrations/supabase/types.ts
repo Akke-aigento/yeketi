@@ -181,6 +181,7 @@ export type Database = {
           created_at: string
           id: string
           sender: Database["public"]["Enums"]["message_sender"]
+          source_reaction_id: string | null
         }
         Insert: {
           author_id?: string | null
@@ -189,6 +190,7 @@ export type Database = {
           created_at?: string
           id?: string
           sender: Database["public"]["Enums"]["message_sender"]
+          source_reaction_id?: string | null
         }
         Update: {
           author_id?: string | null
@@ -197,6 +199,7 @@ export type Database = {
           created_at?: string
           id?: string
           sender?: Database["public"]["Enums"]["message_sender"]
+          source_reaction_id?: string | null
         }
         Relationships: [
           {
@@ -211,6 +214,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_source_reaction_id_fkey"
+            columns: ["source_reaction_id"]
+            isOneToOne: false
+            referencedRelation: "update_reactions"
             referencedColumns: ["id"]
           },
         ]
