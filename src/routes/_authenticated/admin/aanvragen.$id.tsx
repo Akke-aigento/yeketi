@@ -169,7 +169,7 @@ function AanvraagDetail() {
       onConfirm: async () => {
         setBusy("project");
         try {
-          const res = await convertProject({ data: { quoteId: id } });
+          const res = await convertProject({ data: { quoteRequestId: id } });
           toast.success("Project aangemaakt");
           navigate({ to: "/admin/projecten/$id", params: { id: res.projectId } });
         } catch (e) {
