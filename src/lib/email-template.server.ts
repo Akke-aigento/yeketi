@@ -71,8 +71,10 @@ export function renderEmail(opts: EmailLayoutOpts): string {
   const portalNotice = opts.isCustomer
     ? `<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(DO_NOT_REPLY[locale])}</p>`
     : "";
+  // Customer mails: no reply hint at all — the portal notice above is enough.
+  // Admin mails (Baram): keep the inbound-reply note so he knows replies arrive.
   const replyLine = opts.isCustomer
-    ? `<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(REPLY_FALLBACK_NOTE[locale](reply))}</p>`
+    ? ""
     : `<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">Antwoord op deze mail komt rechtstreeks bij ons binnen via ${escapeHtml(reply)}.</p>`;
 
   return `<!doctype html><html lang="${locale}"><head>
