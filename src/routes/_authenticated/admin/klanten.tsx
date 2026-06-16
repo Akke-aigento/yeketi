@@ -167,7 +167,15 @@ function Klanten() {
       </section>
 
       {showInvite && <InviteModal onClose={() => setShowInvite(false)} onSave={onInvite} busy={busy === "invite"} />}
-      {editing && <EditCustomerModal profile={editing} onClose={() => setEditing(null)} onSave={onEditSave} busy={busy === "edit"} />}
+      {editing && (
+        <EditCustomerModal
+          profile={editing}
+          onClose={() => setEditing(null)}
+          onSave={onEditSave}
+          onDelete={(p) => { setEditing(null); setRemoving(p); setRemoveConfirm(""); }}
+          busy={busy === "edit"}
+        />
+      )}
       {removing && (
         <DeleteCustomerModal
           profile={removing}
