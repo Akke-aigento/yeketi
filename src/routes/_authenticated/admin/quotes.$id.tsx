@@ -48,7 +48,7 @@ function QuoteEditor() {
   const [sending, setSending] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [creatingProject, setCreatingProject] = useState(false);
-  const [confirm, setConfirm] = useState<{ title: string; message: string; onConfirm: () => Promise<void> } | null>(null);
+  const [confirm, setConfirm] = useState<{ title: string; message: string; label?: string; onConfirm: () => Promise<void> } | null>(null);
 
   const editable = quote?.status === "concept";
 
@@ -156,6 +156,7 @@ function QuoteEditor() {
     setConfirm({
       title: "Offerte versturen",
       message: "Verstuur deze offerte naar de klant? Hij krijgt een e-mail met PDF en kan in zijn portaal akkoord of afwijzen.",
+      label: "Verstuur",
       onConfirm: async () => {
         if (dirty) await save();
         setSending(true);
@@ -194,6 +195,7 @@ function QuoteEditor() {
     setConfirm({
       title: "Project aanmaken",
       message: "Maak het projectdossier aan voor deze klant en start de werkfases. De klant ziet het meteen in het portaal.",
+      label: "Maak project",
       onConfirm: async () => {
         setCreatingProject(true);
         try {
@@ -387,7 +389,7 @@ function QuoteEditor() {
         open={confirm !== null}
         title={confirm?.title ?? ""}
         message={confirm?.message ?? ""}
-        confirmLabel="Verstuur"
+        confirmLabel={confirm?.label ?? "Bevestig"}
         onConfirm={async () => { await confirm?.onConfirm(); }}
         onClose={() => setConfirm(null)}
       />
