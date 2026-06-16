@@ -467,7 +467,7 @@ function Dashboard() {
 function StatTile({
   to, label, value, emptyHint, sparkline, accent, warn,
 }: {
-  to: "/admin/projecten" | "/admin/offertes";
+  to: "/admin/projecten" | "/admin/offertes" | "/admin/berichten";
   label: string;
   value: number | null;
   emptyHint: string;
