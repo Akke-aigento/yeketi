@@ -86,8 +86,8 @@ function CaseStudy() {
                     <div className="md:col-span-6" style={{ direction: "ltr" }}>
                       {i === 1 ? (
                         <WeldingVideo
-                          caption="Autogeen-lassen — de traditionele techniek voor klassiek plaatstaal."
-                          ariaLabel="Korte video van autogeen-lassen op plaatstaal"
+                          caption={t.caseT2.weldingVideoCaption}
+                          ariaLabel={t.caseT2.weldingVideoAria}
                         />
                       ) : (
                         <img
