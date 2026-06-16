@@ -23,6 +23,7 @@ type Quote = {
   status: "concept" | "verstuurd" | "akkoord" | "afgewezen";
   total_amount: number; customer_id: string | null; sent_at: string | null;
   responded_at: string | null; response_reason: string | null;
+  quote_request_id: string | null;
 };
 type Line = { id: string; description: string; amount: number; sort_order: number };
 type Profile = { id: string; full_name: string | null; email: string };
@@ -189,9 +190,17 @@ function QuoteEditor() {
     <AdminShell>
       <section className="container-edit" style={{ paddingBottom: "5rem" }}>
         <div className="flex items-center justify-between pt-3">
-          <Link to="/admin/quotes" className="text-[11px] uppercase tracking-[0.2em]" style={{ color: "var(--charcoal-soft)" }}>
-            ← Alle offertes
-          </Link>
+          {quote.quote_request_id ? (
+            <Link to="/admin/aanvragen/$id" params={{ id: quote.quote_request_id }}
+                  className="text-[11px] uppercase tracking-[0.2em]" style={{ color: "var(--charcoal-soft)" }}>
+              ← Terug naar aanvraag
+            </Link>
+          ) : (
+            <Link to="/admin/aanvragen"
+                  className="text-[11px] uppercase tracking-[0.2em]" style={{ color: "var(--charcoal-soft)" }}>
+              ← Pipeline
+            </Link>
+          )}
           <span className="text-[10px] tracking-[0.18em] uppercase px-2 py-1"
                 style={{
                   background: quote.status === "akkoord" ? "var(--charcoal)" : quote.status === "afgewezen" ? "var(--cream-deep)" : quote.status === "verstuurd" ? "var(--gold)" : "var(--cream-deep)",
@@ -322,7 +331,14 @@ function QuoteEditor() {
           ) : (
             <>
               <button onClick={download} className="btn-y">PDF downloaden</button>
-              <button onClick={() => navigate({ to: "/admin/quotes" })} className="btn-y-solid">Terug</button>
+              <button
+                onClick={() => quote.quote_request_id
+                  ? navigate({ to: "/admin/aanvragen/$id", params: { id: quote.quote_request_id } })
+                  : navigate({ to: "/admin/aanvragen" })}
+                className="btn-y-solid"
+              >
+                Terug
+              </button>
             </>
           )}
         </div>
