@@ -69,12 +69,11 @@ export function LanguageToggle({ className }: { className?: string }) {
       aria-label={lang === "nl" ? "Switch to English" : "Schakel naar Nederlands"}
       className={className}
       style={{
-        fontSize: "0.78rem",
-        letterSpacing: "0.12em",
+        fontSize: "0.72rem",
+        letterSpacing: "0.22em",
         textTransform: "uppercase",
-        padding: "0.35rem 0.6rem",
-        border: "1px solid color-mix(in oklab, currentColor 35%, transparent)",
-        borderRadius: "2px",
+        padding: 0,
+        border: "none",
         background: "transparent",
         color: "inherit",
         cursor: "pointer",
@@ -82,9 +81,9 @@ export function LanguageToggle({ className }: { className?: string }) {
       }}
     >
       <span aria-hidden="true">
-        <span style={{ opacity: lang === "nl" ? 1 : 0.45 }}>NL</span>
-        <span style={{ opacity: 0.45, margin: "0 0.35rem" }}>/</span>
-        <span style={{ opacity: lang === "en" ? 1 : 0.45 }}>EN</span>
+        <span style={{ color: lang === "nl" ? "var(--brass)" : "inherit", opacity: lang === "nl" ? 1 : 0.55 }}>NL</span>
+        <span style={{ opacity: 0.35, margin: "0 0.45rem" }}>·</span>
+        <span style={{ color: lang === "en" ? "var(--brass)" : "inherit", opacity: lang === "en" ? 1 : 0.55 }}>EN</span>
       </span>
     </button>
   );

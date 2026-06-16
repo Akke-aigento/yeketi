@@ -48,9 +48,17 @@ export function SiteNav() {
             </Link>
           ))}
         </nav>
-        <div className="hidden lg:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-6">
           <LanguageToggle />
-          <Link to="/login" className="btn-y">{t.nav.portal}</Link>
+          <span aria-hidden="true" style={{ width: 1, height: 14, background: "var(--charcoal)", opacity: 0.25 }} />
+          <Link
+            to="/login"
+            className="text-[12px] xl:text-[13px] tracking-[0.22em] uppercase whitespace-nowrap inline-flex items-center gap-2 group"
+            style={{ color: "var(--charcoal)" }}
+          >
+            {t.nav.portal}
+            <span aria-hidden="true" style={{ color: "var(--brass)", transition: "transform .2s" }} className="group-hover:translate-x-0.5">→</span>
+          </Link>
         </div>
         <button
           className="lg:hidden p-2 -mr-2 col-start-3 justify-self-end"
@@ -84,9 +92,15 @@ export function SiteNav() {
                 {l.label}
               </Link>
             ))}
-            <div className="pt-4 flex items-center gap-4">
-              <Link to="/login" onClick={() => setOpen(false)} className="btn-y">
+            <div className="pt-4 flex items-center justify-between gap-4">
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="text-[13px] tracking-[0.22em] uppercase inline-flex items-center gap-2"
+                style={{ color: "var(--charcoal)" }}
+              >
                 {t.nav.portal}
+                <span aria-hidden="true" style={{ color: "var(--brass)" }}>→</span>
               </Link>
               <LanguageToggle />
             </div>
