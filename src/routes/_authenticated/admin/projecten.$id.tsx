@@ -73,6 +73,11 @@ function ProjectAdmin() {
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishConsent, setPublishConsent] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -431,75 +436,29 @@ function ProjectAdmin() {
           <h2 style={{ fontSize: "1.1rem" }}>Fases</h2>
           <button onClick={addPhase} className="text-xs uppercase tracking-[0.18em]" style={{ color: "var(--brass)" }}>+ Fase</button>
         </div>
-        <ol className="mt-3 space-y-3">
-          {phases.map((p, idx) => {
-            const phaseUpdates = updates.filter((u) => u.phase_id === p.id);
-            return (
-              <li key={p.id} style={{ border: "1px solid var(--charcoal)", background: "var(--cream)" }}>
-                <div className="flex items-center gap-2 px-3 py-2" style={{ background: "var(--cream-deep)" }}>
-                  <span className="text-xs" style={{ color: "var(--charcoal-soft)", width: "1.5rem" }}>≡</span>
-                  <div className="flex-1 min-w-0">
-                    <button onClick={() => renamePhase(p)} className="text-left truncate" style={{ fontFamily: "var(--font-display)", fontSize: "1rem" }}>
-                      {p.name}
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => reorderPhase(p, -1)} disabled={idx === 0} className="px-2 py-1 text-xs disabled:opacity-30">↑</button>
-                    <button onClick={() => reorderPhase(p, 1)} disabled={idx === phases.length - 1} className="px-2 py-1 text-xs disabled:opacity-30">↓</button>
-                    <button onClick={() => deletePhase(p)} className="px-2 py-1 text-xs" style={{ color: "var(--oxide)" }}>✕</button>
-                  </div>
-                </div>
-                <div className="flex gap-1 px-3 py-2 border-t" style={{ borderColor: "var(--charcoal)" }}>
-                  {(["pending", "active", "done"] as const).map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setPhaseStatus(p, s)}
-                      className="text-[10px] tracking-[0.15em] uppercase px-2 py-1"
-                      style={{
-                        border: "1px solid var(--charcoal)",
-                        background: p.status === s ? "var(--brass)" : "transparent",
-                        color: p.status === s ? "var(--cream)" : "var(--charcoal)",
-                      }}
-                    >
-                      {s === "pending" ? "Te doen" : s === "active" ? "Actief" : "Klaar"}
-                    </button>
-                  ))}
-                </div>
-                {phaseUpdates.length > 0 && (
-                  <ul className="px-3 py-2 space-y-3 border-t" style={{ borderColor: "var(--charcoal)" }}>
-                    {phaseUpdates.map((u) => {
-                      const ups = photos.filter((ph) => ph.update_id === u.id);
-                      return (
-                        <li key={u.id}>
-                          <div className="flex justify-between items-start gap-2">
-                            <p className="text-sm whitespace-pre-wrap flex-1" style={{ lineHeight: 1.55 }}>{u.body}</p>
-                            <button onClick={() => deleteUpdate(u)} className="text-xs" style={{ color: "var(--oxide)" }}>✕</button>
-                          </div>
-                          <div className="text-[10px] uppercase tracking-[0.15em] mt-1" style={{ color: "var(--charcoal-soft)" }}>
-                            {new Date(u.created_at).toLocaleString("nl-BE")}
-                          </div>
-                          {ups.length > 0 && (
-                            <div className="grid grid-cols-4 gap-1 mt-2">
-                              {ups.map((ph) => (
-                                <img key={ph.id} src={signedUrls[ph.storage_path]} alt="" className="w-full" style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)" }} />
-                              ))}
-                            </div>
-                          )}
-                          <ReactionThread
-                            updateId={u.id}
-                            initial={reactions.get(u.id) ?? []}
-                            canDelete
-                            placeholder="Antwoord als Yeketi…"
-                          />
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </li>
-            );
-          })}
-        </ol>
+        <p className="text-[10px] uppercase tracking-[0.15em] mt-2" style={{ color: "var(--charcoal-soft)" }}>
+          Sleep aan de greep ≡ om fases te herschikken
+        </p>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={phases.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+            <ol className="mt-3 space-y-3">
+              {phases.map((p) => (
+                <SortablePhaseItem
+                  key={p.id}
+                  phase={p}
+                  phaseUpdates={updates.filter((u) => u.phase_id === p.id)}
+                  photos={photos}
+                  signedUrls={signedUrls}
+                  reactions={reactions}
+                  onRename={() => renamePhase(p)}
+                  onDelete={() => deletePhase(p)}
+                  onSetStatus={(s) => setPhaseStatus(p, s)}
+                  onDeleteUpdate={(u) => deleteUpdate(u)}
+                />
+              ))}
+            </ol>
+          </SortableContext>
+        </DndContext>
       </section>
 
       {showNew && activePhase && (
