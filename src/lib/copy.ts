@@ -478,6 +478,8 @@ export const en: Copy = {
     closing:
       "Restoration is not an attempt to turn back time. It is a promise that the story may continue.",
     cta: "Start your restoration",
+    weldingVideoCaption: "Gas-welding — the traditional technique for classic sheet metal.",
+    weldingVideoAria: "Short video of gas-welding sheet metal",
   },
   over: {
     eyebrow: "About Yeketi",
