@@ -572,7 +572,7 @@ function FieldText({ label, value, onSave }: { label: string; value: string; onS
 
 function SortablePhaseItem({
   phase, phaseUpdates, photos, signedUrls, reactions,
-  onRename, onDelete, onSetStatus, onDeleteUpdate,
+  onRename, onDelete, onSetStatus, onDeleteUpdate, onDeletePhoto, onAddPhotos,
 }: {
   phase: Phase;
   phaseUpdates: Update[];
@@ -583,6 +583,8 @@ function SortablePhaseItem({
   onDelete: () => void;
   onSetStatus: (s: Phase["status"]) => void;
   onDeleteUpdate: (u: Update) => void;
+  onDeletePhoto: (ph: Photo) => void;
+  onAddPhotos: (u: Update, files: FileList | null) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: phase.id });
   const style: React.CSSProperties = {
@@ -645,10 +647,45 @@ function SortablePhaseItem({
                 {ups.length > 0 && (
                   <div className="grid grid-cols-4 gap-1 mt-2">
                     {ups.map((ph) => (
-                      <img key={ph.id} src={signedUrls[ph.storage_path]} alt="" className="w-full" style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)" }} />
+                      <div key={ph.id} className="relative group">
+                        <a
+                          href={signedUrls[ph.storage_path]}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label="Foto openen"
+                        >
+                          <img
+                            src={signedUrls[ph.storage_path]}
+                            alt=""
+                            className="w-full block"
+                            style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)", cursor: "zoom-in" }}
+                          />
+                        </a>
+                        <button
+                          type="button"
+                          aria-label="Foto verwijderen"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDeletePhoto(ph); }}
+                          className="absolute top-1 right-1 text-xs leading-none"
+                          style={{
+                            width: "1.4rem", height: "1.4rem",
+                            background: "rgba(34,31,27,0.78)", color: "var(--cream)",
+                            border: "1px solid var(--brass)",
+                          }}
+                        >✕</button>
+                      </div>
                     ))}
                   </div>
                 )}
+                <label
+                  className="inline-block mt-2 text-[10px] uppercase tracking-[0.18em] px-2 py-1.5 cursor-pointer"
+                  style={{ color: "var(--brass)", border: "1px solid var(--brass)" }}
+                >
+                  + Foto's toevoegen
+                  <input
+                    type="file" accept="image/*" multiple className="hidden"
+                    onChange={(e) => { onAddPhotos(u, e.target.files); e.target.value = ""; }}
+                  />
+                </label>
                 <ReactionThread
                   updateId={u.id}
                   initial={reactions.get(u.id) ?? []}
