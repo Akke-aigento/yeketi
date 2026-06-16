@@ -196,7 +196,7 @@ function InviteModal({ onClose, onSave, busy }: { onClose: () => void; onSave: (
   const [full_name, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
       <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
         <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--charcoal)", color: "var(--cream)" }}>
           <span style={{ fontFamily: "var(--font-display)" }}>Nieuwe klant</span>
@@ -235,7 +235,7 @@ function DeleteCustomerModal({ profile, projectCount, confirm, setConfirm, busy,
 }) {
   const ok = confirm.trim().toUpperCase() === "VERWIJDER KLANT";
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
       <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "2px solid var(--oxide)" }}>
         <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--oxide)", color: "var(--cream)" }}>
           <span style={{ fontFamily: "var(--font-display)" }}>Klant volledig verwijderen</span>
@@ -297,7 +297,7 @@ function EditCustomerModal({ profile, onClose, onSave, onDelete, busy }: {
   const [email, setEmail] = useState(profile.email ?? "");
   const [locale, setLocale] = useState<"nl" | "en">(profile.locale ?? "nl");
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
       <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
         <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--charcoal)", color: "var(--cream)" }}>
           <span style={{ fontFamily: "var(--font-display)" }}>Klant bewerken</span>
