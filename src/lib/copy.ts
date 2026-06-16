@@ -682,6 +682,23 @@ export const en: Copy = {
     defaultAria: "Gas-welding in the workshop",
     play: "Play the video — gas-welding",
   },
+  contact: {
+    eyebrow: "Contact",
+    title: "Send a message",
+    intro: "A question, an idea, or just in the mood to talk about a classic? Drop us a line. Baram replies personally.",
+    langLabel: "Language · reply by email",
+    langNl: "Dutch",
+    langEn: "English",
+    nameLabel: "Name",
+    emailLabel: "Email",
+    messageLabel: "Message",
+    submit: "Send message",
+    sending: "Sending…",
+    successTitle: "Thanks — your message is in.",
+    successBody: "We'll also send you a portal invitation so you can find the reply and all follow-up messages in one place.",
+    back: "Back to the site",
+    error: "Something went wrong while sending. Please try again using the form.",
+  },
 };
 
 export type Lang = "nl" | "en";
