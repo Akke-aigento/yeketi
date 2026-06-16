@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminShell } from "@/components/AdminShell";
 import { getAdminNotifySettings, setAdminNotifyEmail } from "@/lib/messages.functions";
-import { inviteAdmin, listAdmins } from "@/lib/admin.functions";
+import { inviteAdmin, listAdmins, removeAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/instellingen")({
   head: () => ({ meta: [{ title: "Instellingen — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -104,17 +104,26 @@ const CONFIRM_PHRASE = "IK WIL EEN ADMIN UITNODIGEN";
 function AdminInviteSection() {
   const invite = useServerFn(inviteAdmin);
   const load = useServerFn(listAdmins);
+  const remove = useServerFn(removeAdmin);
   const [admins, setAdmins] = useState<{ id: string; email: string | null; full_name: string | null }[]>([]);
+  const [me, setMe] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [confirm, setConfirm] = useState("");
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [removing, setRemoving] = useState<{ id: string; label: string } | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState("");
+  const [removeBusy, setRemoveBusy] = useState(false);
 
   useEffect(() => {
-    load().then((r) => setAdmins(r.admins)).catch(() => {});
+    load().then((r) => { setAdmins(r.admins); setMe(r.currentUserId); }).catch(() => {});
   }, [load]);
+
+  function refresh() {
+    load().then((r) => { setAdmins(r.admins); setMe(r.currentUserId); }).catch(() => {});
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,11 +137,31 @@ function AdminInviteSection() {
       const r = await invite({ data: { email: email.trim(), full_name: name.trim() || undefined, confirm: CONFIRM_PHRASE } });
       setMsg({ kind: "ok", text: `Admin-uitnodiging verstuurd naar ${r.email} (${r.channel === "reset" ? "wachtwoord-reset" : "nieuwe uitnodiging"})` });
       setEmail(""); setName(""); setConfirm(""); setOpen(false);
-      load().then((rr) => setAdmins(rr.admins)).catch(() => {});
+      refresh();
     } catch (err) {
       setMsg({ kind: "err", text: err instanceof Error ? err.message : "Mislukt" });
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function onRemove() {
+    if (!removing) return;
+    if (removeConfirm.trim().toUpperCase() !== "VERWIJDER ADMIN") {
+      setMsg({ kind: "err", text: "Typ exact: VERWIJDER ADMIN" });
+      return;
+    }
+    setRemoveBusy(true);
+    setMsg(null);
+    try {
+      await remove({ data: { userId: removing.id, confirm: "VERWIJDER ADMIN" } });
+      setMsg({ kind: "ok", text: `Admin-toegang ingetrokken voor ${removing.label}` });
+      setRemoving(null); setRemoveConfirm("");
+      refresh();
+    } catch (err) {
+      setMsg({ kind: "err", text: err instanceof Error ? err.message : "Mislukt" });
+    } finally {
+      setRemoveBusy(false);
     }
   }
 
@@ -155,7 +184,21 @@ function AdminInviteSection() {
               <div className="text-sm" style={{ color: "var(--charcoal)" }}>{a.full_name || "—"}</div>
               <div className="text-[11px]" style={{ color: "var(--charcoal-soft)" }}>{a.email || a.id}</div>
             </div>
-            <span className="text-[10px] uppercase tracking-[0.2em] px-2 py-1" style={{ color: "var(--brass)", border: "1px solid var(--brass)" }}>Admin</span>
+            <div className="flex items-center gap-2 shrink-0">
+              {a.id === me ? (
+                <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--charcoal-soft)" }}>Jij</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { setRemoving({ id: a.id, label: a.full_name || a.email || a.id }); setRemoveConfirm(""); setMsg(null); }}
+                  className="text-[10px] uppercase tracking-[0.2em]"
+                  style={{ color: "var(--oxide)" }}
+                >
+                  Verwijder
+                </button>
+              )}
+              <span className="text-[10px] uppercase tracking-[0.2em] px-2 py-1" style={{ color: "var(--brass)", border: "1px solid var(--brass)" }}>Admin</span>
+            </div>
           </li>
         ))}
         {admins.length === 0 && (
@@ -224,6 +267,55 @@ function AdminInviteSection() {
         <p className="mt-3 text-[12px]" style={{ color: msg.kind === "ok" ? "var(--brass)" : "var(--oxide)" }}>
           {msg.text}
         </p>
+      )}
+
+      {removing && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+          <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "2px solid var(--oxide)" }}>
+            <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--oxide)", color: "var(--cream)" }}>
+              <span style={{ fontFamily: "var(--font-display)" }}>Admin-toegang intrekken</span>
+              <button onClick={() => { setRemoving(null); setRemoveConfirm(""); }} style={{ color: "var(--cream)" }}>✕</button>
+            </div>
+            <div className="px-4 py-4 space-y-4">
+              <div className="flex items-start gap-3">
+                <span aria-hidden className="text-xl leading-none" style={{ color: "var(--oxide)" }}>⚠</span>
+                <div className="text-sm" style={{ color: "var(--charcoal)", lineHeight: 1.6 }}>
+                  Je staat op het punt om de admin-rol in te trekken van
+                  {" "}<strong>{removing.label}</strong>. Deze persoon verliest direct
+                  toegang tot alle admin-pagina's. Het account zelf en eventuele klantgegevens blijven bestaan.
+                </div>
+              </div>
+              <label className="block">
+                <span className="text-[11px] uppercase tracking-[0.2em]" style={{ color: "var(--oxide)" }}>
+                  Typ ter bevestiging: <strong>VERWIJDER ADMIN</strong>
+                </span>
+                <input
+                  type="text"
+                  value={removeConfirm}
+                  onChange={(e) => setRemoveConfirm(e.target.value)}
+                  className="field-y mt-2 w-full"
+                  autoComplete="off"
+                  spellCheck={false}
+                  autoFocus
+                />
+              </label>
+              <div className="flex items-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={onRemove}
+                  disabled={removeBusy || removeConfirm.trim().toUpperCase() !== "VERWIJDER ADMIN"}
+                  className="btn-y-solid"
+                  style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
+                >
+                  {removeBusy ? "Bezig…" : "Intrekken"}
+                </button>
+                <button type="button" onClick={() => { setRemoving(null); setRemoveConfirm(""); }} className="btn-y-ghost">
+                  Annuleren
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );
