@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PortalHeader } from "@/components/PortalHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -33,7 +33,6 @@ function eur(n: number) {
 
 function PortalQuote() {
   const { id } = Route.useParams();
-  const navigate = useNavigate();
   const dl = useServerFn(downloadQuotePdf);
   const [quote, setQuote] = useState<Quote | null>(null);
   const [lines, setLines] = useState<Line[]>([]);
