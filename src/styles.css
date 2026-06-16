@@ -195,6 +195,21 @@
 }
 .btn-y-ghost-cream:hover { background: var(--brass); border-color: var(--brass); color: var(--cream); }
 
+.form-y {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  background: var(--cream);
+  color: var(--charcoal);
+  border: 1px solid var(--charcoal);
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  appearance: none;
+}
+.form-y:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.form-y:disabled { opacity: 0.65; background: var(--cream-deep); cursor: not-allowed; }
+
 @utility field-y {
   width: 100%;
   background: transparent;
