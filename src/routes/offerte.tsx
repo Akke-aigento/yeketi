@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent, type FormEvent } from "react";
 import { z } from "zod";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -304,6 +304,156 @@ function Field({
         {label} {required && <span style={{ color: "var(--oxide)" }}>*</span>}
       </label>
       <input id={name} name={name} type={type} required={required} className="field-y" />
+    </div>
+  );
+}
+
+function PhotoUploader({
+  label,
+  addLabel,
+  hint,
+  optional,
+  count,
+  countLabel,
+  removeLabel,
+  files,
+  onAdd,
+  onRemove,
+}: {
+  label: string;
+  addLabel: string;
+  hint: string;
+  optional: string;
+  count: number;
+  countLabel: string;
+  removeLabel: string;
+  files: File[];
+  onAdd: (f: FileList | File[] | null) => void;
+  onRemove: (i: number) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [urls, setUrls] = useState<string[]>([]);
+  const [dragging, setDragging] = useState(false);
+
+  useEffect(() => {
+    const next = files.map((f) => URL.createObjectURL(f));
+    setUrls(next);
+    return () => { next.forEach((u) => URL.revokeObjectURL(u)); };
+  }, [files]);
+
+  const onDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragging(false);
+    onAdd(e.dataTransfer.files);
+  };
+
+  const full = count >= 5;
+
+  return (
+    <div>
+      <span className="eyebrow block mb-3">{label}</span>
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={onDrop}
+        onClick={() => !full && inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if ((e.key === "Enter" || e.key === " ") && !full) {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        style={{
+          cursor: full ? "not-allowed" : "pointer",
+          border: `1.5px dashed ${dragging ? "var(--brass)" : "var(--charcoal)"}`,
+          background: dragging ? "color-mix(in oklab, var(--brass) 8%, transparent)" : "transparent",
+          padding: "1.5rem",
+          textAlign: "center",
+          transition: "border-color .15s, background .15s",
+          opacity: full ? 0.55 : 1,
+        }}
+      >
+        <div style={{ fontSize: "0.95rem", color: "var(--charcoal)", fontWeight: 500 }}>
+          + {addLabel}
+        </div>
+        <div className="mt-2 text-xs" style={{ color: "var(--charcoal-soft)" }}>
+          {hint}
+        </div>
+      </div>
+      <input
+        ref={inputRef}
+        id="fotos"
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={(e) => { onAdd(e.target.files); e.target.value = ""; }}
+        style={{ display: "none" }}
+      />
+      <p className="mt-3 text-xs" style={{ color: count > 0 ? "var(--brass)" : "var(--charcoal-soft)" }}>
+        {count > 0 ? countLabel : optional}
+      </p>
+      {count > 0 && (
+        <ul
+          className="mt-3 grid gap-3"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", listStyle: "none", padding: 0 }}
+        >
+          {files.map((f, i) => (
+            <li
+              key={`${f.name}-${i}`}
+              style={{ position: "relative", border: "1px solid var(--charcoal)", background: "var(--cream)" }}
+            >
+              <div style={{ aspectRatio: "1 / 1", overflow: "hidden", background: "#000" }}>
+                {urls[i] && (
+                  <img
+                    src={urls[i]}
+                    alt={f.name}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                )}
+              </div>
+              <div
+                className="text-[11px]"
+                style={{
+                  padding: "6px 8px",
+                  color: "var(--charcoal)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+                title={f.name}
+              >
+                {f.name}
+              </div>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onRemove(i); }}
+                aria-label={removeLabel}
+                style={{
+                  position: "absolute",
+                  top: 4,
+                  right: 4,
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "var(--charcoal)",
+                  color: "var(--cream)",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  lineHeight: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
