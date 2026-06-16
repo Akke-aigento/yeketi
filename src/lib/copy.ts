@@ -446,6 +446,13 @@ export const en: Copy = {
       },
     ],
     faqTitle: "Frequently asked questions",
+    welding: {
+      eyebrow: "Technique",
+      title: "Gas-welded, the way it should be.",
+      body: "Classic sheet metal calls for a flame weld, not a quick MIG pulse. Our panel beaters gas-weld every joint — a craft nearly lost in Europe, but still the right technique for a classic: less stress on the panel, a smoother transition, and a joint that lasts for generations.",
+      videoCaption: "Gas-welding sheet metal — oxy-acetylene flame, by hand.",
+      videoAria: "Short video of gas-welding in the workshop",
+    },
     faq: [
       { q: "How do transport and insurance work?", a: "For now Baram handles transport personally: he drives the car to the workshop himself, stays on-site while the work is under way, and arranges the right insurance at the agreed value beforehand. You receive all documents before the car leaves." },
       { q: "What is a realistic lead time?", a: "Bodywork: a few weeks to two months. A full restoration typically takes around three months — we work in parallel with multiple craftsmen in specialised workshops, rather than phase after phase." },
