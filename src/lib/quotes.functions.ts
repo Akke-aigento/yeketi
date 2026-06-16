@@ -82,7 +82,7 @@ export const sendQuoteToCustomer = createServerFn({ method: "POST" })
     if (!q.customer_id) throw new Error("Koppel eerst een klant aan de offerte");
 
     const { data: customer } = await supabaseAdmin
-      .from("profiles").select("email, full_name").eq("id", q.customer_id).maybeSingle();
+      .from("profiles").select("email, full_name, locale").eq("id", q.customer_id).maybeSingle();
     if (!customer?.email) throw new Error("Klant heeft geen e-mailadres");
 
     const { data: lines } = await supabaseAdmin
@@ -121,19 +121,14 @@ export const sendQuoteToCustomer = createServerFn({ method: "POST" })
     const FROM_EMAIL = process.env.FROM_EMAIL ?? "Yeketi Motorworks <onboarding@resend.dev>";
     if (RESEND_API_KEY) {
       const firstName = customer.full_name ? String(customer.full_name).split(" ")[0] : null;
-      const html = quoteEmailHtml({
-        firstName,
+      const locale = (customer as { locale?: string }).locale === "en" ? "en" : "nl";
+      const layout = quoteSent(locale, {
+        first: firstName,
         quoteNumber,
         portalUrl: `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`,
-        intro: q.intro_text,
-        total: Number(q.total_amount),
+        intro: q.intro_text ?? "",
+        totalStr: eur(Number(q.total_amount), locale),
         vehicle: q.vehicle_label,
-      });
-      const text = quoteEmailText({
-        firstName,
-        quoteNumber,
-        portalUrl: `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`,
-        total: Number(q.total_amount),
       });
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -141,9 +136,10 @@ export const sendQuoteToCustomer = createServerFn({ method: "POST" })
         body: JSON.stringify({
           from: FROM_EMAIL,
           to: [customer.email],
-          reply_to: REPLY_TO,
-          subject: `Offerte ${quoteNumber} — Yeketi Motorworks`,
-          html, text,
+          reply_to: adminReplyTo(),
+          subject: layout.subject,
+          html: renderEmail(layout),
+          text: renderPlainText(layout),
           attachments: [{
             filename: `offerte-${quoteNumber}.pdf`,
             content: pdfBase64,
