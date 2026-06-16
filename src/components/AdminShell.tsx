@@ -64,7 +64,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
         </div>
         <nav
           ref={navRef}
-          className="container-edit hidden sm:flex gap-1 flex-wrap"
+          className="container-edit hidden lg:flex gap-1 flex-wrap"
           style={{ paddingBottom: "0.5rem" }}
         >
           {tabs.map((t) => (
@@ -84,7 +84,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
           ))}
         </nav>
       </header>
-      <main className="flex-1 pb-20 sm:pb-0">
+      <main className="flex-1 pb-20 lg:pb-0">
         {title && (
           <div className="container-edit" style={{ paddingBlock: "1.25rem 0.5rem" }}>
             <h1 style={{ fontSize: "1.65rem" }}>{title}</h1>
