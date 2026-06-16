@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk"; label: string; exact?: boolean }[] = [
+const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen"; label: string; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
   { to: "/admin/berichten", label: "Berichten" },
   { to: "/admin/projecten", label: "Projecten" },
@@ -10,6 +10,7 @@ const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/qu
   { to: "/admin/offertes", label: "Aanvragen" },
   { to: "/admin/quotes", label: "Offertes" },
   { to: "/admin/klanten", label: "Klanten" },
+  { to: "/admin/instellingen", label: "Instellingen" },
 ];
 
 export function AdminShell({ children, title }: { children: ReactNode; title?: string }) {

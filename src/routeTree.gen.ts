@@ -28,6 +28,7 @@ import { Route as AuthenticatedPortaalBerichtenRouteImport } from './routes/_aut
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 import { Route as AuthenticatedAdminOffertesRouteImport } from './routes/_authenticated/admin/offertes'
 import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authenticated/admin/klanten'
+import { Route as AuthenticatedAdminInstellingenRouteImport } from './routes/_authenticated/admin/instellingen'
 import { Route as AuthenticatedAdminRecentWerkIndexRouteImport } from './routes/_authenticated/admin/recent-werk.index'
 import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_authenticated/admin/quotes.index'
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
@@ -138,6 +139,12 @@ const AuthenticatedAdminKlantenRoute =
     path: '/klanten',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminInstellingenRoute =
+  AuthenticatedAdminInstellingenRouteImport.update({
+    id: '/instellingen',
+    path: '/instellingen',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminRecentWerkIndexRoute =
   AuthenticatedAdminRecentWerkIndexRouteImport.update({
     id: '/recent-werk/',
@@ -212,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/instellingen': typeof AuthenticatedAdminInstellingenRoute
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
@@ -241,6 +249,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/admin/instellingen': typeof AuthenticatedAdminInstellingenRoute
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
@@ -273,6 +282,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/restauratie/vw-t2': typeof RestauratieVwT2Route
+  '/_authenticated/admin/instellingen': typeof AuthenticatedAdminInstellingenRoute
   '/_authenticated/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/_authenticated/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/restauratie/vw-t2'
+    | '/admin/instellingen'
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/restauratie/vw-t2'
+    | '/admin/instellingen'
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
@@ -365,6 +377,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/restauratie/vw-t2'
+    | '/_authenticated/admin/instellingen'
     | '/_authenticated/admin/klanten'
     | '/_authenticated/admin/offertes'
     | '/_authenticated/portaal/$projectId'
@@ -533,6 +546,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminKlantenRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/instellingen': {
+      id: '/_authenticated/admin/instellingen'
+      path: '/instellingen'
+      fullPath: '/admin/instellingen'
+      preLoaderRoute: typeof AuthenticatedAdminInstellingenRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/recent-werk/': {
       id: '/_authenticated/admin/recent-werk/'
       path: '/recent-werk'
@@ -607,6 +627,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminInstellingenRoute: typeof AuthenticatedAdminInstellingenRoute
   AuthenticatedAdminKlantenRoute: typeof AuthenticatedAdminKlantenRoute
   AuthenticatedAdminOffertesRoute: typeof AuthenticatedAdminOffertesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -622,6 +643,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminInstellingenRoute: AuthenticatedAdminInstellingenRoute,
     AuthenticatedAdminKlantenRoute: AuthenticatedAdminKlantenRoute,
     AuthenticatedAdminOffertesRoute: AuthenticatedAdminOffertesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
