@@ -243,6 +243,48 @@ function ProjectAdmin() {
     if (error) { toast.error("Status wijzigen mislukt", { description: error.message }); return; }
     load();
   }
+  async function deletePhoto(ph: Photo) {
+    setConfirmState({
+      title: "Foto verwijderen",
+      message: "Deze foto wordt definitief verwijderd uit de update.",
+      destructive: true,
+      onConfirm: async () => {
+        const rm = await supabase.storage.from("project-photos").remove([ph.storage_path]);
+        if (rm.error) { toast.error("Foto verwijderen mislukt", { description: rm.error.message }); return; }
+        const { error } = await supabase.from("update_photos").delete().eq("id", ph.id);
+        if (error) { toast.error("Foto verwijderen mislukt", { description: error.message }); return; }
+        toast.success("Foto verwijderd");
+        load();
+      },
+    });
+  }
+  async function addPhotosToUpdate(u: Update, files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const existing = photos.filter((p) => p.update_id === u.id).length;
+    let okCount = 0;
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const blob = await compressImage(f);
+        const safeIdx = String(existing + i).padStart(3, "0");
+        const path = `${id}/${u.id}/${Date.now()}-${safeIdx}.jpg`;
+        const up = await supabase.storage.from("project-photos").upload(path, blob, {
+          contentType: "image/jpeg", upsert: false,
+        });
+        if (up.error) throw up.error;
+        const ins = await supabase.from("update_photos").insert({
+          update_id: u.id, storage_path: path, sort_order: existing + i,
+        });
+        if (ins.error) throw ins.error;
+        okCount++;
+      }
+      toast.success(`${okCount} foto${okCount === 1 ? "" : "'s"} toegevoegd`);
+      load();
+    } catch (e) {
+      toast.error("Toevoegen mislukt", { description: (e as Error).message });
+      if (okCount > 0) load();
+    }
+  }
   async function persistPhaseOrder(ordered: Phase[]) {
     // Assign sequential sort_order = index, persist any that changed.
     const changed = ordered
