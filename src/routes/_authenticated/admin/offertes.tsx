@@ -7,6 +7,7 @@ import { createQuoteFromRequest } from "@/lib/quotes.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/AdminModals";
+import { useAdminRefreshKey } from "@/hooks/useAdminRefresh";
 
 export const Route = createFileRoute("/_authenticated/admin/offertes")({
   head: () => ({ meta: [{ title: "Aanvragen — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -38,6 +39,7 @@ function waLink(phone: string | null, naam: string, voertuig: string) {
 
 function Offertes() {
   const navigate = useNavigate();
+  const refreshKey = useAdminRefreshKey();
   const [quotes, setQuotes] = useState<Quote[] | null>(null);
   const [filter, setFilter] = useState<(typeof STATUSES)[number] | "all">("new");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -52,7 +54,7 @@ function Offertes() {
     const { data } = await supabase.from("quote_requests").select("*").order("created_at", { ascending: false });
     setQuotes((data as Quote[] | null) ?? []);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [refreshKey]);
 
   const filtered = useMemo(
     () => (quotes ?? []).filter((q) => filter === "all" || q.status === filter),
