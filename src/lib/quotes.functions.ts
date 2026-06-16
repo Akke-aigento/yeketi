@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { renderEmail, renderPlainText, escapeHtml } from "./email-template.server";
+import { renderEmail, renderPlainText } from "./email-template.server";
 import { quoteSent, quoteReminder } from "./email-copy.server";
 
 const PUBLIC_SITE_URL = "https://yeketimotorworks.com";
