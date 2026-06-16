@@ -1,13 +1,18 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { SiteLogo } from "./SiteLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { t } from "@/lib/copy";
+import { getMyUnreadMessagesCount } from "@/lib/messages.functions";
 
 export function PortalHeader() {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const fetchUnread = useServerFn(getMyUnreadMessagesCount);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -21,6 +26,14 @@ export function PortalHeader() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetchUnread()
+      .then((r) => { if (active) setUnread(r?.unread ?? 0); })
+      .catch(() => { /* not signed in or other — ignore */ });
+    return () => { active = false; };
+  }, [pathname, fetchUnread]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -81,11 +94,24 @@ export function PortalHeader() {
         </Link>
         <Link
           to="/portaal/berichten"
-          className="text-[11px] tracking-[0.22em] uppercase whitespace-nowrap py-1"
+          className="relative text-[11px] tracking-[0.22em] uppercase whitespace-nowrap py-1 inline-flex items-center gap-1.5"
           style={{ color: "var(--charcoal)" }}
           activeProps={{ style: { color: "var(--brass)", borderBottom: "1px solid var(--brass)" } }}
         >
-          Berichten
+          <span>Berichten</span>
+          {unread > 0 && (
+            <span
+              aria-label="ongelezen berichten"
+              style={{
+                display: "inline-block",
+                width: 8,
+                height: 8,
+                borderRadius: 999,
+                background: "#E11D2E",
+                boxShadow: "0 0 0 2px var(--cream)",
+              }}
+            />
+          )}
         </Link>
         {isAdmin && (
           <Link
