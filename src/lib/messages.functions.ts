@@ -109,7 +109,7 @@ async function ensureConversation(profileId: string, source: "contact_form" | "q
 // ──────────────────────────────────────────────────────────────────────────
 
 export const submitContactForm = createServerFn({ method: "POST" })
-  .inputValidator((input: { naam: string; email: string; bericht: string; hp?: string }) => input)
+  .inputValidator((input: { naam: string; email: string; bericht: string; hp?: string; locale?: "nl" | "en" }) => input)
   .handler(async ({ data }) => {
     // Honeypot: if filled, silently succeed.
     if (data.hp && data.hp.trim() !== "") return { ok: true } as const;
@@ -117,13 +117,14 @@ export const submitContactForm = createServerFn({ method: "POST" })
     const naam = sanitize(data.naam ?? "", 120);
     const email = sanitize((data.email ?? "").toLowerCase(), 255);
     const bericht = sanitize(data.bericht ?? "", 3000);
+    const locale: "nl" | "en" = data.locale === "en" ? "en" : "nl";
     if (naam.length < 2) throw new Error("Vul je naam in.");
     if (!EMAIL_RE.test(email)) throw new Error("Ongeldig e-mailadres.");
     if (bericht.length < 5) throw new Error("Bericht is te kort.");
 
     await rateLimitOrThrow("contact_form", clientIp(), 5, 10);
 
-    const { userId } = await findOrInviteUser(email, naam);
+    const { userId } = await findOrInviteUser(email, naam, { locale });
     const convId = await ensureConversation(userId, "contact_form", bericht.slice(0, 80));
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("messages").insert({
