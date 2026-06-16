@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { RotateCw } from "lucide-react";
 import { toast } from "sonner";
@@ -7,12 +7,11 @@ import { AdminBottomNav } from "./AdminBottomNav";
 import { useAdminUnreadCounts } from "@/hooks/useAdminUnreadCounts";
 import { triggerAdminRefresh } from "@/hooks/useAdminRefresh";
 
-type AdminTabTo = "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen";
-const tabs: { to: AdminTabTo; label: string; exact?: boolean; badgeKey?: "messages" | "requests" }[] = [
+type AdminTabTo = "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen";
+const tabs: { to: AdminTabTo; label: string; exact?: boolean; badgeKey?: "messages" | "requests"; activePrefixes?: string[] }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
   { to: "/admin/berichten", label: "Berichten", badgeKey: "messages" },
-  { to: "/admin/offertes", label: "Aanvragen", badgeKey: "requests" },
-  { to: "/admin/quotes", label: "Offertes" },
+  { to: "/admin/offertes", label: "Offertes", badgeKey: "requests", activePrefixes: ["/admin/offertes", "/admin/quotes"] },
   { to: "/admin/projecten", label: "Projecten" },
   { to: "/admin/klanten", label: "Klanten" },
   { to: "/admin/recent-werk", label: "Recent Werk" },
@@ -24,6 +23,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
   const [email, setEmail] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const counts = useAdminUnreadCounts();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -102,13 +102,16 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
         >
           {tabs.map((t) => {
             const showBadge = t.badgeKey ? counts[t.badgeKey] > 0 : false;
+            const customActive = t.activePrefixes?.some((p) => pathname === p || pathname.startsWith(`${p}/`));
             return (
               <Link
                 key={t.to}
                 to={t.to}
                 activeOptions={{ exact: t.exact }}
                 className="relative text-[11px] tracking-[0.2em] uppercase px-3 py-2 whitespace-nowrap inline-flex items-center gap-1.5"
-                style={{ color: "var(--cream)", opacity: 0.65 }}
+                style={customActive
+                  ? { color: "var(--gold)", opacity: 1, borderBottom: "1px solid var(--gold)" }
+                  : { color: "var(--cream)", opacity: 0.65 }}
                 activeProps={{
                   style: { color: "var(--gold)", opacity: 1, borderBottom: "1px solid var(--gold)" },
                   "data-active": "true",
