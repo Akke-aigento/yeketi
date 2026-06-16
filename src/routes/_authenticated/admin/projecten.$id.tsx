@@ -8,6 +8,7 @@ import { compressImage } from "@/lib/image-compress";
 import { t } from "@/lib/copy";
 import { deletePhase as deletePhaseFn, deleteProject as deleteProjectFn } from "@/lib/admin.functions";
 import { ConfirmModal, PromptModal } from "@/components/AdminModals";
+import { publishProjectToRecentWork as publishProjectToRecentWorkFn } from "@/lib/recent-work.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/projecten/$id")({
   head: () => ({ meta: [{ title: "Project — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -33,6 +34,7 @@ function ProjectAdmin() {
   const navigate = useNavigate();
   const deletePhaseSrv = useServerFn(deletePhaseFn);
   const deleteProjectSrv = useServerFn(deleteProjectFn);
+  const publishToRecentWork = useServerFn(publishProjectToRecentWorkFn);
   const [project, setProject] = useState<Project | null>(null);
   const [phases, setPhases] = useState<Phase[]>([]);
   const [updates, setUpdates] = useState<Update[]>([]);
@@ -47,6 +49,9 @@ function ProjectAdmin() {
   // Modal state for prompt/confirm replacements
   const [phaseNamePrompt, setPhaseNamePrompt] = useState<{ initial: string; onSave: (v: string) => void } | null>(null);
   const [confirmState, setConfirmState] = useState<{ title: string; message: string; destructive?: boolean; onConfirm: () => void } | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishConsent, setPublishConsent] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -189,6 +194,18 @@ function ProjectAdmin() {
         }
       },
     });
+  }
+  async function confirmPublishToRecentWork() {
+    if (!publishConsent) return;
+    setPublishing(true);
+    try {
+      const res = await publishToRecentWork({ data: { projectId: id, consent: true } });
+      toast.success("Concept-publicatie aangemaakt", { description: `${res.copiedItems} foto's gekopieerd.` });
+      setPublishOpen(false); setPublishConsent(false);
+      navigate({ to: "/admin/recent-werk/$id", params: { id: res.publicationId } });
+    } catch (e) {
+      toast.error("Publiceren mislukt", { description: (e as Error).message });
+    } finally { setPublishing(false); }
   }
   async function setPhaseStatus(p: Phase, status: Phase["status"]) {
     const { error } = await supabase.from("project_phases").update({ status }).eq("id", p.id);
@@ -337,6 +354,13 @@ function ProjectAdmin() {
         >
           Project verwijderen
         </button>
+        <button
+          onClick={() => { setPublishConsent(false); setPublishOpen(true); }}
+          className="mt-3 w-full text-xs uppercase tracking-[0.18em] py-2"
+          style={{ border: "1px solid var(--brass)", color: "var(--brass)", background: "transparent" }}
+        >
+          Publiceer naar Recent Werk
+        </button>
       </section>
 
       <section className="container-edit pb-3">
@@ -446,6 +470,40 @@ function ProjectAdmin() {
         onConfirm={async () => { await confirmState?.onConfirm(); }}
         onClose={() => setConfirmState(null)}
       />
+      {publishOpen && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
+          <div className="w-full sm:max-w-md" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
+            <div className="px-4 py-3" style={{ background: "var(--charcoal)", color: "var(--cream)", fontFamily: "var(--font-display)" }}>
+              Publiceer naar Recent Werk
+            </div>
+            <div className="px-4 py-4 space-y-4">
+              <p className="text-sm" style={{ lineHeight: 1.55 }}>
+                Er wordt een <strong>concept-publicatie</strong> aangemaakt met een kopie van alle foto's en
+                update-teksten van dit project. Het origineel van de klant blijft onaangetast — latere
+                wijzigingen aan de publicatie raken het klantdossier niet.
+              </p>
+              <label className="flex items-start gap-3 text-sm" style={{ lineHeight: 1.5 }}>
+                <input
+                  type="checkbox" checked={publishConsent}
+                  onChange={(e) => setPublishConsent(e.target.checked)}
+                  style={{ marginTop: 3 }}
+                />
+                <span>De klant gaf toestemming om dit project publiek te tonen.</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => setPublishOpen(false)} disabled={publishing} className="btn-y">Annuleer</button>
+                <button
+                  onClick={confirmPublishToRecentWork}
+                  disabled={!publishConsent || publishing}
+                  className="btn-y-solid"
+                >
+                  {publishing ? "Bezig…" : "Maak concept"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminShell>
   );
 }
