@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/image-compress";
 import { t } from "@/lib/copy";
 import { inviteCustomer as inviteCustomerFn } from "@/lib/admin.functions";
+import { useAdminRefreshKey } from "@/hooks/useAdminRefresh";
 
 export const Route = createFileRoute("/_authenticated/admin/projecten/")({
   head: () => ({ meta: [{ title: "Projecten — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -36,6 +37,7 @@ const DEFAULT_PHASES = [
 function ProjectenIndex() {
   const navigate = useNavigate();
   const routeSearch = Route.useSearch();
+  const refreshKey = useAdminRefreshKey();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [customers, setCustomers] = useState<Record<string, Customer>>({});
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
@@ -112,7 +114,7 @@ function ProjectenIndex() {
       }
     })();
     return () => { active = false; };
-  }, [nonce]);
+  }, [nonce, refreshKey]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
