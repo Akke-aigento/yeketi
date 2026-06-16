@@ -189,7 +189,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (body.table === "quote_requests" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
+    if (body.table === "quote_requests" && body.type === "INSERT" && body.record) {
+      const adminTo = await resolveAdminNotifyEmail();
+      if (!adminTo) return new Response("ok");
       const r = body.record;
       const vehicle = [r.merk, r.model, r.bouwjaar].filter(Boolean).join(" ") || (r.type_werk as string) || "onbekend voertuig";
       const rows: Array<[string, string]> = [
@@ -207,7 +209,7 @@ Deno.serve(async (req) => {
         .join("");
       try {
         await sendEmail({
-          to: ADMIN_NOTIFY_EMAIL,
+          to: adminTo,
           subject: `Nieuwe offerteaanvraag — ${vehicle} (${r.naam})`,
           ...(() => {
             const tpl = {
@@ -243,7 +245,8 @@ Deno.serve(async (req) => {
         // Customer-facing "quote sent" is already covered by the in-app sendQuote
         // server fn (sends with PDF attachment). Here we notify the ADMIN on
         // customer responses (akkoord / afgewezen).
-        if (ADMIN_NOTIFY_EMAIL && prevStatus === "verstuurd" && (status === "akkoord" || status === "afgewezen")) {
+        const adminTo = await resolveAdminNotifyEmail();
+        if (adminTo && prevStatus === "verstuurd" && (status === "akkoord" || status === "afgewezen")) {
           const accepted = status === "akkoord";
           const reason = String(r.response_reason ?? "").trim();
           const tpl = {
@@ -257,7 +260,7 @@ Deno.serve(async (req) => {
             ctaUrl: adminUrl,
           };
           await sendEmail({
-            to: ADMIN_NOTIFY_EMAIL,
+            to: adminTo,
             subject: accepted ? `Offerte ${quoteNumber} geaccepteerd — ${title}` : `Offerte ${quoteNumber} afgewezen — ${title}`,
             html: emailTemplate(tpl),
             text: plainText(tpl),
@@ -272,7 +275,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (body.table === "update_reactions" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
+    if (body.table === "update_reactions" && body.type === "INSERT" && body.record) {
+      const adminTo = await resolveAdminNotifyEmail();
+      if (!adminTo) return new Response("ok");
       const r = body.record as Record<string, unknown>;
       const phaseUpdateId = String(r.phase_update_id ?? "");
       const authorId = String(r.author_id ?? "");
@@ -304,7 +309,7 @@ Deno.serve(async (req) => {
           ctaUrl: projectUrl,
         };
         await sendEmail({
-          to: ADMIN_NOTIFY_EMAIL,
+          to: adminTo,
           subject: `Nieuwe reactie — ${vehicle}`,
           html: emailTemplate(tpl),
           text: plainText(tpl),
