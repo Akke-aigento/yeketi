@@ -651,6 +651,10 @@ export const en: Copy = {
     body: "The page you were looking for doesn't exist (any more). Head back to the workshop.",
     cta: "Back to home",
   },
+  weldingVideo: {
+    defaultAria: "Gas-welding in the workshop",
+    play: "Play the video — gas-welding",
+  },
 };
 
 export type Lang = "nl" | "en";
