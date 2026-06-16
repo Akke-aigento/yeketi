@@ -129,6 +129,13 @@ export const nl = {
       },
     ],
     faqTitle: "Veelgestelde vragen",
+    welding: {
+      eyebrow: "Techniek",
+      title: "Autogeen gelast, zoals het hoort.",
+      body: "Klassiek plaatstaal vraagt om een vlamlas, niet om een snelle MIG-puls. Onze plaatwerkers lassen de panelen autogeen — een ambacht dat in Europa bijna verdwenen is, maar de juiste techniek blijft voor een oldtimer: minder spanning op het paneel, een gladdere overgang en een verbinding die generaties meegaat.",
+      videoCaption: "Autogeen-lassen op plaatstaal — met gas- en zuurstofvlam, met de hand.",
+      videoAria: "Korte video van autogeen-lassen in de werkplaats",
+    },
     faq: [
       { q: "Hoe verloopt het transport en de verzekering?", a: "Baram verzorgt het transport voorlopig persoonlijk: hij brengt de wagen zelf naar de werkplaats, blijft ter plaatse tijdens het werk, en regelt vooraf de gepaste verzekering op de afgesproken waarde. Alle documenten krijgt u ter inzage voor de wagen vertrekt." },
       { q: "Wat is een realistische doorlooptijd?", a: "Plaatwerk: enkele weken tot twee maanden. Een volledige restauratie duurt doorgaans rond drie maanden — wij werken parallel met meerdere ambachtslieden in gespecialiseerde werkplaatsen, in plaats van fase na fase." },
