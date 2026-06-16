@@ -259,10 +259,49 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (body.table === "update_reactions" && body.type === "INSERT" && body.record && ADMIN_NOTIFY_EMAIL) {
+      const r = body.record as Record<string, unknown>;
+      const phaseUpdateId = String(r.phase_update_id ?? "");
+      const authorId = String(r.author_id ?? "");
+      const reactionBody = String(r.body ?? "");
+      try {
+        // Skip notifying when Baram (admin) himself replies.
+        const roles = await sbFetch(`user_roles?user_id=eq.${authorId}&role=eq.admin&select=user_id`);
+        const authorIsAdmin = Array.isArray(roles) && roles.length > 0;
+        if (authorIsAdmin) return new Response("ok");
+        const updates = await sbFetch(`phase_updates?id=eq.${phaseUpdateId}&select=phase_id,body`);
+        const update = updates[0];
+        if (!update) return new Response("ok");
+        const phases = await sbFetch(`project_phases?id=eq.${update.phase_id}&select=name,project_id`);
+        const phase = phases[0];
+        if (!phase) return new Response("ok");
+        const projects = await sbFetch(`projects?id=eq.${phase.project_id}&select=id,title,vehicle_make,vehicle_model`);
+        const project = projects[0];
+        if (!project) return new Response("ok");
+        const profiles = await sbFetch(`profiles?id=eq.${authorId}&select=full_name,email`);
+        const profile = profiles[0] ?? {};
+        const vehicle = [project.vehicle_make, project.vehicle_model].filter(Boolean).join(" ") || project.title;
+        const projectUrl = `${PUBLIC_SITE_URL}/admin/projecten/${project.id}`;
+        const preview = reactionBody.length > 220 ? reactionBody.slice(0, 220) + "…" : reactionBody;
+        const who = profile.full_name || profile.email || "Een klant";
+        const tpl = {
+          headline: `${who} reageerde op ${vehicle}`,
+          intro: `Een nieuwe reactie in fase <strong>${phase.name}</strong>.<br/><br/><em style="color:#4A453E;">"${preview.replace(/</g, "&lt;")}"</em>`,
+          ctaLabel: "Antwoord in admin",
+          ctaUrl: projectUrl,
+        };
+        await sendEmail({
+          to: ADMIN_NOTIFY_EMAIL,
+          subject: `Nieuwe reactie — ${vehicle}`,
+          html: emailTemplate(tpl),
+          text: plainText(tpl),
+        });
+      } catch (e) {
+        await logFailure("update_reactions", { phase_update_id: phaseUpdateId, author_id: authorId }, (e as Error).message);
+      }
+    }
+
     return new Response("ok", { status: 200 });
-  }
-  // unreachable below
-  catch (e) {
   } catch (e) {
     console.error(e);
     await logFailure(body?.table ?? "unknown", body?.record ?? null, (e as Error).message);
