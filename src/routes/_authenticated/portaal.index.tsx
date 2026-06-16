@@ -24,6 +24,7 @@ function PortalIndex() {
   const [projects, setProjects] = useState<ProjectRow[] | null>(null);
   const [covers, setCovers] = useState<Record<string, string | null>>({});
   const [error, setError] = useState<string | null>(null);
+  const [quotes, setQuotes] = useState<Array<{ id: string; quote_number: string | null; title: string; status: string; total_amount: number; sent_at: string | null }> | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -38,6 +39,14 @@ function PortalIndex() {
         setCovers(Object.fromEntries(entries));
       })
       .catch((e) => active && setError(e.message ?? "Er ging iets mis."));
+    (async () => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await supabase
+        .from("quotes")
+        .select("id, quote_number, title, status, total_amount, sent_at")
+        .order("sent_at", { ascending: false });
+      if (active) setQuotes(data ?? []);
+    })();
     return () => { active = false; };
   }, []);
 
