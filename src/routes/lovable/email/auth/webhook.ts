@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { SignupEmail } from '@/lib/email-templates/signup'
 import { InviteEmail } from '@/lib/email-templates/invite'
+import { AdminInviteEmail } from '@/lib/email-templates/admin-invite'
 import { MagicLinkEmail } from '@/lib/email-templates/magic-link'
 import { RecoveryEmail } from '@/lib/email-templates/recovery'
 import { EmailChangeEmail } from '@/lib/email-templates/email-change'
@@ -19,6 +20,8 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   email_change: 'Bevestig je nieuwe e-mailadres — Yeketi Motorworks',
   reauthentication: 'Je verificatiecode — Yeketi Motorworks',
 }
+
+const ADMIN_INVITE_SUBJECT = 'Admin-uitnodiging — Yeketi Motorworks'
 
 // Template mapping
 const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
@@ -122,7 +125,20 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           run_id,
         })
 
-        const EmailTemplate = EMAIL_TEMPLATES[emailType]
+        // Detect admin invites via user_metadata.is_admin flag set in
+        // admin.functions.ts → inviteAdmin. The Supabase send-email hook
+        // payload exposes the full user; Lovable's parser may flatten it,
+        // so check both shapes defensively.
+        const data = payload.data as Record<string, any>
+        const metaFromUser = data?.user?.user_metadata
+        const metaFlat = data?.user_metadata
+        const isAdminInvite =
+          emailType === 'invite' &&
+          (metaFromUser?.is_admin === true || metaFlat?.is_admin === true)
+
+        const EmailTemplate = isAdminInvite
+          ? AdminInviteEmail
+          : EMAIL_TEMPLATES[emailType]
         if (!EmailTemplate) {
           console.error('Unknown email type', { emailType, run_id })
           return Response.json(
@@ -179,11 +195,13 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
             to: payload.data.email,
           from: `Yeketi Motorworks <info@${FROM_DOMAIN}>`,
             sender_domain: SENDER_DOMAIN,
-            subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+            subject: isAdminInvite
+              ? ADMIN_INVITE_SUBJECT
+              : EMAIL_SUBJECTS[emailType] || 'Notification',
             html,
             text,
             purpose: 'transactional',
-            label: emailType,
+            label: isAdminInvite ? 'admin_invite' : emailType,
             queued_at: new Date().toISOString(),
           },
         })
