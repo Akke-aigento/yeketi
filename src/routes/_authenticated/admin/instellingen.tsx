@@ -77,7 +77,7 @@ function Instellingen() {
               )}
             </label>
             <div className="flex items-center gap-3">
-              <button type="submit" disabled={saving} className="btn-y-solid">
+              <button type="submit" disabled={saving} aria-busy={saving} className="btn-y-solid">
                 {saving ? "Opslaan…" : "Opslaan"}
               </button>
               {saved === "ok" && (

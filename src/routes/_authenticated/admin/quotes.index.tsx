@@ -85,7 +85,7 @@ function QuotesIndex() {
     <AdminShell title="Offertes">
       <OffertesTabs />
       <section className="container-edit" style={{ paddingBottom: "3rem" }}>
-        <button onClick={newQuote} disabled={busy} className="btn-y-solid w-full">
+        <button onClick={newQuote} disabled={busy} aria-busy={busy} className="btn-y-solid w-full">
           {busy ? "Bezig…" : "+ Nieuwe offerte"}
         </button>
 

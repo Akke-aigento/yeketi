@@ -26,10 +26,12 @@ export function ConfirmModal({
         <div className="px-4 py-4 space-y-4">
           <p className="text-sm" style={{ lineHeight: 1.55 }}>{message}</p>
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={onClose} disabled={busy} className="btn-y">{cancelLabel}</button>
+            <button onClick={onClose} disabled={busy} aria-busy={busy} className="btn-y">{cancelLabel}</button>
             <button
               disabled={busy}
+              aria-busy={busy}
               onClick={async () => {
+                if (busy) return;
                 setBusy(true);
                 try { await onConfirm(); onClose(); } finally { setBusy(false); }
               }}
@@ -91,8 +93,8 @@ export function PromptModal({
             disabled={busy}
           />
           <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={onClose} disabled={busy} className="btn-y">Annuleer</button>
-            <button type="submit" disabled={busy || !value.trim()} className="btn-y-solid">
+            <button type="button" onClick={onClose} disabled={busy} aria-busy={busy} className="btn-y">Annuleer</button>
+            <button type="submit" disabled={busy || !value.trim()} aria-busy={busy} className="btn-y-solid">
               {busy ? "Bezig…" : confirmLabel}
             </button>
           </div>

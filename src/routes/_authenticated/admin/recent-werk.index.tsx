@@ -97,7 +97,7 @@ function AdminRecentWerk() {
           <p className="text-xs" style={{ color: "var(--charcoal-soft)" }}>
             {pubs ? `${pubs.length} publicatie${pubs.length === 1 ? "" : "s"}` : "Laden…"} · Volgorde bepaalt de wand.
           </p>
-          <button onClick={createDraft} disabled={creating} className="btn-y-solid" style={{ paddingBlock: "0.55rem" }}>
+          <button onClick={createDraft} disabled={creating} aria-busy={creating} className="btn-y-solid" style={{ paddingBlock: "0.55rem" }}>
             {creating ? "Aanmaken…" : "+ Nieuwe publicatie"}
           </button>
         </div>

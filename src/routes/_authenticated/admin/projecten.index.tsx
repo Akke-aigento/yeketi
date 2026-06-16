@@ -455,7 +455,7 @@ function NewProjectModal({ onClose, onCreated }: { onClose: () => void; onCreate
             </label>
           </div>
 
-          <button onClick={submit} disabled={busy} className="btn-y-solid w-full">
+          <button onClick={submit} disabled={busy} aria-busy={busy} className="btn-y-solid w-full">
             {busy ? "Aanmaken…" : "Project aanmaken"}
           </button>
         </div>
