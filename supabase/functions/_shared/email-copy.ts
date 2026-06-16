@@ -191,3 +191,141 @@ export function newMessageFromBaram(locale: Locale, p: { first: string | null; s
     cta: { label: "Reageren in je portaal", url: p.portalUrl },
   };
 }
+
+// ─────────────────────────────────────────────────────────────
+// AUTH EMAILS — sent via auth-email edge function (Supabase Send Email hook)
+// Same brand layout as customer notifications. Always isCustomer: true so the
+// "reageer in je portaal" notice is included after sign-in.
+// ─────────────────────────────────────────────────────────────
+
+type AuthArgs = { actionUrl: string; siteUrl: string };
+
+function safetyNote(locale: Locale): string {
+  return locale === "en"
+    ? `<p style="margin:18px 0 0;font-size:13px;color:#6B6459;">If you didn't request this, you can safely ignore this email — no changes will be made to your account.</p>`
+    : `<p style="margin:18px 0 0;font-size:13px;color:#6B6459;">Heb jij dit niet aangevraagd? Negeer deze mail gerust — er gebeurt dan niets met je account.</p>`;
+}
+
+export function authSignup(locale: Locale, p: AuthArgs): Out {
+  if (locale === "en") return {
+    subject: "Confirm your email — Yeketi Motorworks",
+    preheader: "One click to activate your portal access",
+    eyebrow: "Confirm email", isCustomer: true, locale,
+    headline: "Welcome to Yeketi Motorworks",
+    intro: "Thanks for signing up. Confirm your email address to activate your portal — that's where you'll follow every step of your restoration.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Confirm my email", url: p.actionUrl },
+  };
+  return {
+    subject: "Bevestig je e-mailadres — Yeketi Motorworks",
+    preheader: "Eén klik om je toegang tot het portaal te activeren",
+    eyebrow: "Bevestig e-mail", isCustomer: true, locale,
+    headline: "Welkom bij Yeketi Motorworks",
+    intro: "Bedankt voor je registratie. Bevestig je e-mailadres om je portaal te activeren — daar volg je elke stap van je restauratie.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Bevestig mijn e-mail", url: p.actionUrl },
+  };
+}
+
+export function authRecovery(locale: Locale, p: AuthArgs): Out {
+  if (locale === "en") return {
+    subject: "Reset your password — Yeketi Motorworks",
+    preheader: "Set a new password for your portal",
+    eyebrow: "Password reset", isCustomer: true, locale,
+    headline: "Reset your password",
+    intro: "You asked to reset the password for your Yeketi Motorworks portal. Use the button below to choose a new one — the link is valid for one hour.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Choose a new password", url: p.actionUrl },
+  };
+  return {
+    subject: "Stel je wachtwoord opnieuw in — Yeketi Motorworks",
+    preheader: "Kies een nieuw wachtwoord voor je portaal",
+    eyebrow: "Wachtwoord herstellen", isCustomer: true, locale,
+    headline: "Stel je wachtwoord opnieuw in",
+    intro: "Je hebt gevraagd om het wachtwoord van je Yeketi-portaal te herstellen. Klik op de knop hieronder om een nieuw wachtwoord te kiezen — de link blijft één uur geldig.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Kies een nieuw wachtwoord", url: p.actionUrl },
+  };
+}
+
+export function authMagicLink(locale: Locale, p: AuthArgs): Out {
+  if (locale === "en") return {
+    subject: "Sign in to your portal — Yeketi Motorworks",
+    preheader: "Your one-time sign-in link",
+    eyebrow: "Sign in", isCustomer: true, locale,
+    headline: "Sign in to your portal",
+    intro: "Use the button below to sign in to your Yeketi Motorworks portal. The link is valid for one hour and can only be used once.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Sign me in", url: p.actionUrl },
+  };
+  return {
+    subject: "Log in op je portaal — Yeketi Motorworks",
+    preheader: "Je eenmalige inloglink",
+    eyebrow: "Inloggen", isCustomer: true, locale,
+    headline: "Log in op je portaal",
+    intro: "Gebruik de knop hieronder om in te loggen op je Yeketi-portaal. De link is één uur geldig en kan slechts één keer gebruikt worden.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Log me in", url: p.actionUrl },
+  };
+}
+
+export function authInvite(locale: Locale, p: AuthArgs): Out {
+  if (locale === "en") return {
+    subject: "You're invited — Yeketi Motorworks",
+    preheader: "Activate your portal account",
+    eyebrow: "Invitation", isCustomer: true, locale,
+    headline: "Welcome to Yeketi Motorworks",
+    intro: "Baram invited you to the Yeketi Motorworks portal — your home base to follow every restoration step, see updates and stay in touch.",
+    bodyHtml: `<p style="margin:0;">Click below to activate your account and choose a password.</p>${safetyNote(locale)}`,
+    cta: { label: "Activate my account", url: p.actionUrl },
+  };
+  return {
+    subject: "Uitnodiging — Yeketi Motorworks",
+    preheader: "Activeer je portaalaccount",
+    eyebrow: "Uitnodiging", isCustomer: true, locale,
+    headline: "Welkom bij Yeketi Motorworks",
+    intro: "Baram nodigt je uit voor het Yeketi Motorworks-portaal — je vaste plek om elke fase van je restauratie te volgen, updates te lezen en contact te houden.",
+    bodyHtml: `<p style="margin:0;">Klik hieronder om je account te activeren en een wachtwoord te kiezen.</p>${safetyNote(locale)}`,
+    cta: { label: "Activeer mijn account", url: p.actionUrl },
+  };
+}
+
+export function authEmailChange(locale: Locale, p: AuthArgs): Out {
+  if (locale === "en") return {
+    subject: "Confirm your new email — Yeketi Motorworks",
+    preheader: "Confirm the change to your account email",
+    eyebrow: "Email change", isCustomer: true, locale,
+    headline: "Confirm your new email address",
+    intro: "You asked to change the email address on your Yeketi Motorworks account. Confirm with the button below.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Confirm new email", url: p.actionUrl },
+  };
+  return {
+    subject: "Bevestig je nieuwe e-mailadres — Yeketi Motorworks",
+    preheader: "Bevestig de wijziging van je account-e-mail",
+    eyebrow: "E-mail wijzigen", isCustomer: true, locale,
+    headline: "Bevestig je nieuwe e-mailadres",
+    intro: "Je hebt gevraagd om het e-mailadres van je Yeketi-account te wijzigen. Bevestig de wijziging met de knop hieronder.",
+    bodyHtml: safetyNote(locale),
+    cta: { label: "Bevestig nieuwe e-mail", url: p.actionUrl },
+  };
+}
+
+export function authReauthentication(locale: Locale, p: { code: string; siteUrl: string }): Out {
+  if (locale === "en") return {
+    subject: "Verification code — Yeketi Motorworks",
+    preheader: "Confirm a sensitive change to your account",
+    eyebrow: "Verification", isCustomer: true, locale,
+    headline: "Confirm it's really you",
+    intro: "Enter the code below in your Yeketi Motorworks portal to confirm this action. The code is valid for a few minutes.",
+    bodyHtml: `<p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:30px;letter-spacing:0.4em;color:#221F1B;background:#F7F3EC;border:1px solid #EFE8DB;padding:18px 24px;text-align:center;">${escapeHtml(p.code)}</p>${safetyNote(locale)}`,
+  };
+  return {
+    subject: "Bevestigingscode — Yeketi Motorworks",
+    preheader: "Bevestig een gevoelige wijziging op je account",
+    eyebrow: "Verificatie", isCustomer: true, locale,
+    headline: "Bevestig dat jij het bent",
+    intro: "Voer onderstaande code in op je Yeketi-portaal om deze actie te bevestigen. De code blijft enkele minuten geldig.",
+    bodyHtml: `<p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:30px;letter-spacing:0.4em;color:#221F1B;background:#F7F3EC;border:1px solid #EFE8DB;padding:18px 24px;text-align:center;">${escapeHtml(p.code)}</p>${safetyNote(locale)}`,
+  };
+}

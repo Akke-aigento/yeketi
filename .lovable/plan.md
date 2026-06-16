@@ -1,97 +1,100 @@
 
 ## Doel
 
-Een duidelijk rood bolletje op "Berichten" tonen wanneer er ongelezen berichten
-zijn — zowel in het klantportaal (header) als in admin (bottom-nav én desktop
-top-nav). Vandaag is er enkel een goud bolletje in de admin bottom-nav, en aan
-klantzijde helemaal niets.
-
-## Wat klopt nu al
-
-- Admin heeft `conversations.admin_last_seen_at`. Bij openen van een gesprek
-  zet `getConversation` die op `now()`. AdminBottomNav telt ongelezen
-  conversaties (`last_message_at > admin_last_seen_at`) en toont nu een
-  goud bolletje.
-
-## Wat er ontbreekt / fout zit
-
-1. **Geen tracking aan klantzijde** — `conversations` heeft geen
-   `customer_last_seen_at`, dus we kunnen niet weten of de klant het laatste
-   admin-bericht al heeft gezien.
-2. **Geen badge in `PortalHeader`** op de "Berichten"-link.
-3. **Goud i.p.v. rood** in admin — de gebruiker wil expliciet rood
-   ("rood notificatietje").
-4. **Geen badge in de admin desktop top-nav** (`AdminShell`), enkel in de
-   mobiele bottom-nav.
+De default Supabase-auth-mails (afzender "Yeketi-Motorworks-Legacy", kale dark
+template) vervangen door dezelfde brandstijl als de admin→klant mails, én ze
+laten vertrekken vanaf `info@yeketimotorworks.com` — exact dezelfde afzender
+en pipeline (Resend) als de mooie transactionele mails die nu al werken.
 
 ## Aanpak
 
-### 1. Database (migratie)
+Lovable's eigen auth-mail-scaffolding gebruikt **niet** `info@yeketimotorworks.com` — die zou een afzender op een gedelegeerde subdomeinen vereisen (bv. `notify@notify.yeketimotorworks.com`), DNS-NS-records bij Yeketi's domein nodig hebben, en kan conflicteren met de bestaande Resend-setup. Daarom gaan we de andere route:
 
-Nieuwe migratie:
-- Kolom `conversations.customer_last_seen_at timestamptz` toevoegen.
-- Geen RLS-/policy-wijzigingen — bestaande policies dekken `UPDATE` door de
-  klant op zijn eigen conversation al. (Verifiëren; indien niet, een nauwe
-  `UPDATE`-policy toevoegen die enkel `customer_last_seen_at` mag muteren door
-  `contact_profile_id = auth.uid()`. Géén bestaande policies aanraken.)
+**Supabase Auth → "Send Email Hook" (webhook) → onze eigen edge function → Resend.**
 
-### 2. Server-functies (`src/lib/messages.functions.ts`)
+Hetzelfde patroon als nu voor `notify-events`, met dezelfde shared
+`email-template.ts` zodat de mails er identiek uitzien.
 
-- `getMyConversation` → na ophalen van de conversation `customer_last_seen_at`
-  bumpen naar `now()` (zoals `getConversation` dat doet voor admin).
-- Nieuwe lichte server-fn `getMyUnreadMessagesCount` (vereist auth) — telt of
-  er een eigen conversation is waar `last_message_at > customer_last_seen_at`
-  EN het laatste bericht niet van de klant zelf komt. Returnt `{ unread: 0|1 }`
-  (één conversation per klant, dus volstaat boolean-achtig).
-- Geen wijziging aan business logic of mail-pipeline.
+## Stappen
 
-### 3. Klantportaal (`src/components/PortalHeader.tsx`)
+### 1. Nieuwe edge function: `supabase/functions/auth-email/index.ts`
 
-- Bij mount `getMyUnreadMessagesCount` ophalen.
-- Rood bolletje rechtsboven de "Berichten"-link tonen wanneer `unread > 0`.
-- Re-fetch bij route-wissel (eenvoudige `useRouterState`-trigger zoals in
-  `AdminBottomNav`).
+- Endpoint dat Supabase Auth aanroept bij elke auth-actie (`signup`,
+  `recovery`, `magiclink`, `invite`, `email_change`, `reauthentication`).
+- Verifieert de "Standard Webhook"-signature (Supabase tekent met een
+  Auth-hook secret — nieuwe Supabase secret `AUTH_EMAIL_HOOK_SECRET`).
+- Bouwt de juiste link met de meegestuurde token-hash + redirect URL.
+- Rendert via bestaande `_shared/email-template.ts` met locale-aware copy
+  uit `_shared/email-copy.ts`.
+- Verstuurt via Resend met `from: "Yeketi Motorworks <info@yeketimotorworks.com>"`
+  (zelfde als bestaande mails).
+- Logt fouten in `notify_event_failures` zoals nu.
 
-### 4. Admin
+### 2. Mail-copy uitbreiden — `supabase/functions/_shared/email-copy.ts`
+en `src/lib/email-copy.server.ts`
 
-- **`AdminBottomNav.tsx`**: kleur van `Dot` van `var(--gold)` naar
-  `var(--oxide)` (de bestaande rode/roest-token) zodat het visueel een
-  notificatie wordt. Logica blijft identiek.
-- **`AdminShell.tsx`** (desktop top-nav): zelfde teller-hook
-  (conversations + quote_requests count zoals in bottom-nav) en hetzelfde
-  rode bolletje naast "Berichten" en "Aanvragen". Eén gedeelde helper om
-  duplicatie te vermijden: `src/hooks/useAdminUnreadCounts.ts` die de
-  bestaande query uit `AdminBottomNav` herbruikt.
+Nieuwe NL+EN secties voor de 6 auth-types:
+- `auth_signup` — "Bevestig je e-mailadres" / "Confirm your email"
+- `auth_recovery` — "Stel je wachtwoord opnieuw in" / "Reset your password"
+- `auth_magic_link` — "Log in op je portaal" / "Sign in to your portal"
+- `auth_invite` — "Welkom bij Yeketi Motorworks" / "Welcome…"
+- `auth_email_change` — "Bevestig je nieuwe e-mailadres"
+- `auth_reauthentication` — "Bevestig je identiteit"
 
-### 5. Niet doen
+Elke variant: eyebrow, headline (serif), korte intro, CTA-label, helper-tekst
+("link 1 uur geldig"), veiligheidsnotitie ("als jij dit niet was, negeer
+deze mail").
 
-- Geen wijzigingen aan RLS-rollen, auth-flows, mail-templates of
-  notify-events pipeline.
-- Geen polling / realtime subscriptions toevoegen — refetch bij navigatie
-  volstaat (zelfde patroon als nu).
+### 3. Locale bepalen
 
-## Technische details
+Bij signup is er geen profiel; we lezen `user.user_metadata.locale` als de
+client die meestuurt, anders fallback `nl`. Voor recovery/magic link/invite
+zoeken we de bestaande `profiles.locale` op via service-role lookup op
+`user.email`.
 
-```text
-conversations
-├── admin_last_seen_at         (bestaand)  → bumped door getConversation
-└── customer_last_seen_at      (nieuw)     → bumped door getMyConversation
+### 4. Supabase config
 
-Badge-logica:
-- Klant: unread = (laatste bericht != klant) AND last_message_at > customer_last_seen_at
-- Admin: unread conv-count = aantal conversaties met last_message_at > admin_last_seen_at
-- Admin: unread requests   = quote_requests waar status = 'new'
-```
+- Nieuwe secret `AUTH_EMAIL_HOOK_SECRET` aanmaken (gegenereerd).
+- `supabase/config.toml` aanpassen: edge function registreren en
+  `[auth.hook.send_email]` activeren met de webhook-URL + secret.
+- Auth-hook URL: `https://<project>.supabase.co/functions/v1/auth-email`.
 
-Rode kleur: hergebruik bestaande token `var(--oxide)` (al in het palet,
-gebruikt voor "Sluiten" en `lost`-status), zodat de notificatie binnen de
-huidige design tokens blijft.
+### 5. Login flow
+
+`src/routes/login.tsx` aanpassen: bij `signUp`/`resetPasswordForEmail` de
+gekozen locale meesturen in `options.data` zodat de hook ze ziet (anders
+fallback via profiel-lookup).
+
+## Wat NIET aangepast wordt
+
+- De bestaande `notify-events` pipeline, RLS, business logic, of
+  Supabase Auth zelf (geen wijziging aan wachtwoord-regels, geen
+  auto-confirm).
+- `info@yeketimotorworks.com` blijft de enige afzender — geen tweede sender,
+  geen nieuwe DNS, geen Lovable Emails domain setup.
+- De huidige Lovable-auth-mail-scaffolding (`scaffold_auth_email_templates`)
+  wordt **niet** gebruikt, omdat die `auth.sellqo.app` / een nieuwe subdomain
+  zou forceren in plaats van `info@yeketimotorworks.com`.
 
 ## Bestanden
 
-- **Nieuw**: `supabase/migrations/<ts>_add_customer_last_seen_at.sql`
-- **Nieuw**: `src/hooks/useAdminUnreadCounts.ts`
-- **Gewijzigd**: `src/lib/messages.functions.ts` (bump + nieuwe fn)
-- **Gewijzigd**: `src/components/PortalHeader.tsx` (badge)
-- **Gewijzigd**: `src/components/AdminBottomNav.tsx` (kleur + hook)
-- **Gewijzigd**: `src/components/AdminShell.tsx` (badge op desktop nav)
+- **Nieuw**: `supabase/functions/auth-email/index.ts`
+- **Gewijzigd**: `supabase/functions/_shared/email-copy.ts` (+ 6 auth-secties)
+- **Gewijzigd**: `src/lib/email-copy.server.ts` (mirror, voor consistentie)
+- **Gewijzigd**: `supabase/config.toml` (function + auth-hook registreren)
+- **Gewijzigd**: `src/routes/login.tsx` (locale meegeven in signUp opties)
+- **Nieuwe secret**: `AUTH_EMAIL_HOOK_SECRET`
+
+## Vereiste actie van jou (Baram), één keer
+
+Na deploy moet de Auth-hook in Supabase eenmalig geactiveerd worden. Ik kan
+dat via `supabase--configure_auth` doen, maar laat me weten of je het mee
+wilt — anders zet ik de webhook + secret klaar en zie je hem in
+Cloud → Auth → Hooks staan zodra je publiceert.
+
+## Resultaat
+
+Wachtwoord-reset, signup-bevestiging, invite, magic-link, email-wijziging en
+reauthentication komen allemaal van **info@yeketimotorworks.com** met
+exact dezelfde brass/cream layout als de mails die nu al goed renderen.
+NL of EN op basis van de klant-locale.
