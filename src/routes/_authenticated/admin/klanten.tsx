@@ -285,10 +285,11 @@ function DeleteCustomerModal({ profile, projectCount, confirm, setConfirm, busy,
   );
 }
 
-function EditCustomerModal({ profile, onClose, onSave, busy }: {
+function EditCustomerModal({ profile, onClose, onSave, onDelete, busy }: {
   profile: Profile;
   onClose: () => void;
   onSave: (f: { full_name: string; phone: string; email: string }) => void;
+  onDelete: (p: Profile) => void;
   busy: boolean;
 }) {
   const [full_name, setFullName] = useState(profile.full_name ?? "");
@@ -316,6 +317,15 @@ function EditCustomerModal({ profile, onClose, onSave, busy }: {
           </label>
           <button onClick={() => onSave({ full_name, phone, email })} disabled={busy} className="btn-y-solid w-full mt-2">
             {busy ? "Opslaan…" : "Opslaan"}
+          </button>
+          <div className="hairline opacity-25" />
+          <button
+            type="button"
+            onClick={() => onDelete(profile)}
+            className="w-full text-[11px] uppercase tracking-[0.2em] text-center py-2"
+            style={{ color: "var(--oxide)" }}
+          >
+            Verwijder klant
           </button>
         </div>
       </div>
