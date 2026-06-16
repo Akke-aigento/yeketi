@@ -1,21 +1,20 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Gauge, MessageSquare, Inbox, Wrench, MoreHorizontal, FileText, Users, Hammer, Settings, LogOut, ArrowLeft } from "lucide-react";
+import { Gauge, MessageSquare, FileText, Wrench, MoreHorizontal, Users, Hammer, Settings, LogOut, ArrowLeft } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminUnreadCounts } from "@/hooks/useAdminUnreadCounts";
 
-type Primary = { to: "/admin" | "/admin/berichten" | "/admin/offertes" | "/admin/projecten"; label: string; icon: typeof Gauge; exact?: boolean; badgeKey?: "messages" | "requests" };
+type Primary = { to: "/admin" | "/admin/berichten" | "/admin/offertes" | "/admin/projecten"; label: string; icon: typeof Gauge; exact?: boolean; badgeKey?: "messages" | "requests"; activePrefixes?: string[] };
 
 const primary: Primary[] = [
   { to: "/admin", label: "Dashboard", icon: Gauge, exact: true },
   { to: "/admin/berichten", label: "Berichten", icon: MessageSquare, badgeKey: "messages" },
-  { to: "/admin/offertes", label: "Aanvragen", icon: Inbox, badgeKey: "requests" },
+  { to: "/admin/offertes", label: "Offertes", icon: FileText, badgeKey: "requests", activePrefixes: ["/admin/offertes", "/admin/quotes"] },
   { to: "/admin/projecten", label: "Projecten", icon: Wrench },
 ];
 
-const overflow: { to: "/admin/quotes" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen"; label: string; icon: typeof FileText }[] = [
-  { to: "/admin/quotes", label: "Offertes", icon: FileText },
+const overflow: { to: "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen"; label: string; icon: typeof FileText }[] = [
   { to: "/admin/klanten", label: "Klanten", icon: Users },
   { to: "/admin/recent-werk", label: "Recent Werk", icon: Hammer },
   { to: "/admin/instellingen", label: "Instellingen", icon: Settings },
@@ -59,7 +58,9 @@ export function AdminBottomNav({ email }: { email: string | null }) {
     >
       {primary.map((tab) => {
         const Icon = tab.icon;
-        const isActive = tab.exact ? pathname === tab.to : pathname === tab.to || pathname.startsWith(`${tab.to}/`);
+        const isActive = tab.activePrefixes
+          ? tab.activePrefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+          : tab.exact ? pathname === tab.to : pathname === tab.to || pathname.startsWith(`${tab.to}/`);
         const badge = tab.badgeKey ? counts[tab.badgeKey] > 0 : false;
         return (
           <Link
