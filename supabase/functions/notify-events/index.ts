@@ -184,20 +184,16 @@ Deno.serve(async (req) => {
       const phase = phases[0]; if (!phase) return new Response("ok");
       const projects = await sbFetch(`projects?id=eq.${phase.project_id}&select=title,vehicle_make,vehicle_model,customer_id`);
       const project = projects[0]; if (!project) return new Response("ok");
-      const profiles = await sbFetch(`profiles?id=eq.${project.customer_id}&select=email,full_name`);
+      const profiles = await sbFetch(`profiles?id=eq.${project.customer_id}&select=email,full_name,locale`);
       const profile = profiles[0]; if (!profile?.email) return new Response("ok");
       const vehicle = vehicleLabel(project);
       const first = firstName(profile.full_name);
       const preview = updateBody.length > 160 ? updateBody.slice(0, 160) + "…" : updateBody;
+      const locale: Locale = profile.locale === "en" ? "en" : "nl";
       try {
-        await send(profile.email, `Nieuwe update — ${vehicle}`, {
-          preheader: `Update in fase ${phase.name}`,
-          eyebrow: `Update · ${phase.name}`,
-          headline: `Een nieuwe update voor je ${vehicle}`,
-          intro: `${first ? `Hoi ${first}, ` : ""}er staat een verse update klaar in je portaal.`,
-          bodyHtml: preview ? `<p style="margin:0 0 18px;padding:14px 16px;background:#F7F3EC;border-left:3px solid #B0832C;font-style:italic;color:#221F1B;">${escapeHtml(preview)}</p>` : undefined,
-          cta: { label: "Bekijk de update", url: projectPortalUrl(phase.project_id) },
-        });
+        await sendCustomer(profile.email, copy.phaseUpdate(locale, {
+          first, vehicle, phaseName: phase.name, preview, portalUrl: projectPortalUrl(phase.project_id),
+        }));
       } catch (e) {
         await logFailure("phase_updates", { phase_id: phaseId, to: profile.email }, (e as Error).message);
       }
@@ -210,29 +206,16 @@ Deno.serve(async (req) => {
       if (newStatus !== prevStatus && (newStatus === "active" || newStatus === "done")) {
         const projects = await sbFetch(`projects?id=eq.${r.project_id}&select=title,vehicle_make,vehicle_model,customer_id`);
         const project = projects[0]; if (!project) return new Response("ok");
-        const profiles = await sbFetch(`profiles?id=eq.${project.customer_id}&select=email,full_name`);
+        const profiles = await sbFetch(`profiles?id=eq.${project.customer_id}&select=email,full_name,locale`);
         const profile = profiles[0]; if (!profile?.email) return new Response("ok");
         const vehicle = vehicleLabel(project);
         const first = firstName(profile.full_name);
         const phaseName = String(r.name ?? "deze fase");
+        const locale: Locale = profile.locale === "en" ? "en" : "nl";
         try {
-          if (newStatus === "active") {
-            await send(profile.email, `Nieuwe fase gestart — ${vehicle}`, {
-              preheader: `We zijn begonnen aan ${phaseName}`,
-              eyebrow: "Volgende fase",
-              headline: `We zijn begonnen aan ${phaseName}`,
-              intro: `${first ? `Hoi ${first}, ` : ""}een nieuwe fase van je ${vehicle} is gestart. We houden je op de hoogte met updates en foto's vanuit de werkplaats.`,
-              cta: { label: "Volg je project", url: projectPortalUrl(String(r.project_id)) },
-            });
-          } else {
-            await send(profile.email, `${phaseName} is afgerond — ${vehicle}`, {
-              preheader: `${phaseName} is afgerond`,
-              eyebrow: "Fase voltooid",
-              headline: `${phaseName} is afgerond`,
-              intro: `${first ? `Hoi ${first}, ` : ""}we zijn klaar met ${phaseName} aan je ${vehicle}. De volgende stap wordt binnenkort opgestart — je leest het hier eerst.`,
-              cta: { label: "Bekijk in je portaal", url: projectPortalUrl(String(r.project_id)) },
-            });
-          }
+          await sendCustomer(profile.email, copy.phaseStatus(locale, newStatus === "active" ? "started" : "done", {
+            first, vehicle, phaseName, portalUrl: projectPortalUrl(String(r.project_id)),
+          }));
         } catch (e) {
           await logFailure("project_phases", { project_id: r.project_id, status: newStatus }, (e as Error).message);
         }
@@ -242,19 +225,15 @@ Deno.serve(async (req) => {
     // ===== projects INSERT → customer: welcome to project =====
     if (body.table === "projects" && body.type === "INSERT" && body.record) {
       const p = body.record;
-      const profiles = await sbFetch(`profiles?id=eq.${p.customer_id}&select=email,full_name`);
+      const profiles = await sbFetch(`profiles?id=eq.${p.customer_id}&select=email,full_name,locale`);
       const profile = profiles[0]; if (!profile?.email) return new Response("ok");
       const vehicle = vehicleLabel(p);
       const first = firstName(profile.full_name);
+      const locale: Locale = profile.locale === "en" ? "en" : "nl";
       try {
-        await send(profile.email, `Welkom op je project — ${vehicle}`, {
-          preheader: `Je project ${vehicle} is aangemaakt`,
-          eyebrow: "Welkom",
-          headline: `Welkom op je project, ${first ?? "en bedankt voor je vertrouwen"}`,
-          intro: `Je ${vehicle} heeft een eigen pagina in je portaal. Vanaf hier volg je elke fase van de restauratie — met foto's, updates en de mogelijkheid om rechtstreeks te reageren.`,
-          bodyHtml: `<p style="margin:0 0 8px;">We nemen de tijd die het werk vraagt. Elk groot moment — een nieuwe fase, een voltooide stap, een vraag — komt hier binnen.</p>`,
-          cta: { label: "Volg je restauratie", url: projectPortalUrl(String(p.id)) },
-        });
+        await sendCustomer(profile.email, copy.projectWelcome(locale, {
+          first, vehicle, portalUrl: projectPortalUrl(String(p.id)),
+        }));
       } catch (e) {
         await logFailure("projects_insert", { project_id: p.id, to: profile.email }, (e as Error).message);
       }
@@ -265,21 +244,15 @@ Deno.serve(async (req) => {
       const p = body.record; const old = body.old_record ?? {};
       const newStatus = String(p.status ?? ""); const prevStatus = String(old.status ?? "");
       if (newStatus === "delivered" && prevStatus !== "delivered") {
-        const profiles = await sbFetch(`profiles?id=eq.${p.customer_id}&select=email,full_name`);
+        const profiles = await sbFetch(`profiles?id=eq.${p.customer_id}&select=email,full_name,locale`);
         const profile = profiles[0]; if (!profile?.email) return new Response("ok");
         const vehicle = vehicleLabel(p);
         const first = firstName(profile.full_name);
+        const locale: Locale = profile.locale === "en" ? "en" : "nl";
         try {
-          await send(profile.email, `Je ${vehicle} is klaar`, {
-            preheader: `Een nieuw hoofdstuk voor je ${vehicle}`,
-            eyebrow: "Project voltooid",
-            headline: `Je ${vehicle} is klaar`,
-            intro: `${first ? `${first}, ` : ""}vandaag sluiten we het werk af. Een lange reis van demontage, lassen, plamuren, lakken en honderden kleine beslissingen — en nu is hij van jou.`,
-            bodyHtml: `
-              <p style="margin:0 0 14px;">Je portaal blijft staan als een album: elke foto, elke update, elk moment uit de werkplaats. Geen project meer in uitvoering — een verhaal dat je kan herlezen wanneer je wil.</p>
-              <p style="margin:0;color:#B0832C;font-family:Georgia,'Times New Roman',serif;font-style:italic;">Bedankt voor het vertrouwen.</p>`,
-            cta: { label: "Bekijk je project", url: projectPortalUrl(String(p.id)) },
-          });
+          await sendCustomer(profile.email, copy.projectCompleted(locale, {
+            first, vehicle, portalUrl: projectPortalUrl(String(p.id)),
+          }));
         } catch (e) {
           await logFailure("project_completed", { project_id: p.id }, (e as Error).message);
         }
@@ -295,15 +268,13 @@ Deno.serve(async (req) => {
 
       // Customer confirmation (I #15)
       if (email) {
+        const locale = await fetchLocaleByEmail(email);
+        // include the request's own locale (the new profile gets it via trigger)
+        const reqLocale: Locale = (r.locale as string) === "en" ? "en" : locale;
         try {
-          await send(email, `Je aanvraag is binnen — ${vehicle}`, {
-            preheader: "We hebben je offerteaanvraag goed ontvangen",
-            eyebrow: "Aanvraag ontvangen",
-            headline: `Bedankt ${firstName(naam) ?? "voor je aanvraag"}`,
-            intro: `We hebben je aanvraag voor je ${vehicle} goed ontvangen. Baram bekijkt elk dossier persoonlijk en neemt binnen enkele werkdagen contact op met een voorstel — of een paar vragen om de scope scherp te krijgen.`,
-            bodyHtml: `<p style="margin:0;">In tussentijd hoef je niets te doen. Een antwoord op deze mail komt rechtstreeks bij ons binnen.</p>`,
-            secondaryCta: { label: "yeketimotorworks.com", url: PUBLIC_SITE_URL },
-          });
+          await sendCustomer(email, copy.quoteRequestAck(reqLocale, {
+            first: firstName(naam), vehicle, siteUrl: PUBLIC_SITE_URL,
+          }));
         } catch (e) {
           await logFailure("quote_request_customer_ack", { id: r.id, to: email }, (e as Error).message);
         }
@@ -351,7 +322,7 @@ Deno.serve(async (req) => {
           const adminTo = await resolveAdminNotifyEmail();
           if (adminTo) {
             const reason = String(r.response_reason ?? "").trim();
-            await send(adminTo, accepted
+            await sendAdmin(adminTo, accepted
               ? `Offerte ${quoteNumber} geaccepteerd — ${title}`
               : `Offerte ${quoteNumber} afgewezen — ${title}`, {
               eyebrow: accepted ? "Admin · geaccepteerd" : "Admin · afgewezen",
@@ -366,22 +337,14 @@ Deno.serve(async (req) => {
 
           // Customer confirmation (L #18)
           if (r.customer_id) {
-            const profiles = await sbFetch(`profiles?id=eq.${r.customer_id}&select=email,full_name`);
+            const profiles = await sbFetch(`profiles?id=eq.${r.customer_id}&select=email,full_name,locale`);
             const profile = profiles[0];
             if (profile?.email) {
               const first = firstName(profile.full_name);
-              await send(profile.email, accepted
-                ? `Bevestiging — offerte ${quoteNumber} aanvaard`
-                : `Bevestiging — offerte ${quoteNumber} geweigerd`, {
-                eyebrow: accepted ? "Bevestiging" : "Bevestiging",
-                headline: accepted
-                  ? "Bedankt voor je akkoord"
-                  : "We hebben je antwoord goed ontvangen",
-                intro: accepted
-                  ? `${first ? `${first}, ` : ""}we noteren je akkoord op offerte ${quoteNumber} (${totalStr}). Baram neemt binnen enkele dagen contact op om de planning en het transport vast te leggen.`
-                  : `${first ? `${first}, ` : ""}geen probleem — we noteren je beslissing over offerte ${quoteNumber}. Als er iets verandert of als je over een ander voertuig wil praten, weet je ons te vinden.`,
-                cta: { label: "Open in je portaal", url: portalUrl },
-              });
+              const locale: Locale = profile.locale === "en" ? "en" : "nl";
+              await sendCustomer(profile.email, copy.quoteResponseConfirm(locale, {
+                first, accepted, quoteNumber, totalStr, portalUrl,
+              }));
             }
           }
         }
@@ -412,7 +375,7 @@ Deno.serve(async (req) => {
         const vehicle = vehicleLabel(project);
         const who = profile.full_name || profile.email || "Een klant";
         const preview = reactionBody.length > 240 ? reactionBody.slice(0, 240) + "…" : reactionBody;
-        await send(adminTo, `Nieuwe reactie — ${vehicle}`, {
+        await sendAdmin(adminTo, `Nieuwe reactie — ${vehicle}`, {
           eyebrow: "Admin · reactie",
           headline: `${who} reageerde op ${vehicle}`,
           intro: `Een nieuwe reactie in fase "${phase.name}".`,
@@ -443,7 +406,7 @@ Deno.serve(async (req) => {
           const who = profile.full_name || profile.email || "Een klant";
           const subject = conv.subject || "Nieuw bericht";
           const preview = msgBody.length > 260 ? msgBody.slice(0, 260) + "…" : msgBody;
-          await send(adminTo, `Nieuw bericht — ${who}`, {
+          await sendAdmin(adminTo, `Nieuw bericht — ${who}`, {
             eyebrow: "Admin · bericht",
             headline: `Nieuw bericht van ${who}`,
             intro: subject,
@@ -458,19 +421,15 @@ Deno.serve(async (req) => {
         try {
           const convos = await sbFetch(`conversations?id=eq.${conversationId}&select=subject,contact_profile_id`);
           const conv = convos[0]; if (!conv?.contact_profile_id) return new Response("ok");
-          const profiles = await sbFetch(`profiles?id=eq.${conv.contact_profile_id}&select=full_name,email`);
+          const profiles = await sbFetch(`profiles?id=eq.${conv.contact_profile_id}&select=full_name,email,locale`);
           const profile = profiles[0]; if (!profile?.email) return new Response("ok");
           const first = firstName(profile.full_name);
           const subject = conv.subject || "Nieuw bericht";
           const preview = msgBody.length > 260 ? msgBody.slice(0, 260) + "…" : msgBody;
-          await send(profile.email, `Nieuw bericht van Baram`, {
-            preheader: subject,
-            eyebrow: "Bericht",
-            headline: `${first ? `${first}, ` : ""}Baram heeft je een bericht gestuurd`,
-            intro: subject,
-            bodyHtml: `<p style="margin:0 0 12px;padding:14px 16px;background:#F7F3EC;border-left:3px solid #B0832C;font-style:italic;color:#221F1B;">${escapeHtml(preview)}</p>`,
-            cta: { label: "Reageren", url: `${PUBLIC_SITE_URL}/portaal/berichten` },
-          });
+          const locale: Locale = profile.locale === "en" ? "en" : "nl";
+          await sendCustomer(profile.email, copy.newMessageFromBaram(locale, {
+            first, subject, preview, portalUrl: `${PUBLIC_SITE_URL}/portaal/berichten`,
+          }));
         } catch (e) {
           await logFailure("conversation_message_to_customer", { conversation_id: conversationId }, (e as Error).message);
         }
@@ -485,7 +444,7 @@ Deno.serve(async (req) => {
       const naam = String(p.full_name ?? p.email ?? "een nieuwe klant");
       const email = String(p.email ?? "—");
       try {
-        await send(adminTo, `Nieuwe klant geregistreerd — ${naam}`, {
+        await sendAdmin(adminTo, `Nieuwe klant geregistreerd — ${naam}`, {
           eyebrow: "Admin · nieuwe klant",
           headline: `${naam} heeft een account aangemaakt`,
           intro: `Er is een nieuwe klant geregistreerd via het portaal.`,
