@@ -4,4 +4,5 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/admin/quotes/")({
   beforeLoad: () => { throw redirect({ to: "/admin/aanvragen" }); },
+  component: () => null,
 });
