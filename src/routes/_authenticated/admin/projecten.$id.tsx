@@ -584,7 +584,7 @@ function SortablePhaseItem({
   onSetStatus: (s: Phase["status"]) => void;
   onDeleteUpdate: (u: Update) => void;
   onDeletePhoto: (ph: Photo) => void;
-  onAddPhotos: (u: Update, files: FileList | null) => void;
+  onAddPhotos: (u: Update, files: File[]) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: phase.id });
   const style: React.CSSProperties = {
@@ -683,7 +683,11 @@ function SortablePhaseItem({
                   + Foto's toevoegen
                   <input
                     type="file" accept="image/*" multiple className="hidden"
-                    onChange={(e) => { onAddPhotos(u, e.target.files); e.target.value = ""; }}
+                    onChange={(e) => {
+                      const picked = e.target.files ? Array.from(e.target.files) : [];
+                      e.target.value = "";
+                      onAddPhotos(u, picked);
+                    }}
                   />
                 </label>
                 <ReactionThread
