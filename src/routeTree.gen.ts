@@ -35,6 +35,8 @@ import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
 import { Route as AuthenticatedAdminBerichtenIndexRouteImport } from './routes/_authenticated/admin/berichten.index'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicHooksQuoteRemindersRouteImport } from './routes/api/public/hooks/quote-reminders'
 import { Route as AuthenticatedPortaalOfferteIdRouteImport } from './routes/_authenticated/portaal.offerte.$id'
 import { Route as AuthenticatedPortaalBerichtenIdRouteImport } from './routes/_authenticated/portaal.berichten.$id'
@@ -183,6 +185,16 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksQuoteRemindersRoute =
   ApiPublicHooksQuoteRemindersRouteImport.update({
     id: '/api/public/hooks/quote-reminders',
@@ -254,6 +266,8 @@ export interface FileRoutesByFullPath {
   '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
@@ -287,6 +301,8 @@ export interface FileRoutesByTo {
   '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/berichten': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
@@ -323,6 +339,8 @@ export interface FileRoutesById {
   '/_authenticated/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/_authenticated/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/_authenticated/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
@@ -359,6 +377,8 @@ export interface FileRouteTypes {
     | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
     | '/api/public/hooks/quote-reminders'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/admin/berichten/'
     | '/admin/projecten/'
@@ -392,6 +412,8 @@ export interface FileRouteTypes {
     | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
     | '/api/public/hooks/quote-reminders'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/admin/berichten'
     | '/admin/projecten'
@@ -427,6 +449,8 @@ export interface FileRouteTypes {
     | '/_authenticated/portaal/berichten/$id'
     | '/_authenticated/portaal/offerte/$id'
     | '/api/public/hooks/quote-reminders'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/_authenticated/admin/berichten/'
     | '/_authenticated/admin/projecten/'
@@ -449,6 +473,8 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   RestauratieVwT2Route: typeof RestauratieVwT2Route
   ApiPublicHooksQuoteRemindersRoute: typeof ApiPublicHooksQuoteRemindersRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -636,6 +662,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/quote-reminders': {
       id: '/api/public/hooks/quote-reminders'
       path: '/api/public/hooks/quote-reminders'
@@ -776,6 +816,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   RestauratieVwT2Route: RestauratieVwT2Route,
   ApiPublicHooksQuoteRemindersRoute: ApiPublicHooksQuoteRemindersRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
