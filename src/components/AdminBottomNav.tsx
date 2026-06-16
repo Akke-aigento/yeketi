@@ -65,7 +65,7 @@ export function AdminBottomNav({ email }: { email: string | null }) {
 
   return (
     <nav
-      className="sm:hidden fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5"
       style={{
         background: "var(--charcoal)",
         borderTop: "1px solid var(--brass)",
