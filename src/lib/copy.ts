@@ -376,6 +376,14 @@ export const en: Copy = {
       { t: "Traditional craft", d: "Sheet metal is gas-welded by hand — with oxy-acetylene flame, the way a classic should be welded. A technique nearly lost in Europe, but still the right one: the weld moves with the steel, leaves less stress in the panel and lasts for generations." },
       { t: "Personal guidance", d: "One point of contact, from the first photo to delivery. Updates with images, in your language, at your pace." },
     ],
+    proof: {
+      eyebrow: "The proof",
+      body: "No MIG, no shortcut: a flame, a rod, and a hand that stays steady. That is how a classic's sheet metal was once put together — and how we still do it.",
+    },
+    weldingVideo: {
+      caption: "Gas-welding in the workshop — oxy-acetylene flame on classic sheet metal.",
+      aria: "Short video of gas-welding sheet metal in the workshop",
+    },
   },
   recent: {
     eyebrow: "Recent restoration",
