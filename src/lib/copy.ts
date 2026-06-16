@@ -22,6 +22,8 @@ export const nl = {
       "Restauratie van klassiekers door meester-ambachtslieden — persoonlijk begeleid van inspectie tot aflevering.",
     ctaQuote: "Vraag een offerte",
     ctaFollow: "Volg een restauratie",
+    imageCaption: "Werkplaats — Erbil",
+    imageAlt: "Gerestaureerde VW T2 onderweg na aflevering",
   },
   story: {
     eyebrow: "Het verhaal",
@@ -66,6 +68,14 @@ export const nl = {
         d: "Eén aanspreekpunt, van eerste foto tot aflevering. Updates met beelden, in uw taal, op uw tempo.",
       },
     ],
+    proof: {
+      eyebrow: "Het bewijs",
+      body: "Geen MIG, geen kortere weg: een vlam, een staaf, en een hand die rustig blijft. Zo werd plaatstaal van een oldtimer ooit aan elkaar gezet — en zo doen wij het nog steeds.",
+    },
+    weldingVideo: {
+      caption: "Autogeen-lassen in de werkplaats — gas- en zuurstofvlam op klassiek plaatstaal.",
+      aria: "Korte video van autogeen-lassen op plaatstaal in de werkplaats",
+    },
   },
   recent: {
     eyebrow: "Recente restauratie",
@@ -121,6 +131,13 @@ export const nl = {
       },
     ],
     faqTitle: "Veelgestelde vragen",
+    welding: {
+      eyebrow: "Techniek",
+      title: "Autogeen gelast, zoals het hoort.",
+      body: "Klassiek plaatstaal vraagt om een vlamlas, niet om een snelle MIG-puls. Onze plaatwerkers lassen de panelen autogeen — een ambacht dat in Europa bijna verdwenen is, maar de juiste techniek blijft voor een oldtimer: minder spanning op het paneel, een gladdere overgang en een verbinding die generaties meegaat.",
+      videoCaption: "Autogeen-lassen op plaatstaal — met gas- en zuurstofvlam, met de hand.",
+      videoAria: "Korte video van autogeen-lassen in de werkplaats",
+    },
     faq: [
       { q: "Hoe verloopt het transport en de verzekering?", a: "Baram verzorgt het transport voorlopig persoonlijk: hij brengt de wagen zelf naar de werkplaats, blijft ter plaatse tijdens het werk, en regelt vooraf de gepaste verzekering op de afgesproken waarde. Alle documenten krijgt u ter inzage voor de wagen vertrekt." },
       { q: "Wat is een realistische doorlooptijd?", a: "Plaatwerk: enkele weken tot twee maanden. Een volledige restauratie duurt doorgaans rond drie maanden — wij werken parallel met meerdere ambachtslieden in gespecialiseerde werkplaatsen, in plaats van fase na fase." },
@@ -144,6 +161,8 @@ export const nl = {
     closing:
       "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
     cta: "Start uw restauratie",
+    weldingVideoCaption: "Autogeen-lassen — de traditionele techniek voor klassiek plaatstaal.",
+    weldingVideoAria: "Korte video van autogeen-lassen op plaatstaal",
   },
   over: {
     eyebrow: "Over Yeketi",
@@ -311,6 +330,10 @@ export const nl = {
     body: "De pagina die je zocht bestaat niet (meer). Keer terug naar de werkplaats.",
     cta: "Terug naar home",
   },
+  weldingVideo: {
+    defaultAria: "Autogeen-lassen in de werkplaats",
+    play: "Speel de video — autogeen-lassen",
+  },
 };
 
 export type Copy = typeof nl;
@@ -336,6 +359,8 @@ export const en: Copy = {
       "Restoration of classic cars by master craftsmen — personally guided from inspection to delivery.",
     ctaQuote: "Request a quote",
     ctaFollow: "Follow a restoration",
+    imageCaption: "Workshop — Erbil",
+    imageAlt: "Restored VW T2 on the road after delivery",
   },
   story: {
     eyebrow: "The story",
@@ -368,6 +393,14 @@ export const en: Copy = {
       { t: "Traditional craft", d: "Sheet metal is gas-welded by hand — with oxy-acetylene flame, the way a classic should be welded. A technique nearly lost in Europe, but still the right one: the weld moves with the steel, leaves less stress in the panel and lasts for generations." },
       { t: "Personal guidance", d: "One point of contact, from the first photo to delivery. Updates with images, in your language, at your pace." },
     ],
+    proof: {
+      eyebrow: "The proof",
+      body: "No MIG, no shortcut: a flame, a rod, and a hand that stays steady. That is how a classic's sheet metal was once put together — and how we still do it.",
+    },
+    weldingVideo: {
+      caption: "Gas-welding in the workshop — oxy-acetylene flame on classic sheet metal.",
+      aria: "Short video of gas-welding sheet metal in the workshop",
+    },
   },
   recent: {
     eyebrow: "Recent restoration",
@@ -423,6 +456,13 @@ export const en: Copy = {
       },
     ],
     faqTitle: "Frequently asked questions",
+    welding: {
+      eyebrow: "Technique",
+      title: "Gas-welded, the way it should be.",
+      body: "Classic sheet metal calls for a flame weld, not a quick MIG pulse. Our panel beaters gas-weld every joint — a craft nearly lost in Europe, but still the right technique for a classic: less stress on the panel, a smoother transition, and a joint that lasts for generations.",
+      videoCaption: "Gas-welding sheet metal — oxy-acetylene flame, by hand.",
+      videoAria: "Short video of gas-welding in the workshop",
+    },
     faq: [
       { q: "How do transport and insurance work?", a: "For now Baram handles transport personally: he drives the car to the workshop himself, stays on-site while the work is under way, and arranges the right insurance at the agreed value beforehand. You receive all documents before the car leaves." },
       { q: "What is a realistic lead time?", a: "Bodywork: a few weeks to two months. A full restoration typically takes around three months — we work in parallel with multiple craftsmen in specialised workshops, rather than phase after phase." },
@@ -446,6 +486,8 @@ export const en: Copy = {
     closing:
       "Restoration is not an attempt to turn back time. It is a promise that the story may continue.",
     cta: "Start your restoration",
+    weldingVideoCaption: "Gas-welding — the traditional technique for classic sheet metal.",
+    weldingVideoAria: "Short video of gas-welding sheet metal",
   },
   over: {
     eyebrow: "About Yeketi",
@@ -612,6 +654,10 @@ export const en: Copy = {
     title: "This road's a dead end — but every classic deserves a second chance.",
     body: "The page you were looking for doesn't exist (any more). Head back to the workshop.",
     cta: "Back to home",
+  },
+  weldingVideo: {
+    defaultAria: "Gas-welding in the workshop",
+    play: "Play the video — gas-welding",
   },
 };
 

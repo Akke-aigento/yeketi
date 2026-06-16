@@ -74,7 +74,7 @@ function Hero() {
             <figure className="relative">
               <img
                 src={heroAsset.url}
-                alt="Gerestaureerde VW T2 onderweg na aflevering"
+                alt={t.hero.imageAlt}
                 width={1920}
                 height={1280}
                 className="w-full h-auto block"
@@ -92,7 +92,7 @@ function Hero() {
                   fontSize: "0.85rem",
                 }}
               >
-                Werkplaats — Erbil
+                {t.hero.imageCaption}
               </figcaption>
             </figure>
           </ScrollReveal>
@@ -224,15 +224,14 @@ function Why() {
           <div className="mt-14 grid gap-8 md:grid-cols-12 items-center">
             <div className="md:col-span-7">
               <WeldingVideo
-                caption="Autogeen-lassen in de werkplaats — gas- en zuurstofvlam op klassiek plaatstaal."
-                ariaLabel="Korte video van autogeen-lassen op plaatstaal in de werkplaats"
+                caption={t.why.weldingVideo.caption}
+                ariaLabel={t.why.weldingVideo.aria}
               />
             </div>
             <div className="md:col-span-5">
-              <p className="eyebrow" style={{ color: "var(--brass)" }}>Het bewijs</p>
+              <p className="eyebrow" style={{ color: "var(--brass)" }}>{t.why.proof.eyebrow}</p>
               <p className="mt-4" style={{ color: "var(--charcoal-soft)", lineHeight: 1.75 }}>
-                Geen MIG, geen kortere weg: een vlam, een staaf, en een hand die rustig blijft.
-                Zo werd plaatstaal van een oldtimer ooit aan elkaar gezet — en zo doen wij het nog steeds.
+                {t.why.proof.body}
               </p>
             </div>
           </div>
