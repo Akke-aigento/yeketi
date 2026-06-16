@@ -260,6 +260,9 @@ Deno.serve(async (req) => {
     }
 
     return new Response("ok", { status: 200 });
+  }
+  // unreachable below
+  catch (e) {
   } catch (e) {
     console.error(e);
     await logFailure(body?.table ?? "unknown", body?.record ?? null, (e as Error).message);
