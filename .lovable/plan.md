@@ -1,100 +1,47 @@
+## Aanvragen-tab opkuisen
 
-## Doel
+Vier kleine fixes, allemaal in het admin-aanvragen-paneel (`src/routes/_authenticated/admin/offertes.tsx`).
 
-De default Supabase-auth-mails (afzender "Yeketi-Motorworks-Legacy", kale dark
-template) vervangen door dezelfde brandstijl als de admin→klant mails, én ze
-laten vertrekken vanaf `info@yeketimotorworks.com` — exact dezelfde afzender
-en pipeline (Resend) als de mooie transactionele mails die nu al werken.
+### 1. WhatsApp-link werkt niet
+De huidige link bouwt `wa.me/0473406107`. WhatsApp accepteert geen lokale nummers met een leidende 0 — vandaar de "This link couldn't be opened"-popup. We normaliseren naar internationaal formaat:
+- Begint met `+` → `+` strippen, rest gebruiken.
+- Begint met `00` → vervangen door niets (al internationaal zonder `+`).
+- Begint met `0` en alleen cijfers → leidende 0 strippen en `32` (België) voorzetten.
+- Anders → cijfers gebruiken zoals ze zijn.
 
-## Aanpak
+Resultaat voor `0473406107` → `https://wa.me/32473406107?text=…`. Werkt op iOS en desktop.
 
-Lovable's eigen auth-mail-scaffolding gebruikt **niet** `info@yeketimotorworks.com` — die zou een afzender op een gedelegeerde subdomeinen vereisen (bv. `notify@notify.yeketimotorworks.com`), DNS-NS-records bij Yeketi's domein nodig hebben, en kan conflicteren met de bestaande Resend-setup. Daarom gaan we de andere route:
+### 2. E-mail moet via in-app bericht, niet via persoonlijke mailbox
+Het `mailto:`-knop opent Baram's mailbox en stuurt vanuit zijn privé-adres — onprofessioneel en buiten het portaal. Vervangen door een **"Stuur bericht"**-knop die naar de bestaande conversatie navigeert in `/admin/berichten/$id`.
 
-**Supabase Auth → "Send Email Hook" (webhook) → onze eigen edge function → Resend.**
+Achtergrond: bij een form-submission roept de site al `linkQuoteRequestToConversation` aan, die stil een profiel + conversatie aanmaakt voor het e-mailadres. Die conversatie bestaat dus al.
 
-Hetzelfde patroon als nu voor `notify-events`, met dezelfde shared
-`email-template.ts` zodat de mails er identiek uitzien.
+Implementatie:
+- Nieuwe kleine server-fn `getConversationForQuoteRequest({ quoteRequestId })` in `src/lib/messages.functions.ts` die het profiel/de conversatie voor het e-mailadres ophaalt — en aanmaakt als die er nog niet zou zijn (defensief, voor oude aanvragen van vóór de hook).
+- In de aanvraagkaart: de huidige `mailto:`-knop wordt **"Stuur bericht in portaal"**. Klikken → server-fn roepen, dan `navigate({ to: "/admin/berichten/$id", params: { id: convId } })`.
+- Het e-mailadres blijft zichtbaar als kleine label-tekst (zodat Baram dat nog kan zien/kopiëren), maar zonder klikbare `mailto:`.
 
-## Stappen
+### 3. Foto's laden niet + geen kruisje om te sluiten
+De bucket `quote-photos` is privé (admin-read RLS). De code rendert nu rechtstreeks `<img src={path}>` zonder signed URL → vandaar de blauwe vraagteken-placeholder. Boven op het openen via `target="_blank"` is er geen in-app sluitknop.
 
-### 1. Nieuwe edge function: `supabase/functions/auth-email/index.ts`
+Fix:
+- Wanneer een kaart wordt opengeklapt en `foto_urls.length > 0` is, één keer signed URLs ophalen via `supabase.storage.from("quote-photos").createSignedUrls(paths, 3600)` (zelfde patroon als `projecten.$id.tsx`). Resultaat cachen in state per `quote.id`.
+- Thumbnails renderen met de signed URL.
+- Klik op een thumbnail opent een **in-app lightbox** (vaste modal): donkere overlay (`background: rgba(0,0,0,0.85)`), grote afbeelding gecentreerd, een duidelijk **×-kruisje** rechtsboven (`aria-label="Sluit"`), en klik op de overlay buiten de afbeelding sluit ook. Escape-toets ondersteunt sluiten. Respecteert `prefers-reduced-motion`.
 
-- Endpoint dat Supabase Auth aanroept bij elke auth-actie (`signup`,
-  `recovery`, `magiclink`, `invite`, `email_change`, `reauthentication`).
-- Verifieert de "Standard Webhook"-signature (Supabase tekent met een
-  Auth-hook secret — nieuwe Supabase secret `AUTH_EMAIL_HOOK_SECRET`).
-- Bouwt de juiste link met de meegestuurde token-hash + redirect URL.
-- Rendert via bestaande `_shared/email-template.ts` met locale-aware copy
-  uit `_shared/email-copy.ts`.
-- Verstuurt via Resend met `from: "Yeketi Motorworks <info@yeketimotorworks.com>"`
-  (zelfde als bestaande mails).
-- Logt fouten in `notify_event_failures` zoals nu.
+### 4. "Maak project + nodig klant uit" — klant bestaat al
+De knop suggereert dat de klant nog aangemaakt moet worden, maar het profiel + de conversatie bestaan al sinds de formulier-submission. Wat er wél nog gebeurt is: (a) een **project** aanmaken met standaardfasen, en (b) de eerste echte **portaaluitnodigingsmail** versturen zodat de klant kan inloggen.
 
-### 2. Mail-copy uitbreiden — `supabase/functions/_shared/email-copy.ts`
-en `src/lib/email-copy.server.ts`
+Geen wijziging aan de business-logica van `convertQuoteToProject` — alleen de UI verduidelijken:
+- Knoplabel wordt **"Maak project & verstuur portaaluitnodiging"**.
+- De bevestigingstekst wordt aangepast: "De klant heeft al een profiel uit de aanvraag. We maken nu een project aan voor `${naam}` en sturen de eerste portaaluitnodiging naar `${email}`." (i.p.v. de huidige "uitnodigingsmail sturen"-formulering).
+- Toast na succes: "Project aangemaakt en portaaluitnodiging verstuurd."
 
-Nieuwe NL+EN secties voor de 6 auth-types:
-- `auth_signup` — "Bevestig je e-mailadres" / "Confirm your email"
-- `auth_recovery` — "Stel je wachtwoord opnieuw in" / "Reset your password"
-- `auth_magic_link` — "Log in op je portaal" / "Sign in to your portal"
-- `auth_invite` — "Welkom bij Yeketi Motorworks" / "Welcome…"
-- `auth_email_change` — "Bevestig je nieuwe e-mailadres"
-- `auth_reauthentication` — "Bevestig je identiteit"
+### Technische details
 
-Elke variant: eyebrow, headline (serif), korte intro, CTA-label, helper-tekst
-("link 1 uur geldig"), veiligheidsnotitie ("als jij dit niet was, negeer
-deze mail").
+| Bestand | Wijziging |
+|---|---|
+| `src/routes/_authenticated/admin/offertes.tsx` | `waLink` herschrijven (BE-normalisatie); `mailto:` vervangen door portaalknop met server-fn-call + navigatie; signed-URL state + in-app lightbox-modal; knoplabels en bevestigings-/toasttekst aanpassen. |
+| `src/lib/messages.functions.ts` | Nieuwe `getConversationForQuoteRequest` server-fn (admin-only): zoekt op e-mail het profiel, `ensureConversation(...)` zo nodig, retourneert `{ conversationId }`. |
 
-### 3. Locale bepalen
-
-Bij signup is er geen profiel; we lezen `user.user_metadata.locale` als de
-client die meestuurt, anders fallback `nl`. Voor recovery/magic link/invite
-zoeken we de bestaande `profiles.locale` op via service-role lookup op
-`user.email`.
-
-### 4. Supabase config
-
-- Nieuwe secret `AUTH_EMAIL_HOOK_SECRET` aanmaken (gegenereerd).
-- `supabase/config.toml` aanpassen: edge function registreren en
-  `[auth.hook.send_email]` activeren met de webhook-URL + secret.
-- Auth-hook URL: `https://<project>.supabase.co/functions/v1/auth-email`.
-
-### 5. Login flow
-
-`src/routes/login.tsx` aanpassen: bij `signUp`/`resetPasswordForEmail` de
-gekozen locale meesturen in `options.data` zodat de hook ze ziet (anders
-fallback via profiel-lookup).
-
-## Wat NIET aangepast wordt
-
-- De bestaande `notify-events` pipeline, RLS, business logic, of
-  Supabase Auth zelf (geen wijziging aan wachtwoord-regels, geen
-  auto-confirm).
-- `info@yeketimotorworks.com` blijft de enige afzender — geen tweede sender,
-  geen nieuwe DNS, geen Lovable Emails domain setup.
-- De huidige Lovable-auth-mail-scaffolding (`scaffold_auth_email_templates`)
-  wordt **niet** gebruikt, omdat die `auth.sellqo.app` / een nieuwe subdomain
-  zou forceren in plaats van `info@yeketimotorworks.com`.
-
-## Bestanden
-
-- **Nieuw**: `supabase/functions/auth-email/index.ts`
-- **Gewijzigd**: `supabase/functions/_shared/email-copy.ts` (+ 6 auth-secties)
-- **Gewijzigd**: `src/lib/email-copy.server.ts` (mirror, voor consistentie)
-- **Gewijzigd**: `supabase/config.toml` (function + auth-hook registreren)
-- **Gewijzigd**: `src/routes/login.tsx` (locale meegeven in signUp opties)
-- **Nieuwe secret**: `AUTH_EMAIL_HOOK_SECRET`
-
-## Vereiste actie van jou (Baram), één keer
-
-Na deploy moet de Auth-hook in Supabase eenmalig geactiveerd worden. Ik kan
-dat via `supabase--configure_auth` doen, maar laat me weten of je het mee
-wilt — anders zet ik de webhook + secret klaar en zie je hem in
-Cloud → Auth → Hooks staan zodra je publiceert.
-
-## Resultaat
-
-Wachtwoord-reset, signup-bevestiging, invite, magic-link, email-wijziging en
-reauthentication komen allemaal van **info@yeketimotorworks.com** met
-exact dezelfde brass/cream layout als de mails die nu al goed renderen.
-NL of EN op basis van de klant-locale.
+Buiten scope: e-mail-templates, RLS, storage-policies, business-logica van `convertQuoteToProject`. Alleen kleine UX-/copy-/normalisatiewijzigingen.
