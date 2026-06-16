@@ -75,7 +75,8 @@ function Offerte() {
     try {
       // Server-side honeypot + per-IP rate limit.
       await guard({ data: { hp } });
-      const submissionPrefix = crypto.randomUUID();
+      const quoteRequestId = crypto.randomUUID();
+      const submissionPrefix = quoteRequestId;
       const foto_urls: string[] = [];
       for (const f of files) {
         if (!f.type.startsWith("image/")) {
@@ -95,7 +96,8 @@ function Offerte() {
         foto_urls.push(path);
       }
 
-      const { data: inserted, error } = await supabase.from("quote_requests").insert({
+      const { error } = await supabase.from("quote_requests").insert({
+        id: quoteRequestId,
         ...parsed.data,
         telefoon: parsed.data.telefoon || null,
         merk: parsed.data.merk || null,
@@ -104,12 +106,10 @@ function Offerte() {
         beschrijving: parsed.data.beschrijving || null,
         foto_urls,
         locale,
-      }).select("id").maybeSingle();
+      });
       if (error) throw error;
-      if (inserted?.id) {
-        try { await link({ data: { quoteRequestId: inserted.id } }); }
-        catch (e) { console.warn("conversation link failed", e); }
-      }
+      try { await link({ data: { quoteRequestId } }); }
+      catch (e) { console.warn("conversation link failed", e); }
       setStatus("ok");
       form.reset();
       setPhotoCount(0);
