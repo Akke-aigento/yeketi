@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminRecentWerkIndexRouteImport } from './routes/
 import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_authenticated/admin/quotes.index'
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
 import { Route as AuthenticatedAdminBerichtenIndexRouteImport } from './routes/_authenticated/admin/berichten.index'
+import { Route as AuthenticatedAdminAanvragenIndexRouteImport } from './routes/_authenticated/admin/aanvragen.index'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -179,6 +180,12 @@ const AuthenticatedAdminBerichtenIndexRoute =
     path: '/berichten/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAanvragenIndexRoute =
+  AuthenticatedAdminAanvragenIndexRouteImport.update({
+    id: '/aanvragen/',
+    path: '/aanvragen/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -269,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/admin/aanvragen/': typeof AuthenticatedAdminAanvragenIndexRoute
   '/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -304,6 +312,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/admin/aanvragen': typeof AuthenticatedAdminAanvragenIndexRoute
   '/admin/berichten': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes': typeof AuthenticatedAdminQuotesIndexRoute
@@ -342,6 +351,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/_authenticated/admin/aanvragen/': typeof AuthenticatedAdminAanvragenIndexRoute
   '/_authenticated/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/_authenticated/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/admin/aanvragen/'
     | '/admin/berichten/'
     | '/admin/projecten/'
     | '/admin/quotes/'
@@ -415,6 +426,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/admin/aanvragen'
     | '/admin/berichten'
     | '/admin/projecten'
     | '/admin/quotes'
@@ -452,6 +464,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/_authenticated/admin/aanvragen/'
     | '/_authenticated/admin/berichten/'
     | '/_authenticated/admin/projecten/'
     | '/_authenticated/admin/quotes/'
@@ -655,6 +668,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBerichtenIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/aanvragen/': {
+      id: '/_authenticated/admin/aanvragen/'
+      path: '/aanvragen'
+      fullPath: '/admin/aanvragen/'
+      preLoaderRoute: typeof AuthenticatedAdminAanvragenIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -737,6 +757,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminProjectenIdRoute: typeof AuthenticatedAdminProjectenIdRoute
   AuthenticatedAdminQuotesIdRoute: typeof AuthenticatedAdminQuotesIdRoute
   AuthenticatedAdminRecentWerkIdRoute: typeof AuthenticatedAdminRecentWerkIdRoute
+  AuthenticatedAdminAanvragenIndexRoute: typeof AuthenticatedAdminAanvragenIndexRoute
   AuthenticatedAdminBerichtenIndexRoute: typeof AuthenticatedAdminBerichtenIndexRoute
   AuthenticatedAdminProjectenIndexRoute: typeof AuthenticatedAdminProjectenIndexRoute
   AuthenticatedAdminQuotesIndexRoute: typeof AuthenticatedAdminQuotesIndexRoute
@@ -753,6 +774,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminProjectenIdRoute: AuthenticatedAdminProjectenIdRoute,
     AuthenticatedAdminQuotesIdRoute: AuthenticatedAdminQuotesIdRoute,
     AuthenticatedAdminRecentWerkIdRoute: AuthenticatedAdminRecentWerkIdRoute,
+    AuthenticatedAdminAanvragenIndexRoute:
+      AuthenticatedAdminAanvragenIndexRoute,
     AuthenticatedAdminBerichtenIndexRoute:
       AuthenticatedAdminBerichtenIndexRoute,
     AuthenticatedAdminProjectenIndexRoute:
