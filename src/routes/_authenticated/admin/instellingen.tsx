@@ -251,6 +251,7 @@ function AdminInviteSection() {
             <button
               type="submit"
               disabled={busy || confirm.trim().toUpperCase() !== CONFIRM_PHRASE || !email.trim()}
+              aria-busy={busy}
               className="btn-y-solid"
               style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
             >
@@ -310,6 +311,7 @@ function AdminInviteSection() {
                   type="button"
                   onClick={onRemove}
                   disabled={removeBusy || removeConfirm.trim().toUpperCase() !== "VERWIJDER ADMIN"}
+                  aria-busy={removeBusy}
                   className="btn-y-solid"
                   style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
                 >

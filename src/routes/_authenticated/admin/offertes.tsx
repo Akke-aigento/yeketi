@@ -214,6 +214,7 @@ function Offertes() {
                           <button
                             key={s}
                             disabled={busy === q.id || q.status === s}
+                            aria-busy={busy === q.id}
                             onClick={() => setStatus(q.id, s)}
                             className="text-[11px] tracking-[0.15em] uppercase px-3 py-2"
                             style={{
@@ -231,12 +232,14 @@ function Offertes() {
                     <button
                       onClick={() => convertNow(q)}
                       disabled={busy === q.id}
+                      aria-busy={busy === q.id}
                       className="btn-y-solid w-full"
                     >
                       {busy === q.id ? "Bezig…" : "Maak project + nodig klant uit"}
                     </button>
                     <button
                       onClick={async () => {
+                        if (busy === q.id) return;
                         setBusy(q.id);
                         try {
                           const res = await makeQuote({ data: { quoteRequestId: q.id } });
@@ -247,6 +250,7 @@ function Offertes() {
                         } finally { setBusy(null); }
                       }}
                       disabled={busy === q.id}
+                      aria-busy={busy === q.id}
                       className="btn-y w-full"
                     >
                       Maak offerte
@@ -254,6 +258,7 @@ function Offertes() {
                     <button
                       onClick={() => deleteNow(q)}
                       disabled={busy === q.id}
+                      aria-busy={busy === q.id}
                       className="w-full text-xs uppercase tracking-[0.18em] py-2"
                       style={{ border: "1px solid var(--oxide)", color: "var(--oxide)", background: "transparent" }}
                     >

@@ -265,6 +265,7 @@ function PublicationEditor() {
           <button
             onClick={saveAll}
             disabled={!isDirty || saving}
+            aria-busy={saving}
             className="btn-y-solid"
             style={{ flex: 1 }}
           >
@@ -450,6 +451,7 @@ function UploadQueueModal({
           <button
             onClick={async () => { setBusy(true); try { await onConfirm(); } finally { setBusy(false); } }}
             disabled={busy || queue.length === 0}
+            aria-busy={busy}
             className="btn-y-solid w-full"
           >
             {busy ? "Bezig…" : `Upload ${queue.length} foto${queue.length === 1 ? "" : "'s"}`}

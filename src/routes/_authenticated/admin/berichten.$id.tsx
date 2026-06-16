@@ -138,11 +138,11 @@ function BerichtDetail() {
               </Link>
             )}
             {c.status === "open" ? (
-              <button onClick={() => onClose("gesloten")} disabled={busy} className="text-[11px] uppercase tracking-[0.18em] px-3 py-2" style={{ border: "1px solid var(--oxide)", color: "var(--oxide)" }}>
+              <button onClick={() => onClose("gesloten")} disabled={busy} aria-busy={busy} className="text-[11px] uppercase tracking-[0.18em] px-3 py-2" style={{ border: "1px solid var(--oxide)", color: "var(--oxide)" }}>
                 Sluiten
               </button>
             ) : (
-              <button onClick={() => onClose("open")} disabled={busy} className="text-[11px] uppercase tracking-[0.18em] px-3 py-2" style={{ border: "1px solid var(--charcoal)", color: "var(--charcoal)" }}>
+              <button onClick={() => onClose("open")} disabled={busy} aria-busy={busy} className="text-[11px] uppercase tracking-[0.18em] px-3 py-2" style={{ border: "1px solid var(--charcoal)", color: "var(--charcoal)" }}>
                 Heropen
               </button>
             )}
@@ -173,7 +173,7 @@ function BerichtDetail() {
               className="field-y flex-1"
               style={{ resize: "vertical" }}
             />
-            <button onClick={onSend} disabled={sending || !body.trim()} className="btn-y-solid">
+            <button onClick={onSend} disabled={sending || !body.trim()} aria-busy={sending} className="btn-y-solid">
               {sending ? "…" : "Verstuur"}
             </button>
           </div>
