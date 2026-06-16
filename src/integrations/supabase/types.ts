@@ -37,6 +37,7 @@ export type Database = {
           admin_last_seen_at: string | null
           contact_profile_id: string
           created_at: string
+          customer_last_seen_at: string | null
           id: string
           last_message_at: string
           project_id: string | null
@@ -48,6 +49,7 @@ export type Database = {
           admin_last_seen_at?: string | null
           contact_profile_id: string
           created_at?: string
+          customer_last_seen_at?: string | null
           id?: string
           last_message_at?: string
           project_id?: string | null
@@ -59,6 +61,7 @@ export type Database = {
           admin_last_seen_at?: string | null
           contact_profile_id?: string
           created_at?: string
+          customer_last_seen_at?: string | null
           id?: string
           last_message_at?: string
           project_id?: string | null
