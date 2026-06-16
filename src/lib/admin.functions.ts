@@ -43,7 +43,11 @@ async function findUserByEmail(email: string) {
 
 // Send either an invite (new / unconfirmed user) or a password reset (already
 // confirmed). Returns the channel actually used so the UI can confirm to admin.
-async function inviteOrReset(email: string, fullName?: string | null) {
+async function inviteOrReset(
+  email: string,
+  fullName?: string | null,
+  opts?: { isAdmin?: boolean },
+) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const existing = await findUserByEmail(email);
   if (existing && existing.email_confirmed_at) {
@@ -53,8 +57,12 @@ async function inviteOrReset(email: string, fullName?: string | null) {
     if (error) throw error;
     return { user: existing, channel: "reset" as const };
   }
+  const metadata: Record<string, unknown> = {};
+  if (fullName) metadata.full_name = fullName;
+  // Flag picked up by the auth-email webhook to switch to the admin template.
+  if (opts?.isAdmin) metadata.is_admin = true;
   const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-    data: fullName ? { full_name: fullName } : undefined,
+    data: Object.keys(metadata).length ? metadata : undefined,
     redirectTo: RESET_REDIRECT,
   });
   if (inv.error) throw inv.error;
@@ -129,7 +137,7 @@ export const inviteAdmin = createServerFn({ method: "POST" })
     if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Ongeldig e-mailadres");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { user, channel } = await inviteOrReset(email, data.full_name ?? null);
+    const { user, channel } = await inviteOrReset(email, data.full_name ?? null, { isAdmin: true });
     if (!user) throw new Error("Kon gebruiker niet aanmaken");
 
     await supabaseAdmin.from("profiles").upsert({
