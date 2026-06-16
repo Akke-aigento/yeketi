@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_authenticated/admin/klanten")({
   component: Klanten,
 });
 
-type Profile = { id: string; full_name: string | null; email: string | null; phone: string | null };
+type Profile = { id: string; full_name: string | null; email: string | null; phone: string | null; locale: "nl" | "en" | null };
 type Project = { id: string; customer_id: string; title: string; status: keyof typeof t.portal.statusLabels };
 
 function Klanten() {
@@ -60,11 +60,11 @@ function Klanten() {
     finally { setBusy(null); }
   }
 
-  async function onEditSave(form: { full_name: string; phone: string; email: string }) {
+  async function onEditSave(form: { full_name: string; phone: string; email: string; locale: "nl" | "en" }) {
     if (!editing) return;
     setBusy("edit");
     try {
-      await update({ data: { profileId: editing.id, full_name: form.full_name, phone: form.phone, email: form.email } });
+      await update({ data: { profileId: editing.id, full_name: form.full_name, phone: form.phone, email: form.email, locale: form.locale } });
       setEditing(null); load();
     } catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
     finally { setBusy(null); }
@@ -103,7 +103,7 @@ function Klanten() {
                         {p.full_name || p.email}
                       </div>
                       <div className="mt-1 text-xs truncate" style={{ color: "var(--charcoal-soft)", letterSpacing: "0.04em" }}>
-                        {p.email}{p.phone ? ` · ${p.phone}` : ""}
+                        {p.email}{p.phone ? ` · ${p.phone}` : ""} · {(p.locale ?? "nl").toUpperCase()}
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:shrink-0">
@@ -288,13 +288,14 @@ function DeleteCustomerModal({ profile, projectCount, confirm, setConfirm, busy,
 function EditCustomerModal({ profile, onClose, onSave, onDelete, busy }: {
   profile: Profile;
   onClose: () => void;
-  onSave: (f: { full_name: string; phone: string; email: string }) => void;
+  onSave: (f: { full_name: string; phone: string; email: string; locale: "nl" | "en" }) => void;
   onDelete: (p: Profile) => void;
   busy: boolean;
 }) {
   const [full_name, setFullName] = useState(profile.full_name ?? "");
   const [phone, setPhone] = useState(profile.phone ?? "");
   const [email, setEmail] = useState(profile.email ?? "");
+  const [locale, setLocale] = useState<"nl" | "en">(profile.locale ?? "nl");
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
       <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
@@ -315,7 +316,27 @@ function EditCustomerModal({ profile, onClose, onSave, onDelete, busy }: {
             <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>E-mail</span>
             <input className="field-y" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
-          <button onClick={() => onSave({ full_name, phone, email })} disabled={busy} className="btn-y-solid w-full mt-2">
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>Taal · e-mails</span>
+            <div className="mt-2 flex gap-2">
+              {(["nl", "en"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLocale(l)}
+                  className="flex-1 text-[11px] uppercase tracking-[0.18em] py-2"
+                  style={{
+                    border: "1px solid var(--charcoal)",
+                    background: locale === l ? "var(--charcoal)" : "transparent",
+                    color: locale === l ? "var(--cream)" : "var(--charcoal)",
+                  }}
+                >
+                  {l === "nl" ? "Nederlands" : "English"}
+                </button>
+              ))}
+            </div>
+          </label>
+          <button onClick={() => onSave({ full_name, phone, email, locale })} disabled={busy} className="btn-y-solid w-full mt-2">
             {busy ? "Opslaan…" : "Opslaan"}
           </button>
           <div className="hairline opacity-25" />

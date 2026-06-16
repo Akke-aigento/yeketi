@@ -41,6 +41,7 @@ function Offerte() {
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [photoCount, setPhotoCount] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [locale, setLocale] = useState<"nl" | "en">("nl");
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -102,6 +103,7 @@ function Offerte() {
         bouwjaar: parsed.data.bouwjaar || null,
         beschrijving: parsed.data.beschrijving || null,
         foto_urls,
+        locale,
       }).select("id").maybeSingle();
       if (error) throw error;
       if (inserted?.id) {
@@ -147,6 +149,26 @@ function Offerte() {
             </ScrollReveal>
           ) : (
             <form onSubmit={onSubmit} className="mt-14 grid gap-8 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <span className="eyebrow block mb-3">Taal · antwoord per mail</span>
+                <div className="flex gap-2">
+                  {(["nl", "en"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLocale(l)}
+                      className="text-[11px] uppercase tracking-[0.18em] px-4 py-2"
+                      style={{
+                        border: "1px solid var(--charcoal)",
+                        background: locale === l ? "var(--charcoal)" : "transparent",
+                        color: locale === l ? "var(--cream)" : "var(--charcoal)",
+                      }}
+                    >
+                      {l === "nl" ? "Nederlands" : "English"}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <Field label={t.offerte.labels.naam} name="naam" required />
               <Field label={t.offerte.labels.email} name="email" type="email" required />
               <Field label={t.offerte.labels.telefoon} name="telefoon" type="tel" />

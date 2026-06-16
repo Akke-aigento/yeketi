@@ -50,11 +50,25 @@ async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMin
 const PROD_SITE_URL = "https://yeketimotorworks.com";
 const RESET_REDIRECT = `${PROD_SITE_URL}/reset-password`;
 
-async function findOrInviteUser(email: string, fullName?: string | null, opts?: { skipInvite?: boolean }) {
+async function findOrInviteUser(email: string, fullName?: string | null, opts?: { skipInvite?: boolean; locale?: "nl" | "en" }) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const profilePatch = (id: string) => {
+    const p: { id: string; email: string; full_name: string | null; locale?: "nl" | "en" } = {
+      id, email, full_name: fullName ?? null,
+    };
+    if (opts?.locale) p.locale = opts.locale;
+    return p;
+  };
   const { data: profile } = await supabaseAdmin
     .from("profiles").select("id").eq("email", email).maybeSingle();
-  if (profile) return { userId: profile.id as string, created: false };
+  if (profile) {
+    // Existing profile: only set locale when caller explicitly asked for 'en'
+    // (avoid clobbering Baram's explicit pick).
+    if (opts?.locale === "en") {
+      await supabaseAdmin.from("profiles").update({ locale: "en" }).eq("id", profile.id);
+    }
+    return { userId: profile.id as string, created: false };
+  }
 
   if (opts?.skipInvite) {
     // Create a silent (unconfirmed) auth user so a profile exists, no email sent.
@@ -64,7 +78,7 @@ async function findOrInviteUser(email: string, fullName?: string | null, opts?: 
       user_metadata: fullName ? { full_name: fullName } : undefined,
     });
     if (error || !data.user) throw new Error(error?.message || "Kon contact niet aanmaken");
-    await supabaseAdmin.from("profiles").upsert({ id: data.user.id, email, full_name: fullName ?? null });
+    await supabaseAdmin.from("profiles").upsert(profilePatch(data.user.id));
     return { userId: data.user.id, created: true };
   }
 
@@ -73,7 +87,7 @@ async function findOrInviteUser(email: string, fullName?: string | null, opts?: 
     redirectTo: RESET_REDIRECT,
   });
   if (inv.error || !inv.data.user) throw new Error(inv.error?.message || "Kon uitnodiging niet versturen");
-  await supabaseAdmin.from("profiles").upsert({ id: inv.data.user.id, email, full_name: fullName ?? null });
+  await supabaseAdmin.from("profiles").upsert(profilePatch(inv.data.user.id));
   return { userId: inv.data.user.id, created: true };
 }
 
@@ -95,7 +109,7 @@ async function ensureConversation(profileId: string, source: "contact_form" | "q
 // ──────────────────────────────────────────────────────────────────────────
 
 export const submitContactForm = createServerFn({ method: "POST" })
-  .inputValidator((input: { naam: string; email: string; bericht: string; hp?: string }) => input)
+  .inputValidator((input: { naam: string; email: string; bericht: string; hp?: string; locale?: "nl" | "en" }) => input)
   .handler(async ({ data }) => {
     // Honeypot: if filled, silently succeed.
     if (data.hp && data.hp.trim() !== "") return { ok: true } as const;
@@ -103,13 +117,14 @@ export const submitContactForm = createServerFn({ method: "POST" })
     const naam = sanitize(data.naam ?? "", 120);
     const email = sanitize((data.email ?? "").toLowerCase(), 255);
     const bericht = sanitize(data.bericht ?? "", 3000);
+    const locale: "nl" | "en" = data.locale === "en" ? "en" : "nl";
     if (naam.length < 2) throw new Error("Vul je naam in.");
     if (!EMAIL_RE.test(email)) throw new Error("Ongeldig e-mailadres.");
     if (bericht.length < 5) throw new Error("Bericht is te kort.");
 
     await rateLimitOrThrow("contact_form", clientIp(), 5, 10);
 
-    const { userId } = await findOrInviteUser(email, naam);
+    const { userId } = await findOrInviteUser(email, naam, { locale });
     const convId = await ensureConversation(userId, "contact_form", bericht.slice(0, 80));
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("messages").insert({
@@ -139,12 +154,13 @@ export const linkQuoteRequestToConversation = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: qr } = await supabaseAdmin
-      .from("quote_requests").select("id, email, naam, merk, model, bouwjaar, beschrijving")
+      .from("quote_requests").select("id, email, naam, merk, model, bouwjaar, beschrijving, locale")
       .eq("id", data.quoteRequestId).maybeSingle();
     if (!qr) return { ok: false } as const;
     const email = (qr.email ?? "").toString().toLowerCase().trim();
     if (!EMAIL_RE.test(email)) return { ok: false } as const;
-    const { userId } = await findOrInviteUser(email, qr.naam ?? null, { skipInvite: true });
+    const qrLocale = (qr as { locale?: string }).locale === "en" ? "en" : "nl";
+    const { userId } = await findOrInviteUser(email, qr.naam ?? null, { skipInvite: true, locale: qrLocale });
     const subject = [qr.merk, qr.model, qr.bouwjaar].filter(Boolean).join(" ") || "Offerteaanvraag";
     const convId = await ensureConversation(userId, "quote_request", subject);
     // If trigger didn't write the systeem message (because profile didn't exist yet), write it now.
@@ -319,13 +335,14 @@ export const linkConversationToProject = createServerFn({ method: "POST" })
 
 export const updateCustomer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { profileId: string; full_name?: string | null; phone?: string | null; email?: string | null }) => input)
+  .inputValidator((input: { profileId: string; full_name?: string | null; phone?: string | null; email?: string | null; locale?: "nl" | "en" }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context as unknown as AdminCtx);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: { full_name?: string | null; phone?: string | null; email?: string } = {};
+    const patch: { full_name?: string | null; phone?: string | null; email?: string; locale?: "nl" | "en" } = {};
     if (typeof data.full_name !== "undefined") patch.full_name = data.full_name?.toString().trim() || null;
     if (typeof data.phone !== "undefined") patch.phone = data.phone?.toString().trim() || null;
+    if (data.locale === "nl" || data.locale === "en") patch.locale = data.locale;
     if (typeof data.email !== "undefined" && data.email) {
       const email = data.email.toString().trim().toLowerCase();
       if (!EMAIL_RE.test(email)) throw new Error("Ongeldig e-mailadres");

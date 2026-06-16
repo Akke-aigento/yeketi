@@ -1,12 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { renderEmail, renderPlainText, escapeHtml } from "./email-template.server";
+import { renderEmail, renderPlainText } from "./email-template.server";
+import { quoteSent, quoteReminder } from "./email-copy.server";
 
 const PUBLIC_SITE_URL = "https://yeketimotorworks.com";
-const REPLY_TO = "info@yeketimotorworks.com";
+const REPLY_TO = "info@yeketimotorworks.com"; // legacy default
+function adminReplyTo() { return process.env.ADMIN_NOTIFY_EMAIL || REPLY_TO; }
 
-function eur(n: number) {
-  return new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(n);
+function eur(n: number, locale: "nl" | "en" = "nl") {
+  return new Intl.NumberFormat(locale === "en" ? "en-IE" : "nl-BE", { style: "currency", currency: "EUR" }).format(n);
 }
 
 type SupabaseLike = {
@@ -80,7 +82,7 @@ export const sendQuoteToCustomer = createServerFn({ method: "POST" })
     if (!q.customer_id) throw new Error("Koppel eerst een klant aan de offerte");
 
     const { data: customer } = await supabaseAdmin
-      .from("profiles").select("email, full_name").eq("id", q.customer_id).maybeSingle();
+      .from("profiles").select("email, full_name, locale").eq("id", q.customer_id).maybeSingle();
     if (!customer?.email) throw new Error("Klant heeft geen e-mailadres");
 
     const { data: lines } = await supabaseAdmin
@@ -119,19 +121,14 @@ export const sendQuoteToCustomer = createServerFn({ method: "POST" })
     const FROM_EMAIL = process.env.FROM_EMAIL ?? "Yeketi Motorworks <onboarding@resend.dev>";
     if (RESEND_API_KEY) {
       const firstName = customer.full_name ? String(customer.full_name).split(" ")[0] : null;
-      const html = quoteEmailHtml({
-        firstName,
+      const locale = (customer as { locale?: string }).locale === "en" ? "en" : "nl";
+      const layout = quoteSent(locale, {
+        first: firstName,
         quoteNumber,
         portalUrl: `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`,
-        intro: q.intro_text,
-        total: Number(q.total_amount),
+        intro: q.intro_text ?? "",
+        totalStr: eur(Number(q.total_amount), locale),
         vehicle: q.vehicle_label,
-      });
-      const text = quoteEmailText({
-        firstName,
-        quoteNumber,
-        portalUrl: `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`,
-        total: Number(q.total_amount),
       });
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -139,9 +136,10 @@ export const sendQuoteToCustomer = createServerFn({ method: "POST" })
         body: JSON.stringify({
           from: FROM_EMAIL,
           to: [customer.email],
-          reply_to: REPLY_TO,
-          subject: `Offerte ${quoteNumber} — Yeketi Motorworks`,
-          html, text,
+          reply_to: adminReplyTo(),
+          subject: layout.subject,
+          html: renderEmail(layout),
+          text: renderPlainText(layout),
           attachments: [{
             filename: `offerte-${quoteNumber}.pdf`,
             content: pdfBase64,
@@ -203,40 +201,6 @@ export const downloadQuotePdf = createServerFn({ method: "POST" })
     };
   });
 
-// --- Email templates -------------------------------------------------------
-
-function quoteEmailLayout(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; intro: string; total: number; vehicle?: string | null }) {
-  const hi = opts.firstName ? `Hoi ${opts.firstName}, ` : "";
-  const introPreview = (opts.intro || "")
-    .split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 2).join(" ");
-  const totalStr = eur(opts.total);
-  return {
-    preheader: `Offerte ${opts.quoteNumber} · ${totalStr}`,
-    eyebrow: `Offerte ${opts.quoteNumber}`,
-    headline: opts.vehicle ? `Je offerte voor ${opts.vehicle}` : "Je offerte staat klaar",
-    intro: `${hi}we hebben je offerte uitgewerkt. De volledige PDF zit in bijlage; je kan ze ook in je portaal openen om te aanvaarden of te weigeren.`,
-    bodyHtml: `
-      ${introPreview ? `<p style="margin:0 0 18px;color:#4A453E;">${escapeHtml(introPreview)}</p>` : ""}
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 8px;border:1px solid #EFE8DB;background:#F7F3EC;width:100%;">
-        <tr>
-          <td style="padding:14px 18px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#6B6459;letter-spacing:0.18em;text-transform:uppercase;">Totaal</td>
-          <td style="padding:14px 18px;text-align:right;font-family:Georgia,'Times New Roman',serif;font-size:20px;color:#221F1B;">${escapeHtml(totalStr)}</td>
-        </tr>
-      </table>
-    `,
-    cta: { label: "Bekijk je offerte", url: opts.portalUrl },
-    footerNote: "De PDF van de offerte zit als bijlage bij deze mail.",
-  };
-}
-
-function quoteEmailHtml(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; intro: string; total: number; vehicle?: string | null }) {
-  return renderEmail(quoteEmailLayout(opts));
-}
-
-function quoteEmailText(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; total: number }) {
-  return renderPlainText(quoteEmailLayout({ ...opts, intro: "", vehicle: null }));
-}
-
 // --- Reminder for unresponded sent quotes (K · #17) ------------------------
 
 // Called by pg_cron via /api/public/hooks/quote-reminders. Sends ONE gentle
@@ -266,23 +230,18 @@ export const runQuoteReminders = createServerFn({ method: "POST" })
     for (const q of quotes ?? []) {
       if (!q.customer_id) continue;
       const { data: profile } = await supabaseAdmin
-        .from("profiles").select("email, full_name").eq("id", q.customer_id).maybeSingle();
+        .from("profiles").select("email, full_name, locale").eq("id", q.customer_id).maybeSingle();
       if (!profile?.email) continue;
       const first = profile.full_name ? String(profile.full_name).split(" ")[0] : null;
+      const locale = (profile as { locale?: string }).locale === "en" ? "en" : "nl";
       const portalUrl = `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`;
-      const layout = {
-        preheader: `Offerte ${q.quote_number} wacht nog op je antwoord`,
-        eyebrow: `Offerte ${q.quote_number}`,
-        headline: "Een vriendelijke herinnering",
-        intro: `${first ? `Hoi ${first}, ` : ""}we wilden even checken — je offerte voor ${q.title} staat nog open. Geen haast, maar mocht je vragen hebben of de offerte willen bespreken, antwoord gerust op deze mail.`,
-        cta: { label: "Bekijk je offerte", url: portalUrl },
-      };
+      const layout = quoteReminder(locale, { first, quoteNumber: q.quote_number, title: q.title, portalUrl });
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: FROM_EMAIL, to: [profile.email], reply_to: REPLY_TO,
-          subject: `Herinnering — offerte ${q.quote_number}`,
+          from: FROM_EMAIL, to: [profile.email], reply_to: adminReplyTo(),
+          subject: layout.subject,
           html: renderEmail(layout), text: renderPlainText(layout),
         }),
       });

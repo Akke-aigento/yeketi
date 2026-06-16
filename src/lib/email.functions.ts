@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { renderEmail, renderPlainText } from "./email-template.server";
+import { welcomeAfterInvite } from "./email-copy.server";
 
 const PUBLIC_SITE_URL = "https://yeketimotorworks.com";
-const REPLY_TO = "info@yeketimotorworks.com";
 
 // Sends a one-time welcome email to the just-activated invitee (A · #5).
 // Safe to call at most once per user; if Resend isn't configured we no-op so
@@ -20,21 +20,17 @@ export const sendWelcomeAfterInvite = createServerFn({ method: "POST" })
     if (!to) return { sent: false, reason: "no_email_in_claims" };
 
     const { data: profile } = await context.supabase
-      .from("profiles").select("full_name").eq("id", context.userId).maybeSingle();
+      .from("profiles").select("full_name, locale").eq("id", context.userId).maybeSingle();
     const fullName = profile?.full_name ?? claims.user_metadata?.full_name ?? null;
     const firstName = fullName ? String(fullName).trim().split(/\s+/)[0] : null;
+    const locale = (profile as { locale?: string } | null)?.locale === "en" ? "en" : "nl";
 
-    const layout = {
-      preheader: "Je portaal staat klaar — volg je restauratie van dichtbij.",
-      eyebrow: "Welkom",
-      headline: firstName ? `Welkom bij Yeketi, ${firstName}` : "Welkom bij Yeketi Motorworks",
-      intro:
-        "Je toegang tot het klantenportaal is geactiveerd. Vanaf nu zie je hier elke update over je restauratie — fase per fase, met foto's vanuit de werkplaats.",
-      bodyHtml:
-        `<p style="margin:0;">Je kan rechtstreeks reageren onder elke update en berichten sturen naar Baram. Geen tussenstap, geen formulier — gewoon contact.</p>`,
-      cta: { label: "Open je portaal", url: `${PUBLIC_SITE_URL}/portaal` },
-      replyTo: REPLY_TO,
-    };
+    const layout = welcomeAfterInvite(locale, {
+      first: firstName,
+      portalUrl: `${PUBLIC_SITE_URL}/portaal`,
+    });
+    // Reply-to: route any stray reply to the admin notify email if configured.
+    const replyTo = process.env.ADMIN_NOTIFY_EMAIL || "info@yeketimotorworks.com";
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -42,8 +38,8 @@ export const sendWelcomeAfterInvite = createServerFn({ method: "POST" })
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: [to],
-        reply_to: REPLY_TO,
-        subject: "Welkom bij Yeketi Motorworks — je portaal staat klaar",
+        reply_to: replyTo,
+        subject: layout.subject,
         html: renderEmail(layout),
         text: renderPlainText(layout),
       }),

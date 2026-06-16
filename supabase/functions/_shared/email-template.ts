@@ -11,9 +11,22 @@
 //   Brass       #B0832C    accents + primary button
 //   Hair        #EFE8DB    dividers
 
+export type Locale = "nl" | "en";
+
 export const COMPANY_LINE =
   "Yeketi Motorworks · Vredeplein 23, 3010 Kessel-Lo · info@yeketimotorworks.com · yeketimotorworks.com";
-export const REPLY_TO_DEFAULT = "info@yeketimotorworks.com";
+
+// Notice steering replies back into the portal (send-from address is not
+// monitored). Shown above the company line in every CUSTOMER mail.
+const DO_NOT_REPLY: Record<Locale, string> = {
+  nl: "Antwoord niet op deze e-mail — reageren doe je veilig in je portaal via de knop hierboven.",
+  en: "Please don't reply to this email — respond securely in your portal using the button above.",
+};
+
+const REPLY_FALLBACK_NOTE: Record<Locale, (addr: string) => string> = {
+  nl: (a) => `Lukt het niet? Stuur ons dan een bericht via ${a}.`,
+  en: (a) => `If that's not possible, you can reach us at ${a}.`,
+};
 
 export type EmailButton = { label: string; url: string };
 
@@ -27,6 +40,10 @@ export type EmailLayoutOpts = {
   secondaryCta?: EmailButton;// optional plain link below button
   footerNote?: string;       // optional extra small print
   replyTo?: string;
+  // Customer mails: set to render the portal-reply notice + localized footer.
+  // Admin mails (Baram): leave undefined → no portal notice, footer in NL.
+  locale?: Locale;
+  isCustomer?: boolean;
 };
 
 export function escapeHtml(s: string): string {
@@ -62,7 +79,8 @@ function renderButton(btn: EmailButton): string {
 }
 
 export function renderEmail(opts: EmailLayoutOpts): string {
-  const reply = opts.replyTo ?? REPLY_TO_DEFAULT;
+  const locale: Locale = opts.locale ?? "nl";
+  const reply = opts.replyTo ?? "info@yeketimotorworks.com";
   const pre = opts.preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;font-size:1px;line-height:1px;">${escapeHtml(opts.preheader)}</div>` : "";
   const eyebrow = opts.eyebrow
     ? `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:#B0832C;margin-bottom:14px;">${escapeHtml(opts.eyebrow)}</div>`
@@ -83,7 +101,15 @@ export function renderEmail(opts: EmailLayoutOpts): string {
     ? `<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(opts.footerNote)}</p>`
     : "";
 
-  return `<!doctype html><html lang="nl"><head>
+  // Customer mails get the "don't reply, use portal" line. Admin mails skip it.
+  const portalNotice = opts.isCustomer
+    ? `<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(DO_NOT_REPLY[locale])}</p>`
+    : "";
+  const replyLine = opts.isCustomer
+    ? `<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">${escapeHtml(REPLY_FALLBACK_NOTE[locale](reply))}</p>`
+    : `<p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">Antwoord op deze mail komt rechtstreeks bij ons binnen via ${escapeHtml(reply)}.</p>`;
+
+  return `<!doctype html><html lang="${locale}"><head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="color-scheme" content="light only"/>
@@ -111,7 +137,8 @@ ${pre}
       <tr><td style="padding:0 24px 36px;text-align:center;">
         <p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;letter-spacing:0.02em;">${escapeHtml(COMPANY_LINE)}</p>
         ${footerExtra}
-        <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#6B6459;">Antwoord op deze mail komt rechtstreeks bij ons binnen via ${escapeHtml(reply)}.</p>
+        ${portalNotice}
+        ${replyLine}
         <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:1;color:#B0832C;font-style:italic;letter-spacing:0.06em;">unity in craftsmanship</p>
       </td></tr>
     </table>

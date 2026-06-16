@@ -24,6 +24,7 @@ function Contact() {
   const submit = useServerFn(submitContactForm);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [locale, setLocale] = useState<"nl" | "en">("nl");
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,6 +38,7 @@ function Contact() {
           email: String(fd.get("email") ?? ""),
           bericht: String(fd.get("bericht") ?? ""),
           hp: String(fd.get("website") ?? ""),
+          locale,
         },
       });
       setStatus("ok");
@@ -76,6 +78,26 @@ function Contact() {
             </ScrollReveal>
           ) : (
             <form onSubmit={onSubmit} className="mt-12 grid gap-6">
+              <div>
+                <span className="eyebrow block mb-3">Taal · antwoord per mail</span>
+                <div className="flex gap-2">
+                  {(["nl", "en"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLocale(l)}
+                      className="text-[11px] uppercase tracking-[0.18em] px-4 py-2"
+                      style={{
+                        border: "1px solid var(--charcoal)",
+                        background: locale === l ? "var(--charcoal)" : "transparent",
+                        color: locale === l ? "var(--cream)" : "var(--charcoal)",
+                      }}
+                    >
+                      {l === "nl" ? "Nederlands" : "English"}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div>
                 <label className="eyebrow block mb-3" htmlFor="naam">Naam *</label>
                 <input id="naam" name="naam" required maxLength={120} className="field-y" />
