@@ -207,7 +207,7 @@ export async function renderQuotePdf(q: PdfQuote): Promise<Uint8Array> {
       start: { x: margin, y: 56 }, end: { x: A4.w - margin, y: 56 },
       color: HAIR, thickness: 0.5,
     });
-    p.drawText("Yeketi Motorworks  ·  Antwerpen & Erbil  ·  info@yeketimotorworks.com", {
+    p.drawText("Yeketi Motorworks  ·  Vredeplein 23, 3010 Kessel-Lo  ·  info@yeketimotorworks.com", {
       x: margin, y: 40, font: helv, size: 8, color: CHARCOAL_SOFT,
     });
     p.drawText("yeketimotorworks.com", {

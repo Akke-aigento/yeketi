@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminRecentWerkIndexRouteImport } from './routes/
 import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_authenticated/admin/quotes.index'
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
 import { Route as AuthenticatedAdminBerichtenIndexRouteImport } from './routes/_authenticated/admin/berichten.index'
+import { Route as ApiPublicHooksQuoteRemindersRouteImport } from './routes/api/public/hooks/quote-reminders'
 import { Route as AuthenticatedPortaalOfferteIdRouteImport } from './routes/_authenticated/portaal.offerte.$id'
 import { Route as AuthenticatedPortaalBerichtenIdRouteImport } from './routes/_authenticated/portaal.berichten.$id'
 import { Route as AuthenticatedAdminRecentWerkIdRouteImport } from './routes/_authenticated/admin/recent-werk.$id'
@@ -169,6 +170,12 @@ const AuthenticatedAdminBerichtenIndexRoute =
     path: '/berichten/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const ApiPublicHooksQuoteRemindersRoute =
+  ApiPublicHooksQuoteRemindersRouteImport.update({
+    id: '/api/public/hooks/quote-reminders',
+    path: '/api/public/hooks/quote-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedPortaalOfferteIdRoute =
   AuthenticatedPortaalOfferteIdRouteImport.update({
     id: '/portaal/offerte/$id',
@@ -232,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
   '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
+  '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
   '/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -262,6 +270,7 @@ export interface FileRoutesByTo {
   '/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
   '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
+  '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
   '/admin/berichten': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes': typeof AuthenticatedAdminQuotesIndexRoute
@@ -295,6 +304,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
   '/_authenticated/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/_authenticated/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
+  '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
   '/_authenticated/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/_authenticated/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/recent-werk/$id'
     | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
+    | '/api/public/hooks/quote-reminders'
     | '/admin/berichten/'
     | '/admin/projecten/'
     | '/admin/quotes/'
@@ -358,6 +369,7 @@ export interface FileRouteTypes {
     | '/admin/recent-werk/$id'
     | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
+    | '/api/public/hooks/quote-reminders'
     | '/admin/berichten'
     | '/admin/projecten'
     | '/admin/quotes'
@@ -390,6 +402,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/recent-werk/$id'
     | '/_authenticated/portaal/berichten/$id'
     | '/_authenticated/portaal/offerte/$id'
+    | '/api/public/hooks/quote-reminders'
     | '/_authenticated/admin/berichten/'
     | '/_authenticated/admin/projecten/'
     | '/_authenticated/admin/quotes/'
@@ -409,6 +422,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   RestauratieVwT2Route: typeof RestauratieVwT2Route
+  ApiPublicHooksQuoteRemindersRoute: typeof ApiPublicHooksQuoteRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -581,6 +595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBerichtenIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/api/public/hooks/quote-reminders': {
+      id: '/api/public/hooks/quote-reminders'
+      path: '/api/public/hooks/quote-reminders'
+      fullPath: '/api/public/hooks/quote-reminders'
+      preLoaderRoute: typeof ApiPublicHooksQuoteRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/portaal/offerte/$id': {
       id: '/_authenticated/portaal/offerte/$id'
       path: '/portaal/offerte/$id'
@@ -712,6 +733,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   RestauratieVwT2Route: RestauratieVwT2Route,
+  ApiPublicHooksQuoteRemindersRoute: ApiPublicHooksQuoteRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
