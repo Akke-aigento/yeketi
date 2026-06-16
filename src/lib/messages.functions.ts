@@ -358,6 +358,125 @@ export const unreadConversationCount = createServerFn({ method: "POST" })
   });
 
 // ──────────────────────────────────────────────────────────────────────────
+// Customer portal (RLS-enforced via the authenticated client)
+// ──────────────────────────────────────────────────────────────────────────
+
+type AuthCtx = {
+  supabase: {
+    from: (t: string) => {
+      select: (cols: string, opts?: Record<string, unknown>) => {
+        eq: (c: string, v: unknown) => {
+          maybeSingle: () => Promise<{ data: { id: string; status: string; subject: string | null; contact_profile_id: string } | null; error: unknown }>;
+          order: (c: string, o: { ascending: boolean }) => Promise<{ data: Array<{ id: string; sender: string; author_id: string | null; body: string; created_at: string }> | null; error: unknown }>;
+        };
+      };
+      insert: (row: Record<string, unknown>) => {
+        select: (cols: string) => { single: () => Promise<{ data: { id: string } | null; error: unknown }> };
+      };
+    };
+  };
+  userId: string;
+};
+
+export const getMyConversation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const ctx = context as unknown as AuthCtx;
+    // RLS: only the user's own row is visible.
+    const { data: conv } = await ctx.supabase
+      .from("conversations")
+      .select("id, status, subject, contact_profile_id")
+      .eq("contact_profile_id", ctx.userId)
+      .maybeSingle();
+    if (!conv) {
+      return { conversation: null, messages: [] as Array<{ id: string; sender: string; author_id: string | null; body: string; created_at: string }> };
+    }
+    const { data: messages } = await ctx.supabase
+      .from("messages")
+      .select("id, sender, author_id, body, created_at")
+      .eq("conversation_id", conv.id)
+      .order("created_at", { ascending: true });
+    return { conversation: conv, messages: messages ?? [] };
+  });
+
+export const sendCustomerMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { body: string }) => input)
+  .handler(async ({ data, context }) => {
+    const ctx = context as unknown as AuthCtx;
+    const body = sanitize(data.body, 5000);
+    if (body.length < 1) throw new Error("Bericht is leeg.");
+
+    // Find or create the user's own conversation (RLS-enforced — contact_profile_id = auth.uid()).
+    const { data: existing } = await ctx.supabase
+      .from("conversations")
+      .select("id, status, subject, contact_profile_id")
+      .eq("contact_profile_id", ctx.userId)
+      .maybeSingle();
+
+    let convId: string;
+    if (existing) {
+      if (existing.status !== "open") throw new Error("Gesprek is gesloten.");
+      convId = existing.id;
+    } else {
+      const { data: created, error } = await ctx.supabase
+        .from("conversations")
+        .insert({ contact_profile_id: ctx.userId, source: "manual", subject: body.slice(0, 80) })
+        .select("id")
+        .single();
+      if (error || !created) throw new Error("Kon gesprek niet starten.");
+      convId = created.id;
+    }
+
+    const ins = await (ctx.supabase as unknown as {
+      from: (t: string) => { insert: (r: Record<string, unknown>) => Promise<{ error: unknown }> };
+    }).from("messages").insert({
+      conversation_id: convId,
+      author_id: ctx.userId,
+      sender: "klant",
+      body,
+    });
+    if ((ins as { error: unknown }).error) {
+      throw new Error("Bericht kon niet verstuurd worden.");
+    }
+    return { ok: true, conversationId: convId } as const;
+  });
+
+// ──────────────────────────────────────────────────────────────────────────
+// Admin notification settings
+// ──────────────────────────────────────────────────────────────────────────
+
+const NOTIFY_KEY = "admin_notify_email";
+
+export const getAdminNotifySettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context as unknown as AdminCtx);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("app_settings").select("value").eq("key", NOTIFY_KEY).maybeSingle();
+    return {
+      notifyEmail: (data?.value as string | null) ?? null,
+      fallback: process.env.ADMIN_NOTIFY_EMAIL || null,
+    };
+  });
+
+export const setAdminNotifyEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { email: string | null }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as unknown as AdminCtx);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const value = data.email ? data.email.trim().toLowerCase() : null;
+    if (value && !EMAIL_RE.test(value)) throw new Error("Ongeldig e-mailadres.");
+    const { error } = await supabaseAdmin
+      .from("app_settings")
+      .upsert({ key: NOTIFY_KEY, value, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    return { ok: true } as const;
+  });
+
+// ──────────────────────────────────────────────────────────────────────────
 // Email helper
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -369,7 +488,8 @@ async function sendCustomerReplyEmail(opts: {
   const from = process.env.FROM_EMAIL || "Yeketi Motorworks <info@yeketimotorworks.com>";
   const replyTo = process.env.REPLY_TO_EMAIL || "info@yeketimotorworks.com";
   const site = process.env.PUBLIC_SITE_URL || PROD_SITE_URL;
-  const portalUrl = `${site}/portaal/berichten/${opts.conversationId}`;
+  void opts.conversationId;
+  const portalUrl = `${site}/portaal/berichten`;
   const first = opts.name ? String(opts.name).split(" ")[0] : null;
   const safePreview = opts.preview.length > 320 ? opts.preview.slice(0, 320) + "…" : opts.preview;
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
