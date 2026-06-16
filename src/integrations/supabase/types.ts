@@ -190,6 +190,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          locale: Database["public"]["Enums"]["app_locale"]
           phone: string | null
           updated_at: string
         }
@@ -198,6 +199,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          locale?: Database["public"]["Enums"]["app_locale"]
           phone?: string | null
           updated_at?: string
         }
@@ -206,6 +208,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          locale?: Database["public"]["Enums"]["app_locale"]
           phone?: string | null
           updated_at?: string
         }
@@ -372,6 +375,7 @@ export type Database = {
           email: string
           foto_urls: string[] | null
           id: string
+          locale: Database["public"]["Enums"]["app_locale"]
           merk: string | null
           model: string | null
           naam: string
@@ -386,6 +390,7 @@ export type Database = {
           email: string
           foto_urls?: string[] | null
           id?: string
+          locale?: Database["public"]["Enums"]["app_locale"]
           merk?: string | null
           model?: string | null
           naam: string
@@ -400,6 +405,7 @@ export type Database = {
           email?: string
           foto_urls?: string[] | null
           id?: string
+          locale?: Database["public"]["Enums"]["app_locale"]
           merk?: string | null
           model?: string | null
           naam?: string
@@ -681,6 +687,7 @@ export type Database = {
       verify_webhook_secret: { Args: { provided: string }; Returns: boolean }
     }
     Enums: {
+      app_locale: "nl" | "en"
       app_role: "admin"
       conversation_source: "contact_form" | "quote_request" | "manual"
       conversation_status: "open" | "gesloten"
@@ -823,6 +830,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_locale: ["nl", "en"],
       app_role: ["admin"],
       conversation_source: ["contact_form", "quote_request", "manual"],
       conversation_status: ["open", "gesloten"],
