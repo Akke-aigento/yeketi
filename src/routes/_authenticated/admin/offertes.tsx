@@ -4,6 +4,7 @@ import { AdminShell, statusBadge, timeAgo } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { convertQuoteToProject, deleteQuoteRequest, cleanupOrphanQuotePhotos } from "@/lib/admin.functions";
 import { createQuoteFromRequest } from "@/lib/quotes.functions";
+import { getConversationForQuoteRequest } from "@/lib/messages.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/AdminModals";
@@ -28,10 +29,23 @@ type Quote = {
   status: typeof STATUSES[number]; created_at: string;
 };
 
+// Normalise a phone number to wa.me's expected international format:
+// digits only, no leading "+" or "00". Belgian local numbers (leading "0")
+// get "32" prepended. Anything else is passed through unchanged so foreign
+// numbers entered in international format still work.
+function normaliseWa(phone: string): string | null {
+  const raw = phone.replace(/[^\d+]/g, "");
+  if (!raw) return null;
+  if (raw.startsWith("+")) return raw.slice(1);
+  if (raw.startsWith("00")) return raw.slice(2);
+  if (raw.startsWith("0")) return `32${raw.slice(1)}`;
+  return raw;
+}
+
 function waLink(phone: string | null, naam: string, voertuig: string) {
   if (!phone) return null;
-  const clean = phone.replace(/[^\d+]/g, "");
-  const number = clean.startsWith("+") ? clean.slice(1) : clean;
+  const number = normaliseWa(phone);
+  if (!number) return null;
   const text = encodeURIComponent(
     `Hoi ${naam.split(" ")[0] ?? naam}, dit is Baram van Yeketi Motorworks. Bedankt voor je aanvraag voor ${voertuig || "je klassieker"}. Wanneer komt het uit om even te bellen?`,
   );
@@ -49,6 +63,10 @@ function Offertes() {
   const removeQuote = useServerFn(deleteQuoteRequest);
   const cleanupOrphans = useServerFn(cleanupOrphanQuotePhotos);
   const makeQuote = useServerFn(createQuoteFromRequest);
+  const openConversation = useServerFn(getConversationForQuoteRequest);
+  // Cache of signed URLs per quote id, plus the currently-open lightbox image.
+  const [signedPhotos, setSignedPhotos] = useState<Record<string, string[]>>({});
+  const [lightbox, setLightbox] = useState<string | null>(null);
   const [confirmState, setConfirmState] = useState<{ title: string; message: string; destructive?: boolean; onConfirm: () => void | Promise<void> } | null>(null);
 
   async function load() {
@@ -56,6 +74,31 @@ function Offertes() {
     setQuotes((data as Quote[] | null) ?? []);
   }
   useEffect(() => { load(); }, [refreshKey]);
+
+  // ESC closes the lightbox so admins don't get stuck on mobile/desktop.
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setLightbox(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
+
+  // Fetch signed URLs for an opened request on demand; bucket is private so a
+  // bare storage path renders as a broken image.
+  async function ensureSignedPhotos(q: Quote) {
+    if (signedPhotos[q.id] || !q.foto_urls || q.foto_urls.length === 0) return;
+    const { data, error } = await supabase.storage
+      .from("quote-photos")
+      .createSignedUrls(q.foto_urls, 3600);
+    if (error) {
+      toast.error("Foto's laden mislukt", { description: error.message });
+      return;
+    }
+    setSignedPhotos((prev) => ({
+      ...prev,
+      [q.id]: (data ?? []).map((d) => d.signedUrl).filter(Boolean) as string[],
+    }));
+  }
 
   const filtered = useMemo(
     () => (quotes ?? []).filter((q) => filter === "all" || q.status === filter),
@@ -73,19 +116,32 @@ function Offertes() {
 
   async function convertNow(q: Quote) {
     setConfirmState({
-      title: "Project aanmaken",
-      message: `Project aanmaken voor ${q.naam} en uitnodigingsmail sturen naar ${q.email}?`,
+      title: "Project & portaaluitnodiging",
+      message: `${q.naam} heeft al een profiel uit de aanvraag. We maken nu een project aan en sturen de eerste portaaluitnodiging naar ${q.email}. Doorgaan?`,
       onConfirm: async () => {
         setBusy(q.id);
         try {
           await convert({ data: { quoteId: q.id } });
-          toast.success("Project aangemaakt. Klant heeft een inloglink ontvangen.");
+          toast.success("Project aangemaakt en portaaluitnodiging verstuurd.");
           load();
         } catch (e) {
           toast.error("Fout bij aanmaken", { description: (e as Error).message });
         } finally { setBusy(null); }
       },
     });
+  }
+
+  async function openMessageThread(q: Quote) {
+    if (busy === q.id) return;
+    setBusy(q.id);
+    try {
+      const { conversationId } = await openConversation({ data: { quoteRequestId: q.id } });
+      navigate({ to: "/admin/berichten/$id", params: { id: conversationId } });
+    } catch (e) {
+      toast.error("Kon gesprek niet openen", { description: (e as Error).message });
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function deleteNow(q: Quote) {
@@ -183,7 +239,21 @@ function Offertes() {
                     <div className="grid grid-cols-2 gap-2">
                       {wa && <a href={wa} target="_blank" rel="noreferrer" className="btn-y-solid text-center">WhatsApp</a>}
                       {q.telefoon && <a href={`tel:${q.telefoon}`} className="btn-y text-center">Bel</a>}
-                      <a href={`mailto:${q.email}`} className="btn-y text-center col-span-2">{q.email}</a>
+                      <button
+                        type="button"
+                        onClick={() => openMessageThread(q)}
+                        disabled={busy === q.id}
+                        aria-busy={busy === q.id}
+                        className="btn-y text-center col-span-2"
+                      >
+                        Stuur bericht in portaal
+                      </button>
+                      <div
+                        className="col-span-2 text-[11px] text-center tracking-[0.08em]"
+                        style={{ color: "var(--charcoal-soft)" }}
+                      >
+                        {q.email}
+                      </div>
                     </div>
 
                     <dl className="text-sm space-y-1">
@@ -199,13 +269,11 @@ function Offertes() {
                     </dl>
 
                     {q.foto_urls && q.foto_urls.length > 0 && (
-                      <div className="grid grid-cols-3 gap-1">
-                        {q.foto_urls.map((u) => (
-                          <a key={u} href={u} target="_blank" rel="noreferrer">
-                            <img src={u} alt="" className="w-full" style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)" }} />
-                          </a>
-                        ))}
-                      </div>
+                      <PhotoGrid
+                        urls={signedPhotos[q.id]}
+                        onMount={() => ensureSignedPhotos(q)}
+                        onOpen={(u) => setLightbox(u)}
+                      />
                     )}
 
                     <div>
@@ -236,7 +304,7 @@ function Offertes() {
                       aria-busy={busy === q.id}
                       className="btn-y-solid w-full"
                     >
-                      {busy === q.id ? "Bezig…" : "Maak project + nodig klant uit"}
+                      {busy === q.id ? "Bezig…" : "Maak project & verstuur portaaluitnodiging"}
                     </button>
                     <button
                       onClick={async () => {
@@ -281,6 +349,57 @@ function Offertes() {
         onConfirm={async () => { await confirmState?.onConfirm(); }}
         onClose={() => setConfirmState(null)}
       />
+      {lightbox && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Foto-weergave"
+          onClick={() => setLightbox(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.88)",
+            zIndex: 80,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2rem",
+          }}
+        >
+          <button
+            type="button"
+            aria-label="Sluit"
+            onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+            style={{
+              position: "absolute",
+              top: 14,
+              right: 14,
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.12)",
+              color: "#fff",
+              border: "1px solid rgba(255,255,255,0.4)",
+              fontSize: 24,
+              lineHeight: 1,
+              cursor: "pointer",
+            }}
+          >
+            ×
+          </button>
+          <img
+            src={lightbox}
+            alt=""
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              boxShadow: "0 30px 60px rgba(0,0,0,0.5)",
+            }}
+          />
+        </div>
+      )}
     </AdminShell>
   );
 }
@@ -290,6 +409,59 @@ function DLRow({ k, v }: { k: string; v: string }) {
     <div className="flex justify-between gap-3">
       <dt className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>{k}</dt>
       <dd className="text-right truncate">{v}</dd>
+    </div>
+  );
+}
+
+// Renders the thumbnail grid for an opened request. Triggers signed-URL
+// loading via onMount the first time it appears, and shows a quiet skeleton
+// state until the URLs arrive instead of broken-image icons.
+function PhotoGrid({
+  urls,
+  onMount,
+  onOpen,
+}: {
+  urls: string[] | undefined;
+  onMount: () => void;
+  onOpen: (url: string) => void;
+}) {
+  useEffect(() => { onMount(); }, [onMount]);
+  if (!urls) {
+    return (
+      <div className="grid grid-cols-3 gap-1">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            style={{
+              aspectRatio: "1/1",
+              border: "1px solid var(--charcoal)",
+              background: "var(--cream)",
+              opacity: 0.5,
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+  if (urls.length === 0) return null;
+  return (
+    <div className="grid grid-cols-3 gap-1">
+      {urls.map((u) => (
+        <button
+          key={u}
+          type="button"
+          onClick={() => onOpen(u)}
+          style={{ padding: 0, border: 0, background: "transparent", cursor: "zoom-in" }}
+          aria-label="Foto vergroten"
+        >
+          <img
+            src={u}
+            alt=""
+            className="w-full"
+            style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)", display: "block" }}
+          />
+        </button>
+      ))}
     </div>
   );
 }
