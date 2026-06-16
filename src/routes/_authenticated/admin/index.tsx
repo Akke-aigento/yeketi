@@ -192,7 +192,7 @@ function Dashboard() {
           <Link to="/admin/projecten" search={{ neu: 1 } as never} className="btn-y-solid text-center">
             + Nieuw project
           </Link>
-          <Link to="/admin/offertes" className="btn-y text-center">
+          <Link to="/admin/quotes" className="btn-y text-center">
             + Nieuwe offerte
           </Link>
         </div>
@@ -209,7 +209,7 @@ function Dashboard() {
           />
           <StatTile
             to="/admin/offertes"
-            label="Nieuwe offertes"
+            label="Nieuwe aanvragen"
             value={newQuotes}
             emptyHint="Nog geen nieuwe aanvragen — deel je offertepagina."
             accent="var(--gold)"
