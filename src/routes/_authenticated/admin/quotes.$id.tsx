@@ -362,14 +362,23 @@ function QuoteEditor() {
           ) : (
             <>
               <button onClick={download} className="btn-y">PDF downloaden</button>
-              <button
-                onClick={() => quote.quote_request_id
-                  ? navigate({ to: "/admin/aanvragen/$id", params: { id: quote.quote_request_id } })
-                  : navigate({ to: "/admin/aanvragen" })}
-                className="btn-y-solid"
-              >
-                Terug
-              </button>
+              {projectId ? (
+                <button
+                  onClick={() => navigate({ to: "/admin/projecten/$id", params: { id: projectId } })}
+                  className="btn-y-solid"
+                >
+                  Open project
+                </button>
+              ) : (
+                <button
+                  onClick={askCreateProject}
+                  disabled={creatingProject}
+                  aria-busy={creatingProject}
+                  className="btn-y-solid"
+                >
+                  {creatingProject ? "Bezig…" : "Maak project aan"}
+                </button>
+              )}
             </>
           )}
         </div>
