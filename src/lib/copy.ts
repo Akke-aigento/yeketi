@@ -361,10 +361,11 @@ export const en: Copy = {
   },
   why: {
     eyebrow: "Why Yeketi",
-    title: "Three reasons that make the difference.",
+    title: "Four reasons that make the difference.",
     items: [
-      { t: "Fair price", d: "Restoration at a fraction of what the same work costs in a European workshop — without ever compromising on quality." },
+      { t: "Fair price", d: "Craftsmanship of a level that has become rare here — at a price that sits sharper than a restoration in Belgium, without compromising on quality." },
       { t: "Shorter lead time", d: "We think in weeks and months, not years. The workshop puts several craftsmen on one project." },
+      { t: "Traditional craft", d: "Sheet metal is gas-welded by hand — with oxy-acetylene flame, the way a classic should be welded. A technique nearly lost in Europe, but still the right one: the weld moves with the steel, leaves less stress in the panel and lasts for generations." },
       { t: "Personal guidance", d: "One point of contact, from the first photo to delivery. Updates with images, in your language, at your pace." },
     ],
   },
@@ -403,7 +404,7 @@ export const en: Copy = {
         sub: "For those who want one element restored.",
         items: [
           "Hand-tapped dent removal, no filler where it doesn't belong",
-          "Welding and replacing rusted panels",
+          "Welding and replacing rusted panels — gas-welded by hand, the right technique for classic sheet metal",
           "Prep work for painting, or full respray",
           "Chrome and trim restored to original condition",
         ],
@@ -436,7 +437,7 @@ export const en: Copy = {
     lead: "A full restoration runs in parallel with us: bodywork, mechanics, paint and interior all happen at the same time in specialised workshops, each with the right master at work. That is why a classic stays with us for around three months — not the years the same work would take elsewhere.",
     chapters: [
       { date: "Stage 01", t: "Arrival & inspection", d: "The car arrives at the workshop. A thorough inspection of body, chassis and mechanics; every point of attention is photographed and discussed with the owner before a single bolt is loosened." },
-      { date: "Stage 02", t: "Bodywork", d: "Rusted panels are cut out and reshaped by hand from new steel, true to the original profiles. No filler where it doesn't belong — every dent tapped out the way a classic deserves." },
+      { date: "Stage 02", t: "Bodywork", d: "Rusted panels are cut out and reshaped by hand from new steel, true to the original profiles. The new sections are gas-welded in — with oxy-acetylene flame, the traditional technique for classic sheet metal that has nearly disappeared in Europe. The weld moves with the steel, leaves less stress in the panel and lasts for generations. No filler where it doesn't belong — every dent tapped out the way a classic deserves." },
       { date: "Stage 03", t: "Mechanics", d: "The engine block is fully rebuilt. Gaskets, pistons and valves are renewed; original parts are restored rather than replaced wherever possible, to preserve the character of the car." },
       { date: "Stage 04", t: "Paintwork", d: "Multiple layers of primer, filler and paint — exactly to the manufacturer's original colour code. Hand-polished until the original depth and gloss are visible again." },
       { date: "Stage 05", t: "Interior", d: "New upholstery made to measure in original fabric and colour. Steering wheel, pedals and gear lever stay original — everything the owner touches daily carries the patina of half a century of history." },
