@@ -159,6 +159,8 @@ export const nl = {
     closing:
       "Restauratie is geen poging om de tijd terug te draaien. Het is een belofte dat het verhaal verder mag gaan.",
     cta: "Start uw restauratie",
+    weldingVideoCaption: "Autogeen-lassen — de traditionele techniek voor klassiek plaatstaal.",
+    weldingVideoAria: "Korte video van autogeen-lassen op plaatstaal",
   },
   over: {
     eyebrow: "Over Yeketi",
