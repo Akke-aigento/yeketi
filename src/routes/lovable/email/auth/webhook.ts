@@ -12,12 +12,12 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'Bevestig je e-mailadres — Yeketi Motorworks',
+  invite: 'Je bent uitgenodigd — Yeketi Motorworks',
+  magiclink: 'Je inloglink — Yeketi Motorworks',
+  recovery: 'Stel een nieuw wachtwoord in — Yeketi Motorworks',
+  email_change: 'Bevestig je nieuwe e-mailadres — Yeketi Motorworks',
+  reauthentication: 'Je verificatiecode — Yeketi Motorworks',
 }
 
 // Template mapping
@@ -177,7 +177,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
             run_id,
             message_id: messageId,
             to: payload.data.email,
-            from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+          from: `Yeketi Motorworks <info@${FROM_DOMAIN}>`,
             sender_domain: SENDER_DOMAIN,
             subject: EMAIL_SUBJECTS[emailType] || 'Notification',
             html,
