@@ -143,6 +143,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          admin_last_seen_reactions_at: string
           cover_photo_url: string | null
           created_at: string
           customer_id: string
@@ -157,6 +158,7 @@ export type Database = {
           vehicle_year: string | null
         }
         Insert: {
+          admin_last_seen_reactions_at?: string
           cover_photo_url?: string | null
           created_at?: string
           customer_id: string
@@ -171,6 +173,7 @@ export type Database = {
           vehicle_year?: string | null
         }
         Update: {
+          admin_last_seen_reactions_at?: string
           cover_photo_url?: string | null
           created_at?: string
           customer_id?: string
@@ -454,6 +457,45 @@ export type Database = {
           },
         ]
       }
+      update_reactions: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          phase_update_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          phase_update_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          phase_update_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "update_reactions_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "update_reactions_phase_update_id_fkey"
+            columns: ["phase_update_id"]
+            isOneToOne: false
+            referencedRelation: "phase_updates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -485,10 +527,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_project_reactions_seen: {
+        Args: { _project_id: string }
+        Returns: undefined
+      }
       next_quote_number: { Args: never; Returns: string }
       owns_project: {
         Args: { _project: string; _uid: string }
         Returns: boolean
+      }
+      unread_customer_reactions: {
+        Args: { _project_ids: string[] }
+        Returns: {
+          project_id: string
+          unread_count: number
+        }[]
       }
       verify_webhook_secret: { Args: { provided: string }; Returns: boolean }
     }
