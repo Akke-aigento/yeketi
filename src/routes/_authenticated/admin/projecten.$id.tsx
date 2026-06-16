@@ -526,6 +526,100 @@ function FieldText({ label, value, onSave }: { label: string; value: string; onS
   );
 }
 
+function SortablePhaseItem({
+  phase, phaseUpdates, photos, signedUrls, reactions,
+  onRename, onDelete, onSetStatus, onDeleteUpdate,
+}: {
+  phase: Phase;
+  phaseUpdates: Update[];
+  photos: Photo[];
+  signedUrls: Record<string, string>;
+  reactions: Map<string, ReactionView[]>;
+  onRename: () => void;
+  onDelete: () => void;
+  onSetStatus: (s: Phase["status"]) => void;
+  onDeleteUpdate: (u: Update) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: phase.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    border: "1px solid var(--charcoal)",
+    background: "var(--cream)",
+    opacity: isDragging ? 0.7 : 1,
+    boxShadow: isDragging ? "0 10px 24px rgba(0,0,0,0.18)" : undefined,
+    zIndex: isDragging ? 10 : undefined,
+    position: "relative",
+  };
+  return (
+    <li ref={setNodeRef} style={style}>
+      <div className="flex items-center gap-2 px-3 py-2" style={{ background: "var(--cream-deep)" }}>
+        <button
+          type="button"
+          aria-label="Versleep fase"
+          {...attributes}
+          {...listeners}
+          className="text-base"
+          style={{ color: "var(--charcoal-soft)", width: "1.5rem", cursor: "grab", touchAction: "none" }}
+        >≡</button>
+        <div className="flex-1 min-w-0">
+          <button onClick={onRename} className="text-left truncate" style={{ fontFamily: "var(--font-display)", fontSize: "1rem" }}>
+            {phase.name}
+          </button>
+        </div>
+        <button onClick={onDelete} className="px-2 py-1 text-xs" style={{ color: "var(--oxide)" }}>✕</button>
+      </div>
+      <div className="flex gap-1 px-3 py-2 border-t" style={{ borderColor: "var(--charcoal)" }}>
+        {(["pending", "active", "done"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => onSetStatus(s)}
+            className="text-[10px] tracking-[0.15em] uppercase px-2 py-1"
+            style={{
+              border: "1px solid var(--charcoal)",
+              background: phase.status === s ? "var(--brass)" : "transparent",
+              color: phase.status === s ? "var(--cream)" : "var(--charcoal)",
+            }}
+          >
+            {s === "pending" ? "Te doen" : s === "active" ? "Actief" : "Klaar"}
+          </button>
+        ))}
+      </div>
+      {phaseUpdates.length > 0 && (
+        <ul className="px-3 py-2 space-y-3 border-t" style={{ borderColor: "var(--charcoal)" }}>
+          {phaseUpdates.map((u) => {
+            const ups = photos.filter((ph) => ph.update_id === u.id);
+            return (
+              <li key={u.id}>
+                <div className="flex justify-between items-start gap-2">
+                  <p className="text-sm whitespace-pre-wrap flex-1" style={{ lineHeight: 1.55 }}>{u.body}</p>
+                  <button onClick={() => onDeleteUpdate(u)} className="text-xs" style={{ color: "var(--oxide)" }}>✕</button>
+                </div>
+                <div className="text-[10px] uppercase tracking-[0.15em] mt-1" style={{ color: "var(--charcoal-soft)" }}>
+                  {new Date(u.created_at).toLocaleString("nl-BE")}
+                </div>
+                {ups.length > 0 && (
+                  <div className="grid grid-cols-4 gap-1 mt-2">
+                    {ups.map((ph) => (
+                      <img key={ph.id} src={signedUrls[ph.storage_path]} alt="" className="w-full" style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)" }} />
+                    ))}
+                  </div>
+                )}
+                <ReactionThread
+                  updateId={u.id}
+                  initial={reactions.get(u.id) ?? []}
+                  canDelete
+                  placeholder="Antwoord als Yeketi…"
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </li>
+  );
+}
+
 function NewUpdateModal({
   projectId, phases, defaultPhaseId, onClose, onSaved,
 }: { projectId: string; phases: { id: string; name: string }[]; defaultPhaseId: string; onClose: () => void; onSaved: () => void }) {
