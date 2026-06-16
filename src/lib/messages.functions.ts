@@ -334,13 +334,14 @@ export const linkConversationToProject = createServerFn({ method: "POST" })
 
 export const updateCustomer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { profileId: string; full_name?: string | null; phone?: string | null; email?: string | null }) => input)
+  .inputValidator((input: { profileId: string; full_name?: string | null; phone?: string | null; email?: string | null; locale?: "nl" | "en" }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context as unknown as AdminCtx);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: { full_name?: string | null; phone?: string | null; email?: string } = {};
+    const patch: { full_name?: string | null; phone?: string | null; email?: string; locale?: "nl" | "en" } = {};
     if (typeof data.full_name !== "undefined") patch.full_name = data.full_name?.toString().trim() || null;
     if (typeof data.phone !== "undefined") patch.phone = data.phone?.toString().trim() || null;
+    if (data.locale === "nl" || data.locale === "en") patch.locale = data.locale;
     if (typeof data.email !== "undefined" && data.email) {
       const email = data.email.toString().trim().toLowerCase();
       if (!EMAIL_RE.test(email)) throw new Error("Ongeldig e-mailadres");
