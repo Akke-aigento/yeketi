@@ -3,6 +3,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
+import { WeldingVideo } from "@/components/WeldingVideo";
 import arrivalAsset from "@/assets/projects/vw-t2/t2-01-aankomst.jpg.asset.json";
 import strippenAsset from "@/assets/projects/vw-t2/t2-04-strippen.jpg.asset.json";
 import plamuurAsset from "@/assets/projects/vw-t2/t2-05-plamuur.jpg.asset.json";
@@ -83,13 +84,20 @@ function CaseStudy() {
                 <ScrollReveal key={c.t} delay={i * 60}>
                   <article className={`grid gap-8 md:grid-cols-12 items-center ${i % 2 === 1 ? "md:[direction:rtl]" : ""}`}>
                     <div className="md:col-span-6" style={{ direction: "ltr" }}>
-                      <img
-                        src={chapterImages[i % chapterImages.length]}
-                        alt={c.t}
-                        loading="lazy"
-                        className="w-full block"
-                        style={{ aspectRatio: "4/3", objectFit: "cover", border: "1px solid var(--charcoal)" }}
-                      />
+                      {i === 1 ? (
+                        <WeldingVideo
+                          caption="Autogeen-lassen — de traditionele techniek voor klassiek plaatstaal."
+                          ariaLabel="Korte video van autogeen-lassen op plaatstaal"
+                        />
+                      ) : (
+                        <img
+                          src={chapterImages[i % chapterImages.length]}
+                          alt={c.t}
+                          loading="lazy"
+                          className="w-full block"
+                          style={{ aspectRatio: "4/3", objectFit: "cover", border: "1px solid var(--charcoal)" }}
+                        />
+                      )}
                     </div>
                     <div className="md:col-span-6" style={{ direction: "ltr" }}>
                       <div className="flex items-center gap-3">
