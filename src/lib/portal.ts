@@ -5,6 +5,92 @@ export type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
 export type PhaseRow = Database["public"]["Tables"]["project_phases"]["Row"];
 export type UpdateRow = Database["public"]["Tables"]["phase_updates"]["Row"];
 export type PhotoRow = Database["public"]["Tables"]["update_photos"]["Row"];
+export type ReactionRow = Database["public"]["Tables"]["update_reactions"]["Row"];
+
+export type ReactionView = {
+  id: string;
+  phase_update_id: string;
+  author_id: string;
+  author_name: string;
+  is_admin: boolean;
+  body: string;
+  created_at: string;
+};
+
+export async function fetchReactionsByUpdate(updateIds: string[]): Promise<Map<string, ReactionView[]>> {
+  const out = new Map<string, ReactionView[]>();
+  if (updateIds.length === 0) return out;
+  const { data: rs, error } = await supabase
+    .from("update_reactions")
+    .select("id, phase_update_id, author_id, body, created_at")
+    .in("phase_update_id", updateIds)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  const rows = rs ?? [];
+  if (rows.length === 0) return out;
+  const authorIds = Array.from(new Set(rows.map((r) => r.author_id)));
+  const [{ data: profs }, { data: roles }] = await Promise.all([
+    supabase.from("profiles").select("id, full_name, email").in("id", authorIds),
+    supabase.from("user_roles").select("user_id").eq("role", "admin").in("user_id", authorIds),
+  ]);
+  const nameById = new Map<string, string>();
+  (profs ?? []).forEach((p) => nameById.set(p.id, p.full_name ?? p.email ?? "Klant"));
+  const adminSet = new Set<string>((roles ?? []).map((r) => r.user_id));
+  rows.forEach((r) => {
+    const view: ReactionView = {
+      id: r.id,
+      phase_update_id: r.phase_update_id,
+      author_id: r.author_id,
+      author_name: adminSet.has(r.author_id) ? "Yeketi" : (nameById.get(r.author_id) ?? "Klant"),
+      is_admin: adminSet.has(r.author_id),
+      body: r.body,
+      created_at: r.created_at,
+    };
+    const arr = out.get(r.phase_update_id) ?? [];
+    arr.push(view);
+    out.set(r.phase_update_id, arr);
+  });
+  return out;
+}
+
+export async function addReaction(updateId: string, body: string): Promise<ReactionView> {
+  const trimmed = body.trim();
+  if (!trimmed) throw new Error("Reactie is leeg");
+  const { data: userData } = await supabase.auth.getUser();
+  const uid = userData.user?.id;
+  if (!uid) throw new Error("Niet ingelogd");
+  const { data, error } = await supabase
+    .from("update_reactions")
+    .insert({ phase_update_id: updateId, author_id: uid, body: trimmed })
+    .select("id, phase_update_id, author_id, body, created_at")
+    .single();
+  if (error) throw error;
+  // Detect admin
+  const { data: roleRow } = await supabase
+    .from("user_roles").select("user_id").eq("user_id", uid).eq("role", "admin").maybeSingle();
+  const isAdmin = !!roleRow;
+  let name = "Jij";
+  if (!isAdmin) {
+    const { data: prof } = await supabase.from("profiles").select("full_name, email").eq("id", uid).maybeSingle();
+    name = prof?.full_name ?? prof?.email ?? "Klant";
+  } else {
+    name = "Yeketi";
+  }
+  return {
+    id: data.id,
+    phase_update_id: data.phase_update_id,
+    author_id: data.author_id,
+    author_name: name,
+    is_admin: isAdmin,
+    body: data.body,
+    created_at: data.created_at,
+  };
+}
+
+export async function deleteReaction(id: string): Promise<void> {
+  const { error } = await supabase.from("update_reactions").delete().eq("id", id);
+  if (error) throw error;
+}
 
 export async function fetchMyProjects() {
   const { data, error } = await supabase

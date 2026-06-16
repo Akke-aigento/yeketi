@@ -9,6 +9,8 @@ import { t } from "@/lib/copy";
 import { deletePhase as deletePhaseFn, deleteProject as deleteProjectFn } from "@/lib/admin.functions";
 import { ConfirmModal, PromptModal } from "@/components/AdminModals";
 import { publishProjectToRecentWork as publishProjectToRecentWorkFn } from "@/lib/recent-work.functions";
+import { fetchReactionsByUpdate, type ReactionView } from "@/lib/portal";
+import { ReactionThread } from "@/components/ReactionThread";
 
 export const Route = createFileRoute("/_authenticated/admin/projecten/$id")({
   head: () => ({ meta: [{ title: "Project — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -40,6 +42,7 @@ function ProjectAdmin() {
   const [updates, setUpdates] = useState<Update[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [reactions, setReactions] = useState<Map<string, ReactionView[]>>(new Map());
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -98,8 +101,12 @@ function ProjectAdmin() {
             (signed ?? []).forEach((s, i) => { if (s.signedUrl) map[photosData[i].storage_path] = s.signedUrl; });
             setSignedUrls(map);
           }
+          const rmap = await fetchReactionsByUpdate(upd.map((u) => u.id));
+          setReactions(rmap);
         } else { setPhotos([]); }
       } else { setUpdates([]); setPhotos([]); }
+      // Mark customer reactions as read for the admin
+      await supabase.rpc("mark_project_reactions_seen", { _project_id: id });
     } catch (e) {
       setLoadError((e as Error).message ?? "Laden mislukt");
     } finally {
@@ -432,6 +439,12 @@ function ProjectAdmin() {
                               ))}
                             </div>
                           )}
+                          <ReactionThread
+                            updateId={u.id}
+                            initial={reactions.get(u.id) ?? []}
+                            canDelete
+                            placeholder="Antwoord als Yeketi…"
+                          />
                         </li>
                       );
                     })}
