@@ -78,7 +78,7 @@ function Klanten() {
             const pr = projects.filter((x) => x.customer_id === p.id);
             return (
               <li key={p.id} className="px-3 py-3" style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}>
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-start sm:flex sm:justify-between">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                   <div className="min-w-0">
                     <div className="truncate" style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
                       {p.full_name || p.email}
@@ -87,7 +87,7 @@ function Klanten() {
                       {p.email}{p.phone ? ` · ${p.phone}` : ""}
                     </div>
                   </div>
-                  <div className="flex flex-wrap justify-end items-center gap-x-3 gap-y-1 shrink-0">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 sm:justify-end sm:shrink-0">
                     <button
                       onClick={() => onMessage(p)}
                       disabled={busy === `msg-${p.id}`}
