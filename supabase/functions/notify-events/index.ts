@@ -15,13 +15,14 @@
 //   profiles INSERT               → admin: nieuwe klant geregistreerd
 //
 // Failures are logged to public.notify_event_failures.
-import { renderEmail, renderPlainText, escapeHtml, type EmailLayoutOpts } from "../_shared/email-template.ts";
+import { renderEmail, renderPlainText, escapeHtml, type EmailLayoutOpts, type Locale } from "../_shared/email-template.ts";
+import * as copy from "../_shared/email-copy.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const ADMIN_NOTIFY_EMAIL = Deno.env.get("ADMIN_NOTIFY_EMAIL") ?? "";
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Yeketi Motorworks <info@yeketimotorworks.com>";
 const PUBLIC_SITE_URL = Deno.env.get("PUBLIC_SITE_URL") ?? "https://yeketimotorworks.com";
-const REPLY_TO = Deno.env.get("REPLY_TO_EMAIL") ?? "info@yeketimotorworks.com";
+const REPLY_TO_FALLBACK = Deno.env.get("REPLY_TO_EMAIL") ?? "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
@@ -45,7 +46,7 @@ async function verifyWebhookSecret(provided: string): Promise<boolean> {
   }
 }
 
-async function sendEmail(opts: { to: string; subject: string; html: string; text?: string }) {
+async function sendEmail(opts: { to: string; subject: string; html: string; text?: string; replyTo?: string }) {
   if (!RESEND_API_KEY) { console.warn("RESEND_API_KEY not set; skipping send"); return; }
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -53,7 +54,7 @@ async function sendEmail(opts: { to: string; subject: string; html: string; text
     body: JSON.stringify({
       from: FROM_EMAIL,
       to: [opts.to],
-      reply_to: REPLY_TO,
+      reply_to: opts.replyTo || REPLY_TO_FALLBACK || "info@yeketimotorworks.com",
       subject: opts.subject,
       html: opts.html,
       text: opts.text,
@@ -66,13 +67,35 @@ async function sendEmail(opts: { to: string; subject: string; html: string; text
   }
 }
 
-function send(to: string, subject: string, layout: EmailLayoutOpts) {
-  return sendEmail({
-    to,
-    subject,
-    html: renderEmail(layout),
-    text: renderPlainText(layout),
-  });
+// Admin/internal send — Dutch, no portal-reply notice.
+function sendAdmin(to: string, subject: string, layout: EmailLayoutOpts) {
+  const merged: EmailLayoutOpts = { ...layout, locale: "nl", isCustomer: false };
+  return sendEmail({ to, subject, html: renderEmail(merged), text: renderPlainText(merged) });
+}
+
+// Customer send — uses a localized layout from email-copy and routes any
+// stray reply to the admin notify address (kept out of the no-reply void).
+async function sendCustomer(to: string, layout: { subject: string } & EmailLayoutOpts) {
+  const replyTo = (await resolveAdminNotifyEmail()) || REPLY_TO_FALLBACK || "info@yeketimotorworks.com";
+  const merged: EmailLayoutOpts = { ...layout, isCustomer: true };
+  return sendEmail({ to, subject: layout.subject, replyTo, html: renderEmail(merged), text: renderPlainText(merged) });
+}
+
+async function fetchProfileLocale(profileId: string | null | undefined): Promise<Locale> {
+  if (!profileId) return "nl";
+  try {
+    const rows = await sbFetch(`profiles?id=eq.${profileId}&select=locale`);
+    const l = rows?.[0]?.locale;
+    return l === "en" ? "en" : "nl";
+  } catch { return "nl"; }
+}
+async function fetchLocaleByEmail(email: string): Promise<Locale> {
+  if (!email) return "nl";
+  try {
+    const rows = await sbFetch(`profiles?email=eq.${encodeURIComponent(email.toLowerCase())}&select=locale`);
+    const l = rows?.[0]?.locale;
+    return l === "en" ? "en" : "nl";
+  } catch { return "nl"; }
 }
 
 async function sbFetch(path: string) {
