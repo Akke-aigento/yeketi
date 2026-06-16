@@ -245,10 +245,18 @@ export const runQuoteReminders = createServerFn({ method: "POST" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    const { data: quotes, error } = await supabaseAdmin
-      .from("quotes")
+    // reminder_sent_at is added by migration; types may lag, so use a loose cast.
+    const qb = supabaseAdmin.from("quotes") as unknown as {
+      select: (cols: string) => {
+        eq: (a: string, b: string) => {
+          is: (a: string, b: null) => {
+            lte: (a: string, b: string) => Promise<{ data: Array<{ id: string; quote_number: string; title: string; total_amount: number; customer_id: string | null; sent_at: string | null }> | null; error: unknown }>;
+          };
+        };
+      };
+    };
+    const { data: quotes, error } = await qb
       .select("id, quote_number, title, total_amount, customer_id, sent_at")
-      // @ts-expect-error reminder_sent_at lives in DB; types may lag the migration
       .eq("status", "verstuurd").is("reminder_sent_at", null).lte("sent_at", cutoff);
     if (error) throw error;
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -279,8 +287,9 @@ export const runQuoteReminders = createServerFn({ method: "POST" })
         }),
       });
       if (res.ok) {
-        // @ts-expect-error reminder_sent_at lives in DB
-        await supabaseAdmin.from("quotes").update({ reminder_sent_at: new Date().toISOString() }).eq("id", q.id);
+        await (supabaseAdmin.from("quotes") as unknown as { update: (v: Record<string, unknown>) => { eq: (a: string, b: string) => Promise<unknown> } })
+          .update({ reminder_sent_at: new Date().toISOString() })
+          .eq("id", q.id);
         sent++;
       } else {
         console.error("reminder send failed", res.status, await res.text());
