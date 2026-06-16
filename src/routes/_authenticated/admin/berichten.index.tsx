@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminShell, timeAgo } from "@/components/AdminShell";
 import { listConversations } from "@/lib/messages.functions";
+import { useAdminRefreshKey, useAdminInterval } from "@/hooks/useAdminRefresh";
 
 export const Route = createFileRoute("/_authenticated/admin/berichten/")({
   head: () => ({ meta: [{ title: "Berichten — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -19,12 +20,14 @@ const sourceLabel: Record<string, string> = {
 
 function BerichtenIndex() {
   const list = useServerFn(listConversations);
+  const refreshKey = useAdminRefreshKey();
+  useAdminInterval(60_000);
   const [rows, setRows] = useState<Row[] | null>(null);
   useEffect(() => {
     let alive = true;
     list({ data: {} as never }).then((r) => { if (alive) setRows(r); }).catch(() => alive && setRows([]));
     return () => { alive = false; };
-  }, [list]);
+  }, [list, refreshKey]);
 
   return (
     <AdminShell title="Berichten">
