@@ -102,7 +102,7 @@ export const nl = {
         sub: "Voor wie één element wil herstellen.",
         items: [
           "Uitdeuken met de hand, geen plamuur waar het niet hoort",
-          "Lassen en vernieuwen van rotte panelen",
+          "Lassen en vernieuwen van rotte panelen — autogeen gelast met de hand, de juiste techniek voor klassiek plaatstaal",
           "Voorbereiding voor spuitwerk, of volledige aflakking",
           "Chroomwerk en sierlijsten in originele staat",
         ],
