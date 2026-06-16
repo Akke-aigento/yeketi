@@ -24,6 +24,7 @@ import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedPortaalIndexRouteImport } from './routes/_authenticated/portaal.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedPortaalBerichtenRouteImport } from './routes/_authenticated/portaal.berichten'
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 import { Route as AuthenticatedAdminOffertesRouteImport } from './routes/_authenticated/admin/offertes'
 import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authenticated/admin/klanten'
@@ -112,6 +113,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedPortaalBerichtenRoute =
+  AuthenticatedPortaalBerichtenRouteImport.update({
+    id: '/portaal/berichten',
+    path: '/portaal/berichten',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPortaalProjectIdRoute =
   AuthenticatedPortaalProjectIdRouteImport.update({
     id: '/portaal/$projectId',
@@ -201,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/portaal/berichten': typeof AuthenticatedPortaalBerichtenRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
@@ -228,6 +236,7 @@ export interface FileRoutesByTo {
   '/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/portaal/berichten': typeof AuthenticatedPortaalBerichtenRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
   '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
@@ -258,6 +267,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/klanten': typeof AuthenticatedAdminKlantenRoute
   '/_authenticated/admin/offertes': typeof AuthenticatedAdminOffertesRoute
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
+  '/_authenticated/portaal/berichten': typeof AuthenticatedPortaalBerichtenRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/_authenticated/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/portaal/berichten'
     | '/admin/'
     | '/portaal/'
     | '/admin/berichten/$id'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/admin/klanten'
     | '/admin/offertes'
     | '/portaal/$projectId'
+    | '/portaal/berichten'
     | '/admin'
     | '/portaal'
     | '/admin/berichten/$id'
@@ -344,6 +356,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/klanten'
     | '/_authenticated/admin/offertes'
     | '/_authenticated/portaal/$projectId'
+    | '/_authenticated/portaal/berichten'
     | '/_authenticated/admin/'
     | '/_authenticated/portaal/'
     | '/_authenticated/admin/berichten/$id'
@@ -479,6 +492,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/portaal/berichten': {
+      id: '/_authenticated/portaal/berichten'
+      path: '/portaal/berichten'
+      fullPath: '/portaal/berichten'
+      preLoaderRoute: typeof AuthenticatedPortaalBerichtenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/portaal/$projectId': {
       id: '/_authenticated/portaal/$projectId'
       path: '/portaal/$projectId'
@@ -606,6 +626,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedPortaalProjectIdRoute: typeof AuthenticatedPortaalProjectIdRoute
+  AuthenticatedPortaalBerichtenRoute: typeof AuthenticatedPortaalBerichtenRoute
   AuthenticatedPortaalIndexRoute: typeof AuthenticatedPortaalIndexRoute
   AuthenticatedPortaalOfferteIdRoute: typeof AuthenticatedPortaalOfferteIdRoute
 }
@@ -613,6 +634,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedPortaalProjectIdRoute: AuthenticatedPortaalProjectIdRoute,
+  AuthenticatedPortaalBerichtenRoute: AuthenticatedPortaalBerichtenRoute,
   AuthenticatedPortaalIndexRoute: AuthenticatedPortaalIndexRoute,
   AuthenticatedPortaalOfferteIdRoute: AuthenticatedPortaalOfferteIdRoute,
 }
