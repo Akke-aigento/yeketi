@@ -12,6 +12,7 @@ export function SiteNav() {
     { to: "/recent-werk", label: t.nav.recent },
     { to: "/over", label: t.nav.over },
     { to: "/offerte", label: t.nav.offerte },
+    { to: "/contact", label: "Contact" },
   ] as const;
   const [open, setOpen] = useState(false);
   useEffect(() => {

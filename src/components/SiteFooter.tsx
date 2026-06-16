@@ -42,6 +42,7 @@ export function SiteFooter() {
               <li><Link to="/diensten" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.diensten}</Link></li>
               <li><Link to="/over" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.over}</Link></li>
               <li><Link to="/offerte" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.offerte}</Link></li>
+              <li><Link to="/contact" className="hover:text-[var(--gold)] transition-colors">Contact</Link></li>
               <li><Link to="/login" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.portal}</Link></li>
               <li><Link to="/privacy" className="hover:text-[var(--gold)] transition-colors">{t.footer.links.privacy}</Link></li>
             </ul>

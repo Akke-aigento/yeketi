@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { guardQuoteSubmission, linkQuoteRequestToConversation } from "@/lib/messages.functions";
 
 export const Route = createFileRoute("/offerte")({
   head: () => ({
@@ -34,6 +36,8 @@ const schema = z.object({
 
 function Offerte() {
   const t = useT();
+  const guard = useServerFn(guardQuoteSubmission);
+  const link = useServerFn(linkQuoteRequestToConversation);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [photoCount, setPhotoCount] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -43,6 +47,7 @@ function Offerte() {
     setErrorMsg(null);
     const form = e.currentTarget;
     const fd = new FormData(form);
+    const hp = String(fd.get("website") ?? "");
     const fileInput = form.elements.namedItem("fotos") as HTMLInputElement | null;
     const files = fileInput?.files ? Array.from(fileInput.files) : [];
     if (files.length > 5) {
@@ -67,6 +72,8 @@ function Offerte() {
 
     setStatus("sending");
     try {
+      // Server-side honeypot + per-IP rate limit.
+      await guard({ data: { hp } });
       const submissionPrefix = crypto.randomUUID();
       const foto_urls: string[] = [];
       for (const f of files) {
@@ -87,7 +94,7 @@ function Offerte() {
         foto_urls.push(path);
       }
 
-      const { error } = await supabase.from("quote_requests").insert({
+      const { data: inserted, error } = await supabase.from("quote_requests").insert({
         ...parsed.data,
         telefoon: parsed.data.telefoon || null,
         merk: parsed.data.merk || null,
@@ -95,8 +102,12 @@ function Offerte() {
         bouwjaar: parsed.data.bouwjaar || null,
         beschrijving: parsed.data.beschrijving || null,
         foto_urls,
-      });
+      }).select("id").maybeSingle();
       if (error) throw error;
+      if (inserted?.id) {
+        try { await link({ data: { quoteRequestId: inserted.id } }); }
+        catch (e) { console.warn("conversation link failed", e); }
+      }
       setStatus("ok");
       form.reset();
       setPhotoCount(0);
@@ -199,6 +210,12 @@ function Offerte() {
               {errorMsg && (
                 <p className="md:col-span-2" style={{ color: "var(--oxide)" }}>{errorMsg}</p>
               )}
+
+              {/* Honeypot — leave empty */}
+              <div className="md:col-span-2" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
 
               <div className="md:col-span-2 mt-4">
                 <button type="submit" className="btn-y-solid" disabled={status === "sending"}>

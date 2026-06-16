@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminShell, statusBadge } from "@/components/AdminShell";
 import { listCustomers, inviteCustomer, resendInvite } from "@/lib/admin.functions";
+import { updateCustomer, findOrCreateConversationForContact } from "@/lib/messages.functions";
 import { t } from "@/lib/copy";
 
 export const Route = createFileRoute("/_authenticated/admin/klanten")({
@@ -17,9 +18,13 @@ function Klanten() {
   const list = useServerFn(listCustomers);
   const invite = useServerFn(inviteCustomer);
   const resend = useServerFn(resendInvite);
+  const update = useServerFn(updateCustomer);
+  const openConv = useServerFn(findOrCreateConversationForContact);
+  const nav = useNavigate();
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [showInvite, setShowInvite] = useState(false);
+  const [editing, setEditing] = useState<Profile | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
@@ -39,6 +44,25 @@ function Klanten() {
     setBusy(email);
     try { await resend({ data: { email } }); alert("Uitnodiging opnieuw gestuurd."); }
     catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
+    finally { setBusy(null); }
+  }
+
+  async function onMessage(p: Profile) {
+    setBusy(`msg-${p.id}`);
+    try {
+      const r = await openConv({ data: { profileId: p.id } });
+      nav({ to: "/admin/berichten/$id", params: { id: r.conversationId } });
+    } catch (e) { alert((e as Error).message ?? "Fout"); }
+    finally { setBusy(null); }
+  }
+
+  async function onEditSave(form: { full_name: string; phone: string; email: string }) {
+    if (!editing) return;
+    setBusy("edit");
+    try {
+      await update({ data: { profileId: editing.id, full_name: form.full_name, phone: form.phone, email: form.email } });
+      setEditing(null); load();
+    } catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
     finally { setBusy(null); }
   }
 
@@ -63,16 +87,33 @@ function Klanten() {
                       {p.email}{p.phone ? ` · ${p.phone}` : ""}
                     </div>
                   </div>
-                  {p.email && (
+                  <div className="flex flex-col items-end gap-1 shrink-0">
                     <button
-                      onClick={() => onResend(p.email!)}
-                      disabled={busy === p.email}
+                      onClick={() => onMessage(p)}
+                      disabled={busy === `msg-${p.id}`}
                       className="text-xs uppercase tracking-[0.18em] whitespace-nowrap"
-                      style={{ color: "var(--brass)" }}
+                      style={{ color: "var(--charcoal)" }}
                     >
-                      {busy === p.email ? "…" : "Stuur link"}
+                      {busy === `msg-${p.id}` ? "…" : "Bericht sturen"}
                     </button>
-                  )}
+                    <button
+                      onClick={() => setEditing(p)}
+                      className="text-xs uppercase tracking-[0.18em] whitespace-nowrap"
+                      style={{ color: "var(--charcoal-soft)" }}
+                    >
+                      Bewerken
+                    </button>
+                    {p.email && (
+                      <button
+                        onClick={() => onResend(p.email!)}
+                        disabled={busy === p.email}
+                        className="text-xs uppercase tracking-[0.18em] whitespace-nowrap"
+                        style={{ color: "var(--brass)" }}
+                      >
+                        {busy === p.email ? "…" : "Stuur link"}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 {pr.length > 0 && (
                   <ul className="mt-3 space-y-1">
@@ -102,6 +143,7 @@ function Klanten() {
       </section>
 
       {showInvite && <InviteModal onClose={() => setShowInvite(false)} onSave={onInvite} busy={busy === "invite"} />}
+      {editing && <EditCustomerModal profile={editing} onClose={() => setEditing(null)} onSave={onEditSave} busy={busy === "edit"} />}
     </AdminShell>
   );
 }
@@ -132,6 +174,44 @@ function InviteModal({ onClose, onSave, busy }: { onClose: () => void; onSave: (
           </label>
           <button onClick={() => onSave({ email, full_name, phone })} disabled={busy || !email} className="btn-y-solid w-full mt-2">
             {busy ? "Versturen…" : "Stuur inloglink"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditCustomerModal({ profile, onClose, onSave, busy }: {
+  profile: Profile;
+  onClose: () => void;
+  onSave: (f: { full_name: string; phone: string; email: string }) => void;
+  busy: boolean;
+}) {
+  const [full_name, setFullName] = useState(profile.full_name ?? "");
+  const [phone, setPhone] = useState(profile.phone ?? "");
+  const [email, setEmail] = useState(profile.email ?? "");
+  return (
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
+      <div className="w-full sm:max-w-md" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
+        <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--charcoal)", color: "var(--cream)" }}>
+          <span style={{ fontFamily: "var(--font-display)" }}>Klant bewerken</span>
+          <button onClick={onClose} style={{ color: "var(--gold)" }}>✕</button>
+        </div>
+        <div className="px-4 py-4 space-y-3">
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>Volledige naam</span>
+            <input className="field-y" value={full_name} onChange={(e) => setFullName(e.target.value)} />
+          </label>
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>Telefoon</span>
+            <input className="field-y" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          </label>
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>E-mail</span>
+            <input className="field-y" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </label>
+          <button onClick={() => onSave({ full_name, phone, email })} disabled={busy} className="btn-y-solid w-full mt-2">
+            {busy ? "Opslaan…" : "Opslaan"}
           </button>
         </div>
       </div>

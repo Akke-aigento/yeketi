@@ -17,6 +17,7 @@ import { Route as OverRouteImport } from './routes/over'
 import { Route as OfferteRouteImport } from './routes/offerte'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DienstenRouteImport } from './routes/diensten'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RestauratieVwT2RouteImport } from './routes/restauratie.vw-t2'
@@ -29,10 +30,12 @@ import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminRecentWerkIndexRouteImport } from './routes/_authenticated/admin/recent-werk.index'
 import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_authenticated/admin/quotes.index'
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
+import { Route as AuthenticatedAdminBerichtenIndexRouteImport } from './routes/_authenticated/admin/berichten.index'
 import { Route as AuthenticatedPortaalOfferteIdRouteImport } from './routes/_authenticated/portaal.offerte.$id'
 import { Route as AuthenticatedAdminRecentWerkIdRouteImport } from './routes/_authenticated/admin/recent-werk.$id'
 import { Route as AuthenticatedAdminQuotesIdRouteImport } from './routes/_authenticated/admin/quotes.$id'
 import { Route as AuthenticatedAdminProjectenIdRouteImport } from './routes/_authenticated/admin/projecten.$id'
+import { Route as AuthenticatedAdminBerichtenIdRouteImport } from './routes/_authenticated/admin/berichten.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -72,6 +75,11 @@ const LoginRoute = LoginRouteImport.update({
 const DienstenRoute = DienstenRouteImport.update({
   id: '/diensten',
   path: '/diensten',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -140,6 +148,12 @@ const AuthenticatedAdminProjectenIndexRoute =
     path: '/projecten/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminBerichtenIndexRoute =
+  AuthenticatedAdminBerichtenIndexRouteImport.update({
+    id: '/berichten/',
+    path: '/berichten/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedPortaalOfferteIdRoute =
   AuthenticatedPortaalOfferteIdRouteImport.update({
     id: '/portaal/offerte/$id',
@@ -164,9 +178,16 @@ const AuthenticatedAdminProjectenIdRoute =
     path: '/projecten/$id',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminBerichtenIdRoute =
+  AuthenticatedAdminBerichtenIdRouteImport.update({
+    id: '/berichten/$id',
+    path: '/berichten/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/diensten': typeof DienstenRoute
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
@@ -182,16 +203,19 @@ export interface FileRoutesByFullPath {
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
+  '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
   '/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
+  '/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
   '/admin/recent-werk/': typeof AuthenticatedAdminRecentWerkIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/diensten': typeof DienstenRoute
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
@@ -206,10 +230,12 @@ export interface FileRoutesByTo {
   '/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
+  '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
   '/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
+  '/admin/berichten': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes': typeof AuthenticatedAdminQuotesIndexRoute
   '/admin/recent-werk': typeof AuthenticatedAdminRecentWerkIndexRoute
@@ -218,6 +244,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/contact': typeof ContactRoute
   '/diensten': typeof DienstenRoute
   '/login': typeof LoginRoute
   '/offerte': typeof OfferteRoute
@@ -233,10 +260,12 @@ export interface FileRoutesById {
   '/_authenticated/portaal/$projectId': typeof AuthenticatedPortaalProjectIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
+  '/_authenticated/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/_authenticated/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/_authenticated/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
   '/_authenticated/admin/recent-werk/$id': typeof AuthenticatedAdminRecentWerkIdRoute
   '/_authenticated/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
+  '/_authenticated/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/_authenticated/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
   '/_authenticated/admin/recent-werk/': typeof AuthenticatedAdminRecentWerkIndexRoute
@@ -245,6 +274,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/contact'
     | '/diensten'
     | '/login'
     | '/offerte'
@@ -260,16 +290,19 @@ export interface FileRouteTypes {
     | '/portaal/$projectId'
     | '/admin/'
     | '/portaal/'
+    | '/admin/berichten/$id'
     | '/admin/projecten/$id'
     | '/admin/quotes/$id'
     | '/admin/recent-werk/$id'
     | '/portaal/offerte/$id'
+    | '/admin/berichten/'
     | '/admin/projecten/'
     | '/admin/quotes/'
     | '/admin/recent-werk/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/contact'
     | '/diensten'
     | '/login'
     | '/offerte'
@@ -284,10 +317,12 @@ export interface FileRouteTypes {
     | '/portaal/$projectId'
     | '/admin'
     | '/portaal'
+    | '/admin/berichten/$id'
     | '/admin/projecten/$id'
     | '/admin/quotes/$id'
     | '/admin/recent-werk/$id'
     | '/portaal/offerte/$id'
+    | '/admin/berichten'
     | '/admin/projecten'
     | '/admin/quotes'
     | '/admin/recent-werk'
@@ -295,6 +330,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/contact'
     | '/diensten'
     | '/login'
     | '/offerte'
@@ -310,10 +346,12 @@ export interface FileRouteTypes {
     | '/_authenticated/portaal/$projectId'
     | '/_authenticated/admin/'
     | '/_authenticated/portaal/'
+    | '/_authenticated/admin/berichten/$id'
     | '/_authenticated/admin/projecten/$id'
     | '/_authenticated/admin/quotes/$id'
     | '/_authenticated/admin/recent-werk/$id'
     | '/_authenticated/portaal/offerte/$id'
+    | '/_authenticated/admin/berichten/'
     | '/_authenticated/admin/projecten/'
     | '/_authenticated/admin/quotes/'
     | '/_authenticated/admin/recent-werk/'
@@ -322,6 +360,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ContactRoute: typeof ContactRoute
   DienstenRoute: typeof DienstenRoute
   LoginRoute: typeof LoginRoute
   OfferteRoute: typeof OfferteRoute
@@ -389,6 +428,13 @@ declare module '@tanstack/react-router' {
       path: '/diensten'
       fullPath: '/diensten'
       preLoaderRoute: typeof DienstenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -475,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProjectenIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/berichten/': {
+      id: '/_authenticated/admin/berichten/'
+      path: '/berichten'
+      fullPath: '/admin/berichten/'
+      preLoaderRoute: typeof AuthenticatedAdminBerichtenIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/portaal/offerte/$id': {
       id: '/_authenticated/portaal/offerte/$id'
       path: '/portaal/offerte/$id'
@@ -503,6 +556,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProjectenIdRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/berichten/$id': {
+      id: '/_authenticated/admin/berichten/$id'
+      path: '/berichten/$id'
+      fullPath: '/admin/berichten/$id'
+      preLoaderRoute: typeof AuthenticatedAdminBerichtenIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
@@ -510,9 +570,11 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminKlantenRoute: typeof AuthenticatedAdminKlantenRoute
   AuthenticatedAdminOffertesRoute: typeof AuthenticatedAdminOffertesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminBerichtenIdRoute: typeof AuthenticatedAdminBerichtenIdRoute
   AuthenticatedAdminProjectenIdRoute: typeof AuthenticatedAdminProjectenIdRoute
   AuthenticatedAdminQuotesIdRoute: typeof AuthenticatedAdminQuotesIdRoute
   AuthenticatedAdminRecentWerkIdRoute: typeof AuthenticatedAdminRecentWerkIdRoute
+  AuthenticatedAdminBerichtenIndexRoute: typeof AuthenticatedAdminBerichtenIndexRoute
   AuthenticatedAdminProjectenIndexRoute: typeof AuthenticatedAdminProjectenIndexRoute
   AuthenticatedAdminQuotesIndexRoute: typeof AuthenticatedAdminQuotesIndexRoute
   AuthenticatedAdminRecentWerkIndexRoute: typeof AuthenticatedAdminRecentWerkIndexRoute
@@ -523,9 +585,12 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminKlantenRoute: AuthenticatedAdminKlantenRoute,
     AuthenticatedAdminOffertesRoute: AuthenticatedAdminOffertesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminBerichtenIdRoute: AuthenticatedAdminBerichtenIdRoute,
     AuthenticatedAdminProjectenIdRoute: AuthenticatedAdminProjectenIdRoute,
     AuthenticatedAdminQuotesIdRoute: AuthenticatedAdminQuotesIdRoute,
     AuthenticatedAdminRecentWerkIdRoute: AuthenticatedAdminRecentWerkIdRoute,
+    AuthenticatedAdminBerichtenIndexRoute:
+      AuthenticatedAdminBerichtenIndexRoute,
     AuthenticatedAdminProjectenIndexRoute:
       AuthenticatedAdminProjectenIndexRoute,
     AuthenticatedAdminQuotesIndexRoute: AuthenticatedAdminQuotesIndexRoute,
@@ -558,6 +623,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ContactRoute: ContactRoute,
   DienstenRoute: DienstenRoute,
   LoginRoute: LoginRoute,
   OfferteRoute: OfferteRoute,

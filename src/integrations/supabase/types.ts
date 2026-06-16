@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      conversations: {
+        Row: {
+          admin_last_seen_at: string | null
+          contact_profile_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          project_id: string | null
+          source: Database["public"]["Enums"]["conversation_source"]
+          status: Database["public"]["Enums"]["conversation_status"]
+          subject: string | null
+        }
+        Insert: {
+          admin_last_seen_at?: string | null
+          contact_profile_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          project_id?: string | null
+          source?: Database["public"]["Enums"]["conversation_source"]
+          status?: Database["public"]["Enums"]["conversation_status"]
+          subject?: string | null
+        }
+        Update: {
+          admin_last_seen_at?: string | null
+          contact_profile_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          project_id?: string | null
+          source?: Database["public"]["Enums"]["conversation_source"]
+          status?: Database["public"]["Enums"]["conversation_status"]
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_contact_profile_id_fkey"
+            columns: ["contact_profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          author_id: string | null
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender: Database["public"]["Enums"]["message_sender"]
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender: Database["public"]["Enums"]["message_sender"]
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender?: Database["public"]["Enums"]["message_sender"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notify_event_failures: {
         Row: {
           created_at: string
@@ -196,6 +289,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      public_form_submissions: {
+        Row: {
+          created_at: string
+          id: number
+          ip: string
+          kind: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          ip: string
+          kind: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          ip?: string
+          kind?: string
+        }
+        Relationships: []
       }
       quote_lines: {
         Row: {
@@ -547,6 +661,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin"
+      conversation_source: "contact_form" | "quote_request" | "manual"
+      conversation_status: "open" | "gesloten"
+      message_sender: "klant" | "admin" | "systeem"
       phase_status: "pending" | "active" | "done"
       project_status:
         | "intake"
@@ -686,6 +803,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin"],
+      conversation_source: ["contact_form", "quote_request", "manual"],
+      conversation_status: ["open", "gesloten"],
+      message_sender: ["klant", "admin", "systeem"],
       phase_status: ["pending", "active", "done"],
       project_status: [
         "intake",

@@ -29,6 +29,7 @@ function Dashboard() {
   const [projects, setProjects] = useState<ProjectRow[] | null>(null);
   const [newQuotes, setNewQuotes] = useState<number | null>(null);
   const [stale, setStale] = useState<number | null>(null);
+  const [unreadMessages, setUnreadMessages] = useState<number | null>(null);
   const [unreadReactions, setUnreadReactions] = useState<{ total: number; perProject: Array<{ project_id: string; project_title: string; unread_count: number }> } | null>(null);
   const [notifyFailures, setNotifyFailures] = useState<{ count: number; recent: Array<{ id: string; event_type: string; error_message: string | null; created_at: string }> } | null>(null);
   const [activity, setActivity] = useState<ActivityItem[] | null>(null);
@@ -87,6 +88,15 @@ function Dashboard() {
       setProjects(rowsAnnotated as ProjectRow[]);
       setNewQuotes(q.count ?? 0);
       setStale(staleCount);
+
+      // Unread berichten (any conversation with last_message_at > admin_last_seen_at)
+      const { data: convs } = await supabase
+        .from("conversations").select("id, last_message_at, admin_last_seen_at");
+      const unreadCount = (convs ?? []).reduce((n, c) => {
+        const seen = c.admin_last_seen_at ? new Date(c.admin_last_seen_at).getTime() : 0;
+        return new Date(c.last_message_at).getTime() > seen ? n + 1 : n;
+      }, 0);
+      if (active) setUnreadMessages(unreadCount);
 
       // Unread customer reactions across all active projects
       const { data: unread } = await supabase.rpc("unread_customer_reactions", { _project_ids: projectIds });
@@ -221,7 +231,7 @@ function Dashboard() {
         </div>
 
         {/* Stat tiles */}
-        <div className="grid grid-cols-3 gap-2 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
           <StatTile
             to="/admin/projecten"
             label="Actieve projecten"
@@ -229,6 +239,14 @@ function Dashboard() {
             emptyHint="Begin met je eerste project."
             sparkline={updateSpark}
             accent="var(--brass)"
+          />
+          <StatTile
+            to="/admin/berichten"
+            label="Nieuwe berichten"
+            value={unreadMessages}
+            emptyHint="Geen ongelezen berichten."
+            accent={unreadMessages && unreadMessages > 0 ? "var(--brass)" : "var(--charcoal-soft)"}
+            warn={!!unreadMessages && unreadMessages > 0}
           />
           <StatTile
             to="/admin/offertes"
@@ -449,7 +467,7 @@ function Dashboard() {
 function StatTile({
   to, label, value, emptyHint, sparkline, accent, warn,
 }: {
-  to: "/admin/projecten" | "/admin/offertes";
+  to: "/admin/projecten" | "/admin/offertes" | "/admin/berichten";
   label: string;
   value: number | null;
   emptyHint: string;
