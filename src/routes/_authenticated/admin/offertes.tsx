@@ -1,19 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { AdminShell, statusBadge, timeAgo } from "@/components/AdminShell";
-import { supabase } from "@/integrations/supabase/client";
-import { convertQuoteToProject, deleteQuoteRequest, cleanupOrphanQuotePhotos } from "@/lib/admin.functions";
-import { createQuoteFromRequest } from "@/lib/quotes.functions";
-import { getConversationForQuoteRequest } from "@/lib/messages.functions";
-import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
-import { ConfirmModal } from "@/components/AdminModals";
-import { useAdminRefreshKey } from "@/hooks/useAdminRefresh";
-import { OffertesTabs } from "@/components/OffertesTabs";
+// Legacy URL kept alive for old bookmarks and external links. The real lead
+// pipeline lives at /admin/aanvragen.
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/admin/offertes")({
-  head: () => ({ meta: [{ title: "Aanvragen — Admin" }, { name: "robots", content: "noindex" }] }),
-  component: Offertes,
+  beforeLoad: () => { throw redirect({ to: "/admin/aanvragen" }); },
 });
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost"] as const;
