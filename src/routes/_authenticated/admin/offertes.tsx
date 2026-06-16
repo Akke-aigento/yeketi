@@ -232,6 +232,22 @@ function Offertes() {
                       {busy === q.id ? "Bezig…" : "Maak project + nodig klant uit"}
                     </button>
                     <button
+                      onClick={async () => {
+                        setBusy(q.id);
+                        try {
+                          const res = await makeQuote({ data: { quoteRequestId: q.id } });
+                          toast.success("Offerte aangemaakt — vul aan en verstuur");
+                          navigate({ to: "/admin/quotes/$id", params: { id: res.quoteId } });
+                        } catch (e) {
+                          toast.error("Kon offerte niet aanmaken", { description: (e as Error).message });
+                        } finally { setBusy(null); }
+                      }}
+                      disabled={busy === q.id}
+                      className="btn-y w-full"
+                    >
+                      Maak offerte
+                    </button>
+                    <button
                       onClick={() => deleteNow(q)}
                       disabled={busy === q.id}
                       className="w-full text-xs uppercase tracking-[0.18em] py-2"
