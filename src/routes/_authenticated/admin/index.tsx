@@ -265,6 +265,29 @@ function Dashboard() {
           </div>
         )}
 
+        {unreadReactions && unreadReactions.total > 0 && (
+          <div className="mt-4 px-3 py-3" style={{ border: "1px solid var(--brass)", background: "var(--cream)" }}>
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--brass)" }}>
+                Nieuwe reacties van klanten
+              </div>
+              <span style={{ fontFamily: "var(--font-display)", color: "var(--brass)" }}>{unreadReactions.total}</span>
+            </div>
+            <ul className="mt-2 space-y-1">
+              {unreadReactions.perProject.slice(0, 5).map((u) => (
+                <li key={u.project_id} className="text-sm">
+                  <Link to="/admin/projecten/$id" params={{ id: u.project_id }} className="flex items-center justify-between gap-2">
+                    <span className="truncate" style={{ color: "var(--charcoal)" }}>{u.project_title}</span>
+                    <span className="text-[11px]" style={{ color: "var(--brass)" }}>
+                      {u.unread_count} nieuw → antwoord
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Vraagt om aandacht */}
         <div className="mt-8 flex items-baseline justify-between">
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem" }}>Vraagt om aandacht</h2>
