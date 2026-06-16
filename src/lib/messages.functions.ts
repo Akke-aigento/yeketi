@@ -154,12 +154,13 @@ export const linkQuoteRequestToConversation = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: qr } = await supabaseAdmin
-      .from("quote_requests").select("id, email, naam, merk, model, bouwjaar, beschrijving")
+      .from("quote_requests").select("id, email, naam, merk, model, bouwjaar, beschrijving, locale")
       .eq("id", data.quoteRequestId).maybeSingle();
     if (!qr) return { ok: false } as const;
     const email = (qr.email ?? "").toString().toLowerCase().trim();
     if (!EMAIL_RE.test(email)) return { ok: false } as const;
-    const { userId } = await findOrInviteUser(email, qr.naam ?? null, { skipInvite: true });
+    const qrLocale = (qr as { locale?: string }).locale === "en" ? "en" : "nl";
+    const { userId } = await findOrInviteUser(email, qr.naam ?? null, { skipInvite: true, locale: qrLocale });
     const subject = [qr.merk, qr.model, qr.bouwjaar].filter(Boolean).join(" ") || "Offerteaanvraag";
     const convId = await ensureConversation(userId, "quote_request", subject);
     // If trigger didn't write the systeem message (because profile didn't exist yet), write it now.
