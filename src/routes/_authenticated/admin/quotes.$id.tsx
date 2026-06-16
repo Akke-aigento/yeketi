@@ -4,6 +4,7 @@ import { AdminShell } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { sendQuoteToCustomer, downloadQuotePdf } from "@/lib/quotes.functions";
+import { convertQuoteToProject } from "@/lib/admin.functions";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/AdminModals";
 import {
@@ -37,6 +38,7 @@ function QuoteEditor() {
   const navigate = useNavigate();
   const send = useServerFn(sendQuoteToCustomer);
   const dl = useServerFn(downloadQuotePdf);
+  const convertProject = useServerFn(convertQuoteToProject);
 
   const [quote, setQuote] = useState<Quote | null>(null);
   const [lines, setLines] = useState<Line[]>([]);
@@ -44,6 +46,8 @@ function QuoteEditor() {
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [creatingProject, setCreatingProject] = useState(false);
   const [confirm, setConfirm] = useState<{ title: string; message: string; onConfirm: () => Promise<void> } | null>(null);
 
   const editable = quote?.status === "concept";
@@ -57,6 +61,14 @@ function QuoteEditor() {
     setQuote(q as Quote | null);
     setLines((ls as Line[] | null) ?? []);
     setCustomers((profs as Profile[] | null) ?? []);
+    const custId = (q as Quote | null)?.customer_id ?? null;
+    if (custId) {
+      const { data: p } = await supabase.from("projects")
+        .select("id").eq("customer_id", custId).maybeSingle();
+      setProjectId(p?.id ?? null);
+    } else {
+      setProjectId(null);
+    }
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
@@ -174,6 +186,25 @@ function QuoteEditor() {
     } catch (e) {
       toast.error("PDF mislukt", { description: (e as Error).message });
     }
+  }
+
+  function askCreateProject() {
+    if (!quote) return;
+    if (!quote.customer_id) { toast.error("Koppel eerst een klant"); return; }
+    setConfirm({
+      title: "Project aanmaken",
+      message: "Maak het projectdossier aan voor deze klant en start de werkfases. De klant ziet het meteen in het portaal.",
+      onConfirm: async () => {
+        setCreatingProject(true);
+        try {
+          const res = await convertProject({ data: { quoteId: quote.id } });
+          toast.success(res.existed ? "Project bestond al — geopend" : "Project aangemaakt");
+          navigate({ to: "/admin/projecten/$id", params: { id: res.projectId } });
+        } catch (e) {
+          toast.error("Aanmaken mislukt", { description: (e as Error).message });
+        } finally { setCreatingProject(false); }
+      },
+    });
   }
 
   if (!quote) {
