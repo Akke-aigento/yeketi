@@ -6,6 +6,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
 import handsImg from "@/assets/craftsman-hands.jpg";
 import heroAsset from "@/assets/projects/vw-t2/t2-hero-workshop.jpg.asset.json";
+import { WeldingVideo } from "@/components/WeldingVideo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -207,7 +208,7 @@ function Why() {
             {t.why.title}
           </h2>
         </ScrollReveal>
-        <div className="mt-14 grid gap-10 md:grid-cols-3">
+        <div className="mt-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {t.why.items.map((it, i) => (
             <ScrollReveal key={it.t} delay={i * 90}>
               <article style={{ borderTop: "1px solid var(--brass)" }} className="pt-6">
@@ -219,6 +220,23 @@ function Why() {
             </ScrollReveal>
           ))}
         </div>
+        <ScrollReveal delay={120}>
+          <div className="mt-14 grid gap-8 md:grid-cols-12 items-center">
+            <div className="md:col-span-7">
+              <WeldingVideo
+                caption="Autogeen-lassen in de werkplaats — gas- en zuurstofvlam op klassiek plaatstaal."
+                ariaLabel="Korte video van autogeen-lassen op plaatstaal in de werkplaats"
+              />
+            </div>
+            <div className="md:col-span-5">
+              <p className="eyebrow" style={{ color: "var(--brass)" }}>Het bewijs</p>
+              <p className="mt-4" style={{ color: "var(--charcoal-soft)", lineHeight: 1.75 }}>
+                Geen MIG, geen kortere weg: een vlam, een staaf, en een hand die rustig blijft.
+                Zo werd plaatstaal van een oldtimer ooit aan elkaar gezet — en zo doen wij het nog steeds.
+              </p>
+            </div>
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );

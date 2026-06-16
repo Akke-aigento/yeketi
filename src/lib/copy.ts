@@ -47,15 +47,19 @@ export const nl = {
   },
   why: {
     eyebrow: "Waarom Yeketi",
-    title: "Drie redenen die het verschil maken.",
+    title: "Vier redenen die het verschil maken.",
     items: [
       {
         t: "Eerlijke prijs",
-        d: "Restauratie aan een fractie van wat dezelfde ingreep in een Europese werkplaats kost — zonder ooit aan kwaliteit in te boeten.",
+        d: "Vakwerk van een niveau dat hier zeldzaam is geworden — aan een prijs die scherper ligt dan een restauratie in België, zonder in te boeten op kwaliteit.",
       },
       {
         t: "Kortere doorlooptijd",
         d: "Wij denken in weken en maanden, niet in jaren. De werkplaats werkt met meerdere ambachtslieden op één project.",
+      },
+      {
+        t: "Traditioneel vakwerk",
+        d: "Plaatstaal wordt bij ons autogeen gelast — met gas- en zuurstofvlam, zoals het hoort bij een oldtimer. Een techniek die in Europa bijna verdwenen is, maar de juiste blijft: de las loopt mee met het staal, geeft minder spanning op het paneel en houdt generaties mee.",
       },
       {
         t: "Persoonlijke begeleiding",
@@ -98,7 +102,7 @@ export const nl = {
         sub: "Voor wie één element wil herstellen.",
         items: [
           "Uitdeuken met de hand, geen plamuur waar het niet hoort",
-          "Lassen en vernieuwen van rotte panelen",
+          "Lassen en vernieuwen van rotte panelen — autogeen gelast met de hand, de juiste techniek voor klassiek plaatstaal",
           "Voorbereiding voor spuitwerk, of volledige aflakking",
           "Chroomwerk en sierlijsten in originele staat",
         ],
@@ -131,7 +135,7 @@ export const nl = {
     lead: "Een volledige restauratie loopt bij ons parallel: plaatwerk, mechaniek, lakwerk en interieur lopen tegelijk in gespecialiseerde werkplaatsen, elk met de juiste meester aan het werk. Daardoor staat een klassieker bij ons rond drie maanden in de werkplaats — niet de jaren die hetzelfde werk elders zou kosten.",
     chapters: [
       { date: "Fase 01", t: "Aankomst & inspectie", d: "De wagen arriveert in de werkplaats. Een nauwgezette inspectie van carrosserie, chassis en mechaniek; alle aandachtspunten worden gefotografeerd en met de eigenaar besproken voor er één bout wordt losgedraaid." },
-      { date: "Fase 02", t: "Plaatwerk", d: "Rotte panelen worden vakkundig uitgesneden en met de hand opnieuw gevormd uit nieuw staal, volgens de originele profielen. Geen plamuur waar het niet hoort — elke deuk wordt geklopt zoals het hoort bij een klassieker." },
+      { date: "Fase 02", t: "Plaatwerk", d: "Rotte panelen worden vakkundig uitgesneden en met de hand opnieuw gevormd uit nieuw staal, volgens de originele profielen. De nieuwe stukken worden autogeen ingelast — met gas- en zuurstofvlam, de traditionele techniek voor klassiek plaatstaal die in Europa bijna verdwenen is. De las loopt mee met het staal, geeft minder spanning op het paneel en houdt generaties mee. Geen plamuur waar het niet hoort — elke deuk wordt geklopt zoals het hoort bij een klassieker." },
       { date: "Fase 03", t: "Mechaniek", d: "Het motorblok wordt volledig gereviseerd. Pakkingen, zuigers en kleppen worden vernieuwd; originele onderdelen worden waar mogelijk gerestaureerd in plaats van vervangen, om het karakter van de wagen te behouden." },
       { date: "Fase 04", t: "Lakwerk", d: "Meerdere lagen primer, plamuur en lak — exact volgens de originele kleurcode van de fabrikant. Met de hand gepolijst tot de oorspronkelijke diepte en glans terug zichtbaar zijn." },
       { date: "Fase 05", t: "Interieur", d: "Nieuwe binnenbekleding op maat in originele stof en kleur. Stuur, pedalen en schakelpook blijven het origineel — alles wat de eigenaar dagelijks aanraakt, draagt de patina van een halve eeuw geschiedenis." },
@@ -357,10 +361,11 @@ export const en: Copy = {
   },
   why: {
     eyebrow: "Why Yeketi",
-    title: "Three reasons that make the difference.",
+    title: "Four reasons that make the difference.",
     items: [
-      { t: "Fair price", d: "Restoration at a fraction of what the same work costs in a European workshop — without ever compromising on quality." },
+      { t: "Fair price", d: "Craftsmanship of a level that has become rare here — at a price that sits sharper than a restoration in Belgium, without compromising on quality." },
       { t: "Shorter lead time", d: "We think in weeks and months, not years. The workshop puts several craftsmen on one project." },
+      { t: "Traditional craft", d: "Sheet metal is gas-welded by hand — with oxy-acetylene flame, the way a classic should be welded. A technique nearly lost in Europe, but still the right one: the weld moves with the steel, leaves less stress in the panel and lasts for generations." },
       { t: "Personal guidance", d: "One point of contact, from the first photo to delivery. Updates with images, in your language, at your pace." },
     ],
   },
@@ -399,7 +404,7 @@ export const en: Copy = {
         sub: "For those who want one element restored.",
         items: [
           "Hand-tapped dent removal, no filler where it doesn't belong",
-          "Welding and replacing rusted panels",
+          "Welding and replacing rusted panels — gas-welded by hand, the right technique for classic sheet metal",
           "Prep work for painting, or full respray",
           "Chrome and trim restored to original condition",
         ],
@@ -432,7 +437,7 @@ export const en: Copy = {
     lead: "A full restoration runs in parallel with us: bodywork, mechanics, paint and interior all happen at the same time in specialised workshops, each with the right master at work. That is why a classic stays with us for around three months — not the years the same work would take elsewhere.",
     chapters: [
       { date: "Stage 01", t: "Arrival & inspection", d: "The car arrives at the workshop. A thorough inspection of body, chassis and mechanics; every point of attention is photographed and discussed with the owner before a single bolt is loosened." },
-      { date: "Stage 02", t: "Bodywork", d: "Rusted panels are cut out and reshaped by hand from new steel, true to the original profiles. No filler where it doesn't belong — every dent tapped out the way a classic deserves." },
+      { date: "Stage 02", t: "Bodywork", d: "Rusted panels are cut out and reshaped by hand from new steel, true to the original profiles. The new sections are gas-welded in — with oxy-acetylene flame, the traditional technique for classic sheet metal that has nearly disappeared in Europe. The weld moves with the steel, leaves less stress in the panel and lasts for generations. No filler where it doesn't belong — every dent tapped out the way a classic deserves." },
       { date: "Stage 03", t: "Mechanics", d: "The engine block is fully rebuilt. Gaskets, pistons and valves are renewed; original parts are restored rather than replaced wherever possible, to preserve the character of the car." },
       { date: "Stage 04", t: "Paintwork", d: "Multiple layers of primer, filler and paint — exactly to the manufacturer's original colour code. Hand-polished until the original depth and gloss are visible again." },
       { date: "Stage 05", t: "Interior", d: "New upholstery made to measure in original fabric and colour. Steering wheel, pedals and gear lever stay original — everything the owner touches daily carries the patina of half a century of history." },

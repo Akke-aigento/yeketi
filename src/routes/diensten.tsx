@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
+import { WeldingVideo } from "@/components/WeldingVideo";
 export const Route = createFileRoute("/diensten")({
   head: () => ({
     meta: [
@@ -75,6 +76,28 @@ function Diensten() {
               </ScrollReveal>
             ))}
           </div>
+          <ScrollReveal delay={120}>
+            <div className="mt-16 grid gap-10 md:grid-cols-12 items-center">
+              <div className="md:col-span-7">
+                <WeldingVideo
+                  caption="Autogeen-lassen op plaatstaal — met gas- en zuurstofvlam, met de hand."
+                  ariaLabel="Korte video van autogeen-lassen in de werkplaats"
+                />
+              </div>
+              <div className="md:col-span-5">
+                <p className="eyebrow" style={{ color: "var(--brass)" }}>Techniek</p>
+                <h3 className="mt-4" style={{ fontSize: "clamp(1.4rem,2.4vw,1.9rem)" }}>
+                  Autogeen gelast, zoals het hoort.
+                </h3>
+                <p className="mt-4" style={{ color: "var(--charcoal-soft)", lineHeight: 1.75 }}>
+                  Klassiek plaatstaal vraagt om een vlamlas, niet om een snelle MIG-puls. Onze plaatwerkers
+                  lassen de panelen autogeen — een ambacht dat in Europa bijna verdwenen is, maar de juiste
+                  techniek blijft voor een oldtimer: minder spanning op het paneel, een gladdere overgang en
+                  een verbinding die generaties meegaat.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
         </section>
 
         <section style={{ background: "var(--cream-deep)", paddingBlock: "clamp(3rem,7vw,6rem)" }}>
