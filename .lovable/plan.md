@@ -1,60 +1,62 @@
-## Layoutcontrole — bevindingen
+## Doel
+Mobile admin-navigatie vervangen door een vaste bottom tab bar met "Meer"-sheet, en de tab-volgorde herordenen volgens de natuurlijke werkfunnel. Desktop behoudt huidige top-nav (geen scroll nodig op die breedte). Geen wijzigingen aan logic, RLS, of data.
 
-Ik heb beide kanten gescreenshot op desktop (1280px) én mobiel (390px). Onderstaande problemen verklaren waarom er dingen "weggedrukt" worden.
+## Nieuwe tab-volgorde (overal)
+`Dashboard · Berichten · Aanvragen · Offertes · Projecten · Klanten · Recent Werk · Instellingen`
 
-### 1. PortalHeader (klantportaal) — KRITIEK op mobiel
-- **`UITLOGGEN`-knop valt buiten het scherm** op mobiel. De header is één enkele `flex` met `gap-5` en zonder wrap; te veel items (Admin · Jouw Restauraties · Berichten · Uitloggen) passen niet naast de logo.
-- **Logo rendert als brede alt-tekst** ("Yeketi Motorworks" over twee regels) omdat `<SiteLogo />` geen breedte-cap heeft binnen deze header.
-- Geen `min-w-0` op de logo-container → drukt de rechterkant nog verder eruit.
+Volgt de funnel: inbox → lead → offerte → werk → klant → marketing → config.
 
-### 2. AdminShell (admin top-nav) — KRITIEK op mobiel
-- De tabbalk gebruikt `overflow-x-auto`, maar zonder zichtbare scroll-affordance: **`RECENT WERK`, `AANVRAGEN`, `OFFERTES`, `KLANTEN`, `INSTELLINGEN` zijn op mobiel volledig verborgen** achter de rechterrand. Dit is letterlijk het "wegdrukken" dat je zag.
-- Top-rij (e-mail · ← Site · Uitloggen) is krap maar past; e-mail wordt al verborgen <sm.
+## Mobile bottom tab bar
 
-### 3. `/portaal/berichten` invoer
-- Op mobiel staat de **`VERSTUUR`-knop náást** een smal textarea (button neemt ~40% breedte). Hoort onder elkaar op mobiel.
+### Layout
+Vaste balk onderaan het scherm (alleen `< sm`), in Yeketi-stijl:
+- Achtergrond `var(--charcoal)`, bovenrand `var(--brass)`, `safe-area-inset-bottom` padding.
+- 5 slots, gelijke breedte:
+  1. **Dashboard** (icoon: gauge)
+  2. **Berichten** (icoon: message-square, met unread badge in `var(--gold)`)
+  3. **Aanvragen** (icoon: inbox, met "nieuw"-badge)
+  4. **Projecten** (icoon: wrench)
+  5. **Meer** (icoon: more-horizontal) — opent sheet
+- Icoon ~20px + label `text-[10px] uppercase tracking-[0.18em]`. Actief = `var(--gold)`, inactief = `var(--cream)` op 65% opacity, met dunne gold accent-streep boven.
+- Hoofd-content krijgt `pb-20 sm:pb-0` zodat niets onder de balk verdwijnt.
 
-### 4. `/admin/klanten` rij-acties
-- "Bericht sturen / Bewerken / Stuur link" stapelen verticaal rechts in de rij → 3 regels naast de naam. Op mobiel even rommelig.
+### "Meer"-sheet
+shadcn `Sheet` (side="bottom"), rustige editorial lijst:
+- Offertes
+- Klanten
+- Recent Werk
+- Instellingen
+- divider
+- Email-adres (read-only) + "Uitloggen" knop in `var(--gold)`
+- "Naar de site →" link
 
-### 5. CookieBanner
-- Banner is Engelstalig ("We only use functional cookies… GOT IT / Read more") terwijl de rest Nederlands is. Op mobiel dekt hij ~25% van het scherm tot je hem wegklikt.
+Sluit automatisch bij route-wissel. Respecteert `prefers-reduced-motion`.
 
-### 6. Klein
-- Op `/portaal` wrapt de offerte-eyebrow ("YEK-2026-001 · WACHT OP ANTWOORD") in twee regels op mobiel — acceptabel maar kan strakker.
+### Desktop (`sm:` en hoger)
+Huidige top-nav blijft, maar:
+- Tabs herordend volgens nieuwe volgorde.
+- `overflow-x-auto` + mask-fade weg (niet meer nodig — 8 tabs passen op desktop).
+- Bottom bar verborgen (`sm:hidden`).
 
----
+## Top-header op mobile
+Vereenvoudigen nu de tabs naar beneden gaan:
+- Alleen logo "Yeketi Admin" links + "Uitloggen" rechts.
+- Geen tweede rij meer. Veel rustiger.
 
-## Voorgestelde fixes (alleen UI, geen logica/RLS/quotes)
+## Badges
+- Berichten-tab toont rode/gouden dot bij ongelezen klant-berichten (hergebruik bestaande unread-query uit dashboard).
+- Aanvragen-tab toont dot bij status `new` aanvragen.
+- In "Meer"-knop: dot als er iets in de overflow-tabs aandacht vraagt (bv. instellingen-warning) — voor nu alleen visueel voorzien, geen logica vereist.
 
-### A. `src/components/PortalHeader.tsx`
-- Header omzetten naar `grid grid-cols-[minmax(0,1fr)_auto] gap-3 sm:flex sm:justify-between` zodat logo + acties altijd op één rij blijven én niet clippen.
-- `SiteLogo` cappen met `max-w-[160px] sm:max-w-[200px]` container + `shrink-0`.
-- Secundaire links (Admin · Jouw Restauraties · Berichten) op `< sm` verplaatsen naar een tweede rij eronder, `flex gap-4 overflow-x-auto`. Uitloggen blijft altijd zichtbaar rechtsboven.
-- Kleinere `gap`/typografie (`text-[11px]`) op mobiel.
+## Portal-header
+Portal heeft maar 2 echte tabs (Overzicht, Berichten) + Admin-link voor admins. Daar is geen bottom bar nodig — huidige aanpak werkt prima, niet aanraken behalve eventueel de Admin-link consistenter maken. **Geen wijziging in deze ronde** tenzij gewenst.
 
-### B. `src/components/AdminShell.tsx`
-- Tabs-rij: behouden `overflow-x-auto` maar toevoegen van rechter "fade" (mask-image gradient) zodat duidelijk is dat er meer is.
-- Optioneel: op `< sm` automatisch horizontaal scrollen naar actieve tab via `scrollIntoView({ inline: "center" })`, zodat de huidige sectie altijd zichtbaar start.
-- Top-rij: `min-w-0` + `truncate` op e-mail; `shrink-0` op Site/Uitloggen.
+## Bestanden
+- `src/components/AdminShell.tsx` — tabs-array herordenen, mobile top-nav vereenvoudigen, desktop nav schoonmaken, bottom bar renderen via nieuwe component, `pb-20 sm:pb-0` op main.
+- `src/components/AdminBottomNav.tsx` (nieuw) — bottom bar + "Meer"-sheet, unread badges.
+- Hergebruik bestaande Supabase queries voor badge-counts (geen nieuwe RPC's).
 
-### C. `src/routes/_authenticated/portaal.berichten.tsx`
-- Compose-blok: `flex flex-col sm:flex-row sm:items-end gap-3`. Knop wordt full-width op mobiel, naast tekstvak op desktop. Textarea min `min-h-[7rem]` op mobiel.
-
-### D. `src/routes/_authenticated/admin/klanten.tsx`
-- Rij-actions in een eigen `flex flex-wrap gap-x-4 gap-y-1 justify-end` met `text-[11px]`, of stapelen onder de naam op `< sm`. Voeg `min-w-0 truncate` toe aan naam/e-mail.
-
-### E. `src/components/CookieBanner.tsx`
-- Nederlandstalige copy: "We gebruiken alleen functionele cookies — nodig om in te loggen op het klantportaal. Geen tracking, geen advertenties." · knop "Oké" · link "Meer lezen".
-- Mobiel compacter: kleinere padding, twee regels max.
-
-### F. `src/routes/_authenticated/portaal.index.tsx` (klein)
-- Offerte-eyebrow: `text-[10px]` op mobiel + `truncate` op de titel, zodat de rij niet wrapt.
-
----
-
-## Wat ik NIET aanraak
-- Quote-systeem, RLS, auth, server functions, e-mail-flows, data-modellen.
-- Inhoud/structuur van pagina's. Alleen layout/typografie/responsive gedrag.
-
-Na akkoord rapporteer ik per bestand wat er gewijzigd is en zet ik opnieuw mobiel- en desktop-screenshots ernaast.
+## Wat we NIET doen
+- Geen wijziging aan routes, loaders, RLS, server functions.
+- Geen iconen-only desktop variant.
+- Geen portal-navigatie wijzigen.
