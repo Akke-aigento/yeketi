@@ -1,58 +1,38 @@
 import * as React from 'react'
-
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
-} from '@react-email/components'
+import { Text } from '@react-email/components'
+import { YeketiEmailLayout, palette } from './_layout'
 
 interface ReauthenticationEmailProps {
   token: string
 }
 
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Your verification code</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Confirm reauthentication</Heading>
-        <Text style={text}>Use the code below to confirm your identity:</Text>
-        <Text style={codeStyle}>{token}</Text>
-        <Text style={footer}>
-          This code will expire shortly. If you didn't request this, you can
-          safely ignore this email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <YeketiEmailLayout
+    preview="Je verificatiecode voor Yeketi Motorworks"
+    eyebrow="Verificatie"
+    headline="Je verificatiecode"
+    footerNote="Heb je dit niet aangevraagd? Negeer deze mail."
+  >
+    <Text style={{ margin: '0 0 18px' }}>
+      Gebruik onderstaande code om je identiteit te bevestigen. De code is
+      kort geldig.
+    </Text>
+    <Text
+      style={{
+        fontFamily: "Georgia,'Times New Roman',serif",
+        fontSize: 32,
+        letterSpacing: '0.4em',
+        color: palette.charcoal,
+        textAlign: 'center',
+        margin: '20px 0',
+        padding: '18px 0',
+        backgroundColor: palette.page,
+        border: `1px solid ${palette.hair}`,
+      }}
+    >
+      {token}
+    </Text>
+  </YeketiEmailLayout>
 )
 
 export default ReauthenticationEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const codeStyle = {
-  fontFamily: 'Courier, monospace',
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 30px',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
