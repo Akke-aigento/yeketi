@@ -95,71 +95,70 @@ function Klanten() {
           {profiles?.map((p) => {
             const pr = projects.filter((x) => x.customer_id === p.id);
             return (
-              <li key={p.id} className="px-3 py-3" style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-                  <div className="min-w-0">
-                    <div className="truncate" style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
-                      {p.full_name || p.email}
+              <li key={p.id} style={{ border: "1px solid var(--charcoal)", background: "var(--cream)" }}>
+                <div className="px-4 pt-4 pb-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate" style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+                        {p.full_name || p.email}
+                      </div>
+                      <div className="mt-1 text-xs truncate" style={{ color: "var(--charcoal-soft)", letterSpacing: "0.04em" }}>
+                        {p.email}{p.phone ? ` · ${p.phone}` : ""}
+                      </div>
                     </div>
-                    <div className="text-xs truncate" style={{ color: "var(--charcoal-soft)" }}>
-                      {p.email}{p.phone ? ` · ${p.phone}` : ""}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 sm:justify-end sm:shrink-0">
-                    <button
-                      onClick={() => onMessage(p)}
-                      disabled={busy === `msg-${p.id}`}
-                      className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
-                      style={{ color: "var(--charcoal)" }}
-                    >
-                      {busy === `msg-${p.id}` ? "…" : "Bericht sturen"}
-                    </button>
-                    <button
-                      onClick={() => setEditing(p)}
-                      className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
-                      style={{ color: "var(--charcoal-soft)" }}
-                    >
-                      Bewerken
-                    </button>
-                    {p.email && (
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:shrink-0">
                       <button
-                        onClick={() => onResend(p.email!)}
-                        disabled={busy === p.email}
+                        onClick={() => onMessage(p)}
+                        disabled={busy === `msg-${p.id}`}
+                        className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
+                        style={{ color: "var(--charcoal)" }}
+                      >
+                        {busy === `msg-${p.id}` ? "…" : "Bericht sturen"}
+                      </button>
+                      <button
+                        onClick={() => setEditing(p)}
                         className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
                         style={{ color: "var(--brass)" }}
                       >
-                        {busy === p.email ? "…" : "Stuur link"}
+                        Bewerken
                       </button>
-                    )}
-                    <button
-                      onClick={() => { setRemoving(p); setRemoveConfirm(""); }}
-                      className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
-                      style={{ color: "var(--oxide)" }}
-                    >
-                      Verwijder
-                    </button>
+                      {p.email && (
+                        <button
+                          onClick={() => onResend(p.email!)}
+                          disabled={busy === p.email}
+                          className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
+                          style={{ color: "var(--charcoal-soft)" }}
+                        >
+                          {busy === p.email ? "…" : "Stuur link"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
+
                 {pr.length > 0 && (
-                  <ul className="mt-3 space-y-1">
-                    {pr.map((x) => {
-                      const b = statusBadge(x.status);
-                      return (
-                        <li key={x.id}>
-                          <Link
-                            to="/admin/projecten/$id" params={{ id: x.id }}
-                            className="flex items-center justify-between gap-2 px-2 py-2 text-sm"
-                            style={{ border: "1px solid var(--charcoal)", background: "var(--cream)" }}
-                          >
-                            <span className="truncate">{x.title}</span>
-                            <span className="text-[10px] uppercase tracking-[0.15em] px-2 py-0.5 whitespace-nowrap" style={{ background: b.bg, color: b.fg }}>
-                              {t.portal.statusLabels[x.status] ?? x.status}
-                            </span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <>
+                    <div className="hairline opacity-40" />
+                    <ul className="px-4 py-3 space-y-1.5">
+                      {pr.map((x) => {
+                        const b = statusBadge(x.status);
+                        return (
+                          <li key={x.id}>
+                            <Link
+                              to="/admin/projecten/$id" params={{ id: x.id }}
+                              className="flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors"
+                              style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}
+                            >
+                              <span className="truncate">{x.title}</span>
+                              <span className="text-[10px] uppercase tracking-[0.15em] px-2 py-0.5 whitespace-nowrap" style={{ background: b.bg, color: b.fg }}>
+                                {t.portal.statusLabels[x.status] ?? x.status}
+                              </span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </>
                 )}
               </li>
             );
@@ -168,7 +167,15 @@ function Klanten() {
       </section>
 
       {showInvite && <InviteModal onClose={() => setShowInvite(false)} onSave={onInvite} busy={busy === "invite"} />}
-      {editing && <EditCustomerModal profile={editing} onClose={() => setEditing(null)} onSave={onEditSave} busy={busy === "edit"} />}
+      {editing && (
+        <EditCustomerModal
+          profile={editing}
+          onClose={() => setEditing(null)}
+          onSave={onEditSave}
+          onDelete={(p) => { setEditing(null); setRemoving(p); setRemoveConfirm(""); }}
+          busy={busy === "edit"}
+        />
+      )}
       {removing && (
         <DeleteCustomerModal
           profile={removing}
@@ -278,10 +285,11 @@ function DeleteCustomerModal({ profile, projectCount, confirm, setConfirm, busy,
   );
 }
 
-function EditCustomerModal({ profile, onClose, onSave, busy }: {
+function EditCustomerModal({ profile, onClose, onSave, onDelete, busy }: {
   profile: Profile;
   onClose: () => void;
   onSave: (f: { full_name: string; phone: string; email: string }) => void;
+  onDelete: (p: Profile) => void;
   busy: boolean;
 }) {
   const [full_name, setFullName] = useState(profile.full_name ?? "");
@@ -309,6 +317,15 @@ function EditCustomerModal({ profile, onClose, onSave, busy }: {
           </label>
           <button onClick={() => onSave({ full_name, phone, email })} disabled={busy} className="btn-y-solid w-full mt-2">
             {busy ? "Opslaan…" : "Opslaan"}
+          </button>
+          <div className="hairline opacity-25" />
+          <button
+            type="button"
+            onClick={() => onDelete(profile)}
+            className="w-full text-[11px] uppercase tracking-[0.2em] text-center py-2"
+            style={{ color: "var(--oxide)" }}
+          >
+            Verwijder klant
           </button>
         </div>
       </div>
