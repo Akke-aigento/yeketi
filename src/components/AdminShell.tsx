@@ -7,11 +7,11 @@ import { AdminBottomNav } from "./AdminBottomNav";
 import { useAdminUnreadCounts } from "@/hooks/useAdminUnreadCounts";
 import { triggerAdminRefresh } from "@/hooks/useAdminRefresh";
 
-type AdminTabTo = "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen";
+type AdminTabTo = "/admin" | "/admin/projecten" | "/admin/aanvragen" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen";
 const tabs: { to: AdminTabTo; label: string; exact?: boolean; badgeKey?: "messages" | "requests"; activePrefixes?: string[] }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
   { to: "/admin/berichten", label: "Berichten", badgeKey: "messages" },
-  { to: "/admin/offertes", label: "Offertes", badgeKey: "requests", activePrefixes: ["/admin/offertes", "/admin/quotes"] },
+  { to: "/admin/aanvragen", label: "Aanvragen", badgeKey: "requests", activePrefixes: ["/admin/aanvragen", "/admin/offertes", "/admin/quotes"] },
   { to: "/admin/projecten", label: "Projecten" },
   { to: "/admin/klanten", label: "Klanten" },
   { to: "/admin/recent-werk", label: "Recent Werk" },

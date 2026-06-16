@@ -228,8 +228,8 @@ function Dashboard() {
           <Link to="/admin/projecten" search={{ neu: 1 } as never} className="btn-y-solid text-center">
             + Nieuw project
           </Link>
-          <Link to="/admin/quotes" className="btn-y text-center">
-            + Nieuwe offerte
+          <Link to="/admin/aanvragen" className="btn-y text-center">
+            Aanvragen openen
           </Link>
         </div>
 
@@ -252,7 +252,7 @@ function Dashboard() {
             warn={!!unreadMessages && unreadMessages > 0}
           />
           <StatTile
-            to="/admin/offertes"
+            to="/admin/aanvragen"
             label="Nieuwe aanvragen"
             value={newQuotes}
             emptyHint="Nog geen nieuwe aanvragen — deel je offertepagina."
@@ -470,7 +470,7 @@ function Dashboard() {
 function StatTile({
   to, label, value, emptyHint, sparkline, accent, warn,
 }: {
-  to: "/admin/projecten" | "/admin/offertes" | "/admin/berichten";
+  to: "/admin/projecten" | "/admin/aanvragen" | "/admin/berichten";
   label: string;
   value: number | null;
   emptyHint: string;

@@ -5,12 +5,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminUnreadCounts } from "@/hooks/useAdminUnreadCounts";
 
-type Primary = { to: "/admin" | "/admin/berichten" | "/admin/offertes" | "/admin/projecten"; label: string; icon: typeof Gauge; exact?: boolean; badgeKey?: "messages" | "requests"; activePrefixes?: string[] };
+type Primary = { to: "/admin" | "/admin/berichten" | "/admin/aanvragen" | "/admin/projecten"; label: string; icon: typeof Gauge; exact?: boolean; badgeKey?: "messages" | "requests"; activePrefixes?: string[] };
 
 const primary: Primary[] = [
   { to: "/admin", label: "Dashboard", icon: Gauge, exact: true },
   { to: "/admin/berichten", label: "Berichten", icon: MessageSquare, badgeKey: "messages" },
-  { to: "/admin/offertes", label: "Offertes", icon: FileText, badgeKey: "requests", activePrefixes: ["/admin/offertes", "/admin/quotes"] },
+  { to: "/admin/aanvragen", label: "Aanvragen", icon: FileText, badgeKey: "requests", activePrefixes: ["/admin/aanvragen", "/admin/offertes", "/admin/quotes"] },
   { to: "/admin/projecten", label: "Projecten", icon: Wrench },
 ];
 

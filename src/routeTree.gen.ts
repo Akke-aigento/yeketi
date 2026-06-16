@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminRecentWerkIndexRouteImport } from './routes/
 import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_authenticated/admin/quotes.index'
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
 import { Route as AuthenticatedAdminBerichtenIndexRouteImport } from './routes/_authenticated/admin/berichten.index'
+import { Route as AuthenticatedAdminAanvragenIndexRouteImport } from './routes/_authenticated/admin/aanvragen.index'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -44,6 +45,7 @@ import { Route as AuthenticatedAdminRecentWerkIdRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminQuotesIdRouteImport } from './routes/_authenticated/admin/quotes.$id'
 import { Route as AuthenticatedAdminProjectenIdRouteImport } from './routes/_authenticated/admin/projecten.$id'
 import { Route as AuthenticatedAdminBerichtenIdRouteImport } from './routes/_authenticated/admin/berichten.$id'
+import { Route as AuthenticatedAdminAanvragenIdRouteImport } from './routes/_authenticated/admin/aanvragen.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -179,6 +181,12 @@ const AuthenticatedAdminBerichtenIndexRoute =
     path: '/berichten/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAanvragenIndexRoute =
+  AuthenticatedAdminAanvragenIndexRouteImport.update({
+    id: '/aanvragen/',
+    path: '/aanvragen/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -237,6 +245,12 @@ const AuthenticatedAdminBerichtenIdRoute =
     path: '/berichten/$id',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAanvragenIdRoute =
+  AuthenticatedAdminAanvragenIdRouteImport.update({
+    id: '/aanvragen/$id',
+    path: '/aanvragen/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -259,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/portaal/berichten': typeof AuthenticatedPortaalBerichtenRouteWithChildren
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
+  '/admin/aanvragen/$id': typeof AuthenticatedAdminAanvragenIdRoute
   '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
@@ -269,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/admin/aanvragen/': typeof AuthenticatedAdminAanvragenIndexRoute
   '/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -294,6 +310,7 @@ export interface FileRoutesByTo {
   '/portaal/berichten': typeof AuthenticatedPortaalBerichtenRouteWithChildren
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
+  '/admin/aanvragen/$id': typeof AuthenticatedAdminAanvragenIdRoute
   '/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
@@ -304,6 +321,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/admin/aanvragen': typeof AuthenticatedAdminAanvragenIndexRoute
   '/admin/berichten': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes': typeof AuthenticatedAdminQuotesIndexRoute
@@ -332,6 +350,7 @@ export interface FileRoutesById {
   '/_authenticated/portaal/berichten': typeof AuthenticatedPortaalBerichtenRouteWithChildren
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
+  '/_authenticated/admin/aanvragen/$id': typeof AuthenticatedAdminAanvragenIdRoute
   '/_authenticated/admin/berichten/$id': typeof AuthenticatedAdminBerichtenIdRoute
   '/_authenticated/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
   '/_authenticated/admin/quotes/$id': typeof AuthenticatedAdminQuotesIdRoute
@@ -342,6 +361,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/_authenticated/admin/aanvragen/': typeof AuthenticatedAdminAanvragenIndexRoute
   '/_authenticated/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/_authenticated/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -370,6 +390,7 @@ export interface FileRouteTypes {
     | '/portaal/berichten'
     | '/admin/'
     | '/portaal/'
+    | '/admin/aanvragen/$id'
     | '/admin/berichten/$id'
     | '/admin/projecten/$id'
     | '/admin/quotes/$id'
@@ -380,6 +401,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/admin/aanvragen/'
     | '/admin/berichten/'
     | '/admin/projecten/'
     | '/admin/quotes/'
@@ -405,6 +427,7 @@ export interface FileRouteTypes {
     | '/portaal/berichten'
     | '/admin'
     | '/portaal'
+    | '/admin/aanvragen/$id'
     | '/admin/berichten/$id'
     | '/admin/projecten/$id'
     | '/admin/quotes/$id'
@@ -415,6 +438,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/admin/aanvragen'
     | '/admin/berichten'
     | '/admin/projecten'
     | '/admin/quotes'
@@ -442,6 +466,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portaal/berichten'
     | '/_authenticated/admin/'
     | '/_authenticated/portaal/'
+    | '/_authenticated/admin/aanvragen/$id'
     | '/_authenticated/admin/berichten/$id'
     | '/_authenticated/admin/projecten/$id'
     | '/_authenticated/admin/quotes/$id'
@@ -452,6 +477,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/_authenticated/admin/aanvragen/'
     | '/_authenticated/admin/berichten/'
     | '/_authenticated/admin/projecten/'
     | '/_authenticated/admin/quotes/'
@@ -655,6 +681,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBerichtenIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/aanvragen/': {
+      id: '/_authenticated/admin/aanvragen/'
+      path: '/aanvragen'
+      fullPath: '/admin/aanvragen/'
+      preLoaderRoute: typeof AuthenticatedAdminAanvragenIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -725,6 +758,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBerichtenIdRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/aanvragen/$id': {
+      id: '/_authenticated/admin/aanvragen/$id'
+      path: '/aanvragen/$id'
+      fullPath: '/admin/aanvragen/$id'
+      preLoaderRoute: typeof AuthenticatedAdminAanvragenIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
@@ -733,10 +773,12 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminKlantenRoute: typeof AuthenticatedAdminKlantenRoute
   AuthenticatedAdminOffertesRoute: typeof AuthenticatedAdminOffertesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminAanvragenIdRoute: typeof AuthenticatedAdminAanvragenIdRoute
   AuthenticatedAdminBerichtenIdRoute: typeof AuthenticatedAdminBerichtenIdRoute
   AuthenticatedAdminProjectenIdRoute: typeof AuthenticatedAdminProjectenIdRoute
   AuthenticatedAdminQuotesIdRoute: typeof AuthenticatedAdminQuotesIdRoute
   AuthenticatedAdminRecentWerkIdRoute: typeof AuthenticatedAdminRecentWerkIdRoute
+  AuthenticatedAdminAanvragenIndexRoute: typeof AuthenticatedAdminAanvragenIndexRoute
   AuthenticatedAdminBerichtenIndexRoute: typeof AuthenticatedAdminBerichtenIndexRoute
   AuthenticatedAdminProjectenIndexRoute: typeof AuthenticatedAdminProjectenIndexRoute
   AuthenticatedAdminQuotesIndexRoute: typeof AuthenticatedAdminQuotesIndexRoute
@@ -749,10 +791,13 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminKlantenRoute: AuthenticatedAdminKlantenRoute,
     AuthenticatedAdminOffertesRoute: AuthenticatedAdminOffertesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminAanvragenIdRoute: AuthenticatedAdminAanvragenIdRoute,
     AuthenticatedAdminBerichtenIdRoute: AuthenticatedAdminBerichtenIdRoute,
     AuthenticatedAdminProjectenIdRoute: AuthenticatedAdminProjectenIdRoute,
     AuthenticatedAdminQuotesIdRoute: AuthenticatedAdminQuotesIdRoute,
     AuthenticatedAdminRecentWerkIdRoute: AuthenticatedAdminRecentWerkIdRoute,
+    AuthenticatedAdminAanvragenIndexRoute:
+      AuthenticatedAdminAanvragenIndexRoute,
     AuthenticatedAdminBerichtenIndexRoute:
       AuthenticatedAdminBerichtenIndexRoute,
     AuthenticatedAdminProjectenIndexRoute:
