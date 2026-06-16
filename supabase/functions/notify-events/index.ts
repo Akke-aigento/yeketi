@@ -290,7 +290,7 @@ Deno.serve(async (req) => {
         ];
         const detailsHtml = `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;">${rows.map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#6B6459;letter-spacing:0.08em;text-transform:uppercase;vertical-align:top;white-space:nowrap;">${k}</td><td style="padding:6px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#221F1B;">${escapeHtml(v).replace(/\n/g, "<br/>")}</td></tr>`).join("")}</table>`;
         try {
-          await send(adminTo, `Nieuwe offerteaanvraag — ${vehicle} (${naam})`, {
+          await sendAdmin(adminTo, `Nieuwe offerteaanvraag — ${vehicle} (${naam})`, {
             eyebrow: "Admin · aanvraag",
             headline: `Nieuwe aanvraag van ${naam}`,
             bodyHtml: detailsHtml,
