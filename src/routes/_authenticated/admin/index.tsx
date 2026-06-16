@@ -179,7 +179,7 @@ function Dashboard() {
       });
     })();
     return () => { active = false; };
-  }, []);
+  }, [refreshKey]);
 
   const greeting = useMemo(() => {
     const h = now.getHours();
