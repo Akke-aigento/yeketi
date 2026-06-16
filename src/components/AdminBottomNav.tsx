@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Gauge, MessageSquare, Inbox, Wrench, MoreHorizontal, FileText, Users, Hammer, Settings, LogOut, ArrowLeft } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminUnreadCounts } from "@/hooks/useAdminUnreadCounts";
 
 type Primary = { to: "/admin" | "/admin/berichten" | "/admin/offertes" | "/admin/projecten"; label: string; icon: typeof Gauge; exact?: boolean; badgeKey?: "messages" | "requests" };
 
@@ -24,26 +25,9 @@ export function AdminBottomNav({ email }: { email: string | null }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
-  const [counts, setCounts] = useState<{ messages: number; requests: number }>({ messages: 0, requests: 0 });
+  const counts = useAdminUnreadCounts();
 
   useEffect(() => { setOpen(false); }, [pathname]);
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      const [reqRes, convRes] = await Promise.all([
-        supabase.from("quote_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
-        supabase.from("conversations").select("id, last_message_at, admin_last_seen_at"),
-      ]);
-      const requests = reqRes.count ?? 0;
-      const messages = (convRes.data ?? []).reduce((n, c) => {
-        const seen = c.admin_last_seen_at ? new Date(c.admin_last_seen_at).getTime() : 0;
-        return new Date(c.last_message_at).getTime() > seen ? n + 1 : n;
-      }, 0);
-      if (active) setCounts({ messages, requests });
-    })();
-    return () => { active = false; };
-  }, [pathname]);
 
   const overflowActive = overflow.some((o) => pathname.startsWith(o.to));
 
@@ -58,7 +42,7 @@ export function AdminBottomNav({ email }: { email: string | null }) {
       <span
         aria-hidden="true"
         className="absolute"
-        style={{ top: 4, right: "calc(50% - 16px)", width: 7, height: 7, borderRadius: 999, background: "var(--gold)", boxShadow: "0 0 0 2px var(--charcoal)" }}
+        style={{ top: 4, right: "calc(50% - 16px)", width: 8, height: 8, borderRadius: 999, background: "#E11D2E", boxShadow: "0 0 0 2px var(--charcoal)" }}
       />
     );
   }
