@@ -40,6 +40,7 @@ function ProjectenIndex() {
   const [customers, setCustomers] = useState<Record<string, Customer>>({});
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [lastUpdateByProject, setLastUpdateByProject] = useState<Record<string, string>>({});
+  const [unreadByProject, setUnreadByProject] = useState<Record<string, number>>({});
   const [filter, setFilter] = useState<"all" | keyof typeof t.portal.statusLabels>("all");
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +100,14 @@ function ProjectenIndex() {
             if (pid && !lastBy[pid]) lastBy[pid] = u.created_at;
           });
           if (active) setLastUpdateByProject(lastBy);
+        }
+        const { data: unread } = await supabase.rpc("unread_customer_reactions", { _project_ids: projectIds });
+        if (active) {
+          const map: Record<string, number> = {};
+          (unread ?? []).forEach((u: { project_id: string; unread_count: number }) => {
+            if (u.unread_count > 0) map[u.project_id] = Number(u.unread_count);
+          });
+          setUnreadByProject(map);
         }
       }
     })();
