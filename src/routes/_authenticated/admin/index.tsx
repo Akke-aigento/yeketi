@@ -31,6 +31,7 @@ function Dashboard() {
   const [stale, setStale] = useState<number | null>(null);
   const [notifyFailures, setNotifyFailures] = useState<{ count: number; recent: Array<{ id: string; event_type: string; error_message: string | null; created_at: string }> } | null>(null);
   const [activity, setActivity] = useState<ActivityItem[] | null>(null);
+  const [recentQuoteEvents, setRecentQuoteEvents] = useState<Array<{ id: string; quote_number: string | null; title: string; status: string; total_amount: number; responded_at: string | null }>>([]);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [updateSpark, setUpdateSpark] = useState<number[]>([]);
   const [now, setNow] = useState(() => new Date());
@@ -130,6 +131,15 @@ function Dashboard() {
         photo_path: photoByUpdate.get(u.id) ?? null,
       }));
       if (active) setActivity(activityItems);
+
+      // Recent quote responses (accepted / rejected) — newest first
+      const { data: qEvents } = await supabase
+        .from("quotes")
+        .select("id, quote_number, title, status, total_amount, responded_at")
+        .in("status", ["akkoord", "afgewezen"])
+        .order("responded_at", { ascending: false })
+        .limit(4);
+      if (active) setRecentQuoteEvents(qEvents ?? []);
 
       const { data: failRows, count: failCount } = await supabase
         .from("notify_event_failures")
