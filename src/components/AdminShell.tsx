@@ -1,15 +1,16 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminBottomNav } from "./AdminBottomNav";
 
 const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen"; label: string; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
   { to: "/admin/berichten", label: "Berichten" },
-  { to: "/admin/projecten", label: "Projecten" },
-  { to: "/admin/recent-werk", label: "Recent Werk" },
   { to: "/admin/offertes", label: "Aanvragen" },
   { to: "/admin/quotes", label: "Offertes" },
+  { to: "/admin/projecten", label: "Projecten" },
   { to: "/admin/klanten", label: "Klanten" },
+  { to: "/admin/recent-werk", label: "Recent Werk" },
   { to: "/admin/instellingen", label: "Instellingen" },
 ];
 
@@ -63,12 +64,8 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
         </div>
         <nav
           ref={navRef}
-          className="container-edit flex gap-1 overflow-x-auto"
-          style={{
-            paddingBottom: "0.5rem",
-            WebkitMaskImage: "linear-gradient(to right, black calc(100% - 28px), transparent)",
-            maskImage: "linear-gradient(to right, black calc(100% - 28px), transparent)",
-          }}
+          className="container-edit hidden sm:flex gap-1 flex-wrap"
+          style={{ paddingBottom: "0.5rem" }}
         >
           {tabs.map((t) => (
             <Link
@@ -87,7 +84,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
           ))}
         </nav>
       </header>
-      <main className="flex-1">
+      <main className="flex-1 pb-20 sm:pb-0">
         {title && (
           <div className="container-edit" style={{ paddingBlock: "1.25rem 0.5rem" }}>
             <h1 style={{ fontSize: "1.65rem" }}>{title}</h1>
@@ -95,6 +92,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
         )}
         {children}
       </main>
+      <AdminBottomNav email={email} />
     </div>
   );
 }
