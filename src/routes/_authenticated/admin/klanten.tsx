@@ -39,12 +39,14 @@ function Klanten() {
   useEffect(() => { load(); }, []);
 
   async function onInvite(form: { email: string; full_name: string; phone: string }) {
+    if (busy) return;
     setBusy("invite");
     try { await invite({ data: form }); setShowInvite(false); load(); }
     catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
     finally { setBusy(null); }
   }
   async function onResend(email: string) {
+    if (busy) return;
     setBusy(email);
     try { await resend({ data: { email } }); alert("Uitnodiging opnieuw gestuurd."); }
     catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
@@ -52,6 +54,7 @@ function Klanten() {
   }
 
   async function onMessage(p: Profile) {
+    if (busy) return;
     setBusy(`msg-${p.id}`);
     try {
       const r = await openConv({ data: { profileId: p.id } });
@@ -62,6 +65,7 @@ function Klanten() {
 
   async function onEditSave(form: { full_name: string; phone: string; email: string; locale: "nl" | "en" }) {
     if (!editing) return;
+    if (busy) return;
     setBusy("edit");
     try {
       await update({ data: { profileId: editing.id, full_name: form.full_name, phone: form.phone, email: form.email, locale: form.locale } });
@@ -72,6 +76,7 @@ function Klanten() {
 
   async function onRemove() {
     if (!removing) return;
+    if (removeBusy) return;
     if (removeConfirm.trim().toUpperCase() !== "VERWIJDER KLANT") {
       alert("Typ exact: VERWIJDER KLANT");
       return;

@@ -94,6 +94,7 @@ function QuoteEditor() {
 
   async function save() {
     if (!quote) return;
+    if (saving) return;
     setSaving(true);
     try {
       const { error: qe } = await supabase.from("quotes").update({

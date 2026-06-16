@@ -66,6 +66,7 @@ function BerichtDetail() {
   }
 
   async function onClose(status: "open" | "gesloten") {
+    if (busy) return;
     if (status === "gesloten" && !confirm("Gesprek sluiten?")) return;
     setBusy(true);
     try { await close({ data: { conversationId: id, status } }); await load(); }
@@ -73,6 +74,7 @@ function BerichtDetail() {
   }
 
   async function onLink(projectId: string) {
+    if (busy) return;
     setBusy(true);
     try { await link({ data: { conversationId: id, projectId } }); await load(); }
     finally { setBusy(false); }
