@@ -391,7 +391,7 @@ function UploadQueueModal({
 }) {
   const [busy, setBusy] = useState(false);
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
       <div className="w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
         <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--charcoal)", color: "var(--cream)" }}>
           <span style={{ fontFamily: "var(--font-display)" }}>Foto's voorbereiden</span>
