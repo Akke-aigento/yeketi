@@ -14,6 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CookieBanner } from "../components/CookieBanner";
 import { LangProvider, useT } from "../lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
+import { InstallAppHint } from "../components/InstallAppHint";
+import { registerPwa } from "../lib/pwa-register";
 
 function NotFoundComponent() {
   const t = useT();
@@ -95,6 +97,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#221F1B" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Yeketi" },
       { property: "og:title", content: "Yeketi Motorworks — Restauratie van klassiekers" },
       { name: "twitter:title", content: "Yeketi Motorworks — Restauratie van klassiekers" },
       { name: "description", content: "Yeketi Motorworks: premium classic car restoration connecting owners with master craftsmen." },
@@ -168,12 +174,17 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    registerPwa();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <LangProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <CookieBanner />
+        <InstallAppHint />
         <Toaster />
       </LangProvider>
     </QueryClientProvider>
