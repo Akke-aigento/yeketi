@@ -50,11 +50,25 @@ async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMin
 const PROD_SITE_URL = "https://yeketimotorworks.com";
 const RESET_REDIRECT = `${PROD_SITE_URL}/reset-password`;
 
-async function findOrInviteUser(email: string, fullName?: string | null, opts?: { skipInvite?: boolean }) {
+async function findOrInviteUser(email: string, fullName?: string | null, opts?: { skipInvite?: boolean; locale?: "nl" | "en" }) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const profilePatch = (id: string) => {
+    const p: { id: string; email: string; full_name: string | null; locale?: "nl" | "en" } = {
+      id, email, full_name: fullName ?? null,
+    };
+    if (opts?.locale) p.locale = opts.locale;
+    return p;
+  };
   const { data: profile } = await supabaseAdmin
     .from("profiles").select("id").eq("email", email).maybeSingle();
-  if (profile) return { userId: profile.id as string, created: false };
+  if (profile) {
+    // Existing profile: only set locale when caller explicitly asked for 'en'
+    // (avoid clobbering Baram's explicit pick).
+    if (opts?.locale === "en") {
+      await supabaseAdmin.from("profiles").update({ locale: "en" }).eq("id", profile.id);
+    }
+    return { userId: profile.id as string, created: false };
+  }
 
   if (opts?.skipInvite) {
     // Create a silent (unconfirmed) auth user so a profile exists, no email sent.
@@ -64,7 +78,7 @@ async function findOrInviteUser(email: string, fullName?: string | null, opts?: 
       user_metadata: fullName ? { full_name: fullName } : undefined,
     });
     if (error || !data.user) throw new Error(error?.message || "Kon contact niet aanmaken");
-    await supabaseAdmin.from("profiles").upsert({ id: data.user.id, email, full_name: fullName ?? null });
+    await supabaseAdmin.from("profiles").upsert(profilePatch(data.user.id));
     return { userId: data.user.id, created: true };
   }
 
@@ -73,7 +87,7 @@ async function findOrInviteUser(email: string, fullName?: string | null, opts?: 
     redirectTo: RESET_REDIRECT,
   });
   if (inv.error || !inv.data.user) throw new Error(inv.error?.message || "Kon uitnodiging niet versturen");
-  await supabaseAdmin.from("profiles").upsert({ id: inv.data.user.id, email, full_name: fullName ?? null });
+  await supabaseAdmin.from("profiles").upsert(profilePatch(inv.data.user.id));
   return { userId: inv.data.user.id, created: true };
 }
 
