@@ -32,10 +32,23 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
             <span style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem" }}>Yeketi</span>
             <span className="eyebrow" style={{ color: "var(--gold)", fontSize: "0.65rem" }}>Admin</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-5">
             <span className="hidden sm:inline text-xs opacity-70">{email}</span>
-            <button onClick={logout} className="text-xs uppercase tracking-[0.18em]" style={{ color: "var(--gold)" }}>
-              Uit
+            <Link
+              to="/"
+              className="text-[11px] uppercase tracking-[0.2em] inline-flex items-center gap-1.5 hover:opacity-100"
+              style={{ color: "var(--cream)", opacity: 0.8 }}
+              title="Naar de website"
+            >
+              <span aria-hidden="true">←</span> Site
+            </Link>
+            <span aria-hidden="true" style={{ width: 1, height: 12, background: "var(--cream)", opacity: 0.25 }} />
+            <button
+              onClick={logout}
+              className="text-[11px] uppercase tracking-[0.2em]"
+              style={{ color: "var(--gold)" }}
+            >
+              Uitloggen
             </button>
           </div>
         </div>
