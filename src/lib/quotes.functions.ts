@@ -201,40 +201,6 @@ export const downloadQuotePdf = createServerFn({ method: "POST" })
     };
   });
 
-// --- Email templates -------------------------------------------------------
-
-function quoteEmailLayout(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; intro: string; total: number; vehicle?: string | null }) {
-  const hi = opts.firstName ? `Hoi ${opts.firstName}, ` : "";
-  const introPreview = (opts.intro || "")
-    .split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 2).join(" ");
-  const totalStr = eur(opts.total);
-  return {
-    preheader: `Offerte ${opts.quoteNumber} · ${totalStr}`,
-    eyebrow: `Offerte ${opts.quoteNumber}`,
-    headline: opts.vehicle ? `Je offerte voor ${opts.vehicle}` : "Je offerte staat klaar",
-    intro: `${hi}we hebben je offerte uitgewerkt. De volledige PDF zit in bijlage; je kan ze ook in je portaal openen om te aanvaarden of te weigeren.`,
-    bodyHtml: `
-      ${introPreview ? `<p style="margin:0 0 18px;color:#4A453E;">${escapeHtml(introPreview)}</p>` : ""}
-      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 8px;border:1px solid #EFE8DB;background:#F7F3EC;width:100%;">
-        <tr>
-          <td style="padding:14px 18px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#6B6459;letter-spacing:0.18em;text-transform:uppercase;">Totaal</td>
-          <td style="padding:14px 18px;text-align:right;font-family:Georgia,'Times New Roman',serif;font-size:20px;color:#221F1B;">${escapeHtml(totalStr)}</td>
-        </tr>
-      </table>
-    `,
-    cta: { label: "Bekijk je offerte", url: opts.portalUrl },
-    footerNote: "De PDF van de offerte zit als bijlage bij deze mail.",
-  };
-}
-
-function quoteEmailHtml(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; intro: string; total: number; vehicle?: string | null }) {
-  return renderEmail(quoteEmailLayout(opts));
-}
-
-function quoteEmailText(opts: { firstName: string | null; quoteNumber: string; portalUrl: string; total: number }) {
-  return renderPlainText(quoteEmailLayout({ ...opts, intro: "", vehicle: null }));
-}
-
 // --- Reminder for unresponded sent quotes (K · #17) ------------------------
 
 // Called by pg_cron via /api/public/hooks/quote-reminders. Sends ONE gentle
