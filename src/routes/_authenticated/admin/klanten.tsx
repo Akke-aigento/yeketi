@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminShell, statusBadge } from "@/components/AdminShell";
-import { listCustomers, inviteCustomer, resendInvite } from "@/lib/admin.functions";
+import { listCustomers, inviteCustomer, resendInvite, deleteCustomer } from "@/lib/admin.functions";
 import { updateCustomer, findOrCreateConversationForContact } from "@/lib/messages.functions";
 import { t } from "@/lib/copy";
 
@@ -19,12 +19,16 @@ function Klanten() {
   const invite = useServerFn(inviteCustomer);
   const resend = useServerFn(resendInvite);
   const update = useServerFn(updateCustomer);
+  const remove = useServerFn(deleteCustomer);
   const openConv = useServerFn(findOrCreateConversationForContact);
   const nav = useNavigate();
   const [profiles, setProfiles] = useState<Profile[] | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [showInvite, setShowInvite] = useState(false);
   const [editing, setEditing] = useState<Profile | null>(null);
+  const [removing, setRemoving] = useState<Profile | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState("");
+  const [removeBusy, setRemoveBusy] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
@@ -64,6 +68,20 @@ function Klanten() {
       setEditing(null); load();
     } catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
     finally { setBusy(null); }
+  }
+
+  async function onRemove() {
+    if (!removing) return;
+    if (removeConfirm.trim().toUpperCase() !== "VERWIJDER KLANT") {
+      alert("Typ exact: VERWIJDER KLANT");
+      return;
+    }
+    setRemoveBusy(true);
+    try {
+      await remove({ data: { userId: removing.id, confirm: "VERWIJDER KLANT" } });
+      setRemoving(null); setRemoveConfirm(""); load();
+    } catch (e: unknown) { alert((e as Error).message ?? "Fout"); }
+    finally { setRemoveBusy(false); }
   }
 
   return (
@@ -113,6 +131,13 @@ function Klanten() {
                         {busy === p.email ? "…" : "Stuur link"}
                       </button>
                     )}
+                    <button
+                      onClick={() => { setRemoving(p); setRemoveConfirm(""); }}
+                      className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
+                      style={{ color: "var(--oxide)" }}
+                    >
+                      Verwijder
+                    </button>
                   </div>
                 </div>
                 {pr.length > 0 && (
@@ -144,6 +169,17 @@ function Klanten() {
 
       {showInvite && <InviteModal onClose={() => setShowInvite(false)} onSave={onInvite} busy={busy === "invite"} />}
       {editing && <EditCustomerModal profile={editing} onClose={() => setEditing(null)} onSave={onEditSave} busy={busy === "edit"} />}
+      {removing && (
+        <DeleteCustomerModal
+          profile={removing}
+          projectCount={projects.filter((x) => x.customer_id === removing.id).length}
+          confirm={removeConfirm}
+          setConfirm={setRemoveConfirm}
+          busy={removeBusy}
+          onClose={() => { setRemoving(null); setRemoveConfirm(""); }}
+          onConfirm={onRemove}
+        />
+      )}
     </AdminShell>
   );
 }
