@@ -22,6 +22,8 @@ export const nl = {
       "Restauratie van klassiekers door meester-ambachtslieden — persoonlijk begeleid van inspectie tot aflevering.",
     ctaQuote: "Vraag een offerte",
     ctaFollow: "Volg een restauratie",
+    imageCaption: "Werkplaats — Erbil",
+    imageAlt: "Gerestaureerde VW T2 onderweg na aflevering",
   },
   story: {
     eyebrow: "Het verhaal",
@@ -357,6 +359,8 @@ export const en: Copy = {
       "Restoration of classic cars by master craftsmen — personally guided from inspection to delivery.",
     ctaQuote: "Request a quote",
     ctaFollow: "Follow a restoration",
+    imageCaption: "Workshop — Erbil",
+    imageAlt: "Restored VW T2 on the road after delivery",
   },
   story: {
     eyebrow: "The story",

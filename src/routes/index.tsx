@@ -74,7 +74,7 @@ function Hero() {
             <figure className="relative">
               <img
                 src={heroAsset.url}
-                alt="Gerestaureerde VW T2 onderweg na aflevering"
+                alt={t.hero.imageAlt}
                 width={1920}
                 height={1280}
                 className="w-full h-auto block"
@@ -92,7 +92,7 @@ function Hero() {
                   fontSize: "0.85rem",
                 }}
               >
-                Werkplaats — Erbil
+                {t.hero.imageCaption}
               </figcaption>
             </figure>
           </ScrollReveal>
