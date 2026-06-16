@@ -39,18 +39,18 @@ function Offerte() {
   const guard = useServerFn(guardQuoteSubmission);
   const link = useServerFn(linkQuoteRequestToConversation);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
-  const [photoCount, setPhotoCount] = useState(0);
+  const [photos, setPhotos] = useState<File[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [locale, setLocale] = useState<"nl" | "en">("nl");
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (status === "sending") return;
     setErrorMsg(null);
     const form = e.currentTarget;
     const fd = new FormData(form);
     const hp = String(fd.get("website") ?? "");
-    const fileInput = form.elements.namedItem("fotos") as HTMLInputElement | null;
-    const files = fileInput?.files ? Array.from(fileInput.files) : [];
+    const files = photos;
     if (files.length > 5) {
       setErrorMsg(t.offerte.photoTooMany);
       return;
@@ -112,12 +112,30 @@ function Offerte() {
       catch (e) { console.warn("conversation link failed", e); }
       setStatus("ok");
       form.reset();
-      setPhotoCount(0);
+      setPhotos([]);
     } catch (err) {
       console.error(err);
       setStatus("err");
       setErrorMsg(t.offerte.error);
     }
+  };
+
+  const addFiles = (incoming: FileList | File[] | null) => {
+    if (!incoming) return;
+    const arr = Array.from(incoming).filter((f) => f.type.startsWith("image/"));
+    setPhotos((prev) => {
+      const merged = [...prev];
+      for (const f of arr) {
+        if (merged.length >= 5) break;
+        // skip dupes (by name + size)
+        if (merged.some((m) => m.name === f.name && m.size === f.size)) continue;
+        merged.push(f);
+      }
+      return merged;
+    });
+  };
+  const removeFile = (idx: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== idx));
   };
 
   return (
@@ -213,20 +231,18 @@ function Offerte() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="eyebrow block mb-3" htmlFor="fotos">{t.offerte.labels.fotos}</label>
-                <input
-                  id="fotos"
-                  name="fotos"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => setPhotoCount(e.currentTarget.files?.length ?? 0)}
-                  className="block w-full text-sm"
-                  style={{ paddingBlock: "0.5rem", color: "var(--charcoal-soft)" }}
+                <PhotoUploader
+                  label={t.offerte.labels.fotos}
+                  addLabel={t.offerte.addPhotos}
+                  hint={t.offerte.addPhotosHint}
+                  optional={t.offerte.photosOptional}
+                  count={photos.length}
+                  countLabel={t.offerte.photosChosen(photos.length)}
+                  removeLabel={t.offerte.removePhoto}
+                  files={photos}
+                  onAdd={addFiles}
+                  onRemove={removeFile}
                 />
-                <p className="mt-2 text-xs" style={{ color: "var(--charcoal-soft)" }}>
-                  {photoCount > 0 ? t.offerte.photosChosen(photoCount) : t.offerte.photosOptional}
-                </p>
               </div>
 
               {errorMsg && (
@@ -240,7 +256,25 @@ function Offerte() {
               </div>
 
               <div className="md:col-span-2 mt-4">
-                <button type="submit" className="btn-y-solid" disabled={status === "sending"}>
+                <button
+                  type="submit"
+                  className="btn-y-solid inline-flex items-center gap-2"
+                  disabled={status === "sending"}
+                >
+                  {status === "sending" && (
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        display: "inline-block",
+                        width: 14,
+                        height: 14,
+                        border: "2px solid currentColor",
+                        borderTopColor: "transparent",
+                        borderRadius: "50%",
+                        animation: "yeketi-spin 0.7s linear infinite",
+                      }}
+                    />
+                  )}
                   {status === "sending" ? t.offerte.labels.sending : t.offerte.labels.submit}
                 </button>
               </div>

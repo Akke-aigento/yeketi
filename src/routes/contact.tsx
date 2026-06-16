@@ -143,7 +143,7 @@ function Spinner() {
         border: "2px solid currentColor",
         borderTopColor: "transparent",
         borderRadius: "50%",
-        animation: "y-spin 0.7s linear infinite",
+        animation: "yeketi-spin 0.7s linear infinite",
       }}
     />
   );
