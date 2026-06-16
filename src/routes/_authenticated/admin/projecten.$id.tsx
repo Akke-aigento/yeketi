@@ -243,18 +243,6 @@ function ProjectAdmin() {
     if (error) { toast.error("Status wijzigen mislukt", { description: error.message }); return; }
     load();
   }
-  async function reorderPhase(p: Phase, dir: -1 | 1) {
-    const idx = phases.findIndex((x) => x.id === p.id);
-    const neighbor = phases[idx + dir];
-    if (!neighbor) return;
-    const results = await Promise.all([
-      supabase.from("project_phases").update({ sort_order: neighbor.sort_order }).eq("id", p.id),
-      supabase.from("project_phases").update({ sort_order: p.sort_order }).eq("id", neighbor.id),
-    ]);
-    const firstError = results.find((r) => r.error)?.error;
-    if (firstError) { toast.error("Herschikken mislukt", { description: firstError.message }); return; }
-    load();
-  }
   async function persistPhaseOrder(ordered: Phase[]) {
     // Assign sequential sort_order = index, persist any that changed.
     const changed = ordered
