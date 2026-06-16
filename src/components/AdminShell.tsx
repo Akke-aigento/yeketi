@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen"; label: string; exact?: boolean }[] = [
@@ -16,8 +16,13 @@ const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/qu
 export function AdminShell({ children, title }: { children: ReactNode; title?: string }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
+  const navRef = useRef<HTMLElement>(null);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+  }, []);
+  useEffect(() => {
+    const el = navRef.current?.querySelector<HTMLElement>("[data-active='true']");
+    el?.scrollIntoView({ inline: "center", block: "nearest" });
   }, []);
 
   async function logout() {
@@ -31,32 +36,40 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
         className="sticky top-0 z-40"
         style={{ background: "var(--charcoal)", color: "var(--cream)", borderBottom: "1px solid var(--brass)" }}
       >
-        <div className="container-edit flex items-center justify-between" style={{ paddingBlock: "0.85rem" }}>
-          <Link to="/admin" className="flex items-center gap-3" style={{ color: "var(--cream)" }}>
+        <div className="container-edit flex items-center justify-between gap-3" style={{ paddingBlock: "0.85rem" }}>
+          <Link to="/admin" className="flex items-center gap-3 min-w-0 shrink-0" style={{ color: "var(--cream)" }}>
             <span style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem" }}>Yeketi</span>
             <span className="eyebrow" style={{ color: "var(--gold)", fontSize: "0.65rem" }}>Admin</span>
           </Link>
-          <div className="flex items-center gap-5">
-            <span className="hidden sm:inline text-xs opacity-70">{email}</span>
+          <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+            <span className="hidden md:inline text-xs opacity-70 truncate max-w-[200px]">{email}</span>
             <Link
               to="/"
-              className="text-[11px] uppercase tracking-[0.2em] inline-flex items-center gap-1.5 hover:opacity-100"
+              className="text-[11px] uppercase tracking-[0.2em] inline-flex items-center gap-1.5 hover:opacity-100 shrink-0"
               style={{ color: "var(--cream)", opacity: 0.8 }}
               title="Naar de website"
             >
               <span aria-hidden="true">←</span> Site
             </Link>
-            <span aria-hidden="true" style={{ width: 1, height: 12, background: "var(--cream)", opacity: 0.25 }} />
+            <span aria-hidden="true" className="shrink-0" style={{ width: 1, height: 12, background: "var(--cream)", opacity: 0.25 }} />
             <button
               onClick={logout}
-              className="text-[11px] uppercase tracking-[0.2em]"
+              className="text-[11px] uppercase tracking-[0.2em] shrink-0"
               style={{ color: "var(--gold)" }}
             >
               Uitloggen
             </button>
           </div>
         </div>
-        <nav className="container-edit flex gap-1 overflow-x-auto" style={{ paddingBottom: "0.5rem" }}>
+        <nav
+          ref={navRef}
+          className="container-edit flex gap-1 overflow-x-auto"
+          style={{
+            paddingBottom: "0.5rem",
+            WebkitMaskImage: "linear-gradient(to right, black calc(100% - 28px), transparent)",
+            maskImage: "linear-gradient(to right, black calc(100% - 28px), transparent)",
+          }}
+        >
           {tabs.map((t) => (
             <Link
               key={t.to}
@@ -64,7 +77,10 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
               activeOptions={{ exact: t.exact }}
               className="text-[11px] tracking-[0.2em] uppercase px-3 py-2 whitespace-nowrap"
               style={{ color: "var(--cream)", opacity: 0.65 }}
-              activeProps={{ style: { color: "var(--gold)", opacity: 1, borderBottom: "1px solid var(--gold)" } }}
+              activeProps={{
+                style: { color: "var(--gold)", opacity: 1, borderBottom: "1px solid var(--gold)" },
+                "data-active": "true",
+              } as never}
             >
               {t.label}
             </Link>

@@ -103,17 +103,17 @@ function PortalBerichten() {
                   <a href="mailto:info@yeketimotorworks.com" style={{ color: "var(--brass)" }}>Mail ons direct</a>.
                 </p>
               ) : (
-                <div className="mt-3 flex items-end gap-2">
+                <div className="mt-3 flex flex-col sm:flex-row sm:items-end gap-2">
                   <textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") onSend(); }}
                     rows={3}
                     placeholder="Schrijf een bericht…"
-                    className="field-y flex-1"
-                    style={{ resize: "vertical" }}
+                    className="field-y w-full sm:flex-1"
+                    style={{ resize: "vertical", minHeight: "6.5rem" }}
                   />
-                  <button onClick={onSend} disabled={sending || !body.trim()} className="btn-y-solid">
+                  <button onClick={onSend} disabled={sending || !body.trim()} className="btn-y-solid w-full sm:w-auto">
                     {sending ? "…" : "Verstuur"}
                   </button>
                 </div>
