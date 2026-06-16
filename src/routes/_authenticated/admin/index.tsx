@@ -29,6 +29,7 @@ function Dashboard() {
   const [projects, setProjects] = useState<ProjectRow[] | null>(null);
   const [newQuotes, setNewQuotes] = useState<number | null>(null);
   const [stale, setStale] = useState<number | null>(null);
+  const [unreadReactions, setUnreadReactions] = useState<{ total: number; perProject: Array<{ project_id: string; project_title: string; unread_count: number }> } | null>(null);
   const [notifyFailures, setNotifyFailures] = useState<{ count: number; recent: Array<{ id: string; event_type: string; error_message: string | null; created_at: string }> } | null>(null);
   const [activity, setActivity] = useState<ActivityItem[] | null>(null);
   const [recentQuoteEvents, setRecentQuoteEvents] = useState<Array<{ id: string; quote_number: string | null; title: string; status: string; total_amount: number; responded_at: string | null }>>([]);
@@ -87,6 +88,19 @@ function Dashboard() {
       setNewQuotes(q.count ?? 0);
       setStale(staleCount);
 
+      // Unread customer reactions across all active projects
+      const { data: unread } = await supabase.rpc("unread_customer_reactions", { _project_ids: projectIds });
+      const titleByProject = new Map(rows.map((r) => [r.id, r.title] as const));
+      const perProject = (unread ?? [])
+        .filter((u: { unread_count: number }) => Number(u.unread_count) > 0)
+        .map((u: { project_id: string; unread_count: number }) => ({
+          project_id: u.project_id,
+          project_title: titleByProject.get(u.project_id) ?? "Project",
+          unread_count: Number(u.unread_count),
+        }));
+      const total = perProject.reduce((acc: number, u: { unread_count: number }) => acc + u.unread_count, 0);
+      if (active) setUnreadReactions({ total, perProject });
+
       // Sparkline: updates per day, last 14 days
       const buckets = new Array(14).fill(0) as number[];
       const dayMs = 24 * 3600 * 1000;
@@ -99,7 +113,6 @@ function Dashboard() {
       setUpdateSpark(buckets);
 
       // Activity feed — 8 most recent updates
-      const titleByProject = new Map(rows.map((r) => [r.id, r.title] as const));
       const top = recentUpdates
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, 8);
