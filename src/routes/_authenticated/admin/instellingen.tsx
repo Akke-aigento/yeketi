@@ -273,16 +273,22 @@ function AdminInviteSection() {
         <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
           <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "2px solid var(--oxide)" }}>
             <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--oxide)", color: "var(--cream)" }}>
-              <span style={{ fontFamily: "var(--font-display)" }}>Admin-toegang intrekken</span>
+              <span style={{ fontFamily: "var(--font-display)" }}>Admin volledig verwijderen</span>
               <button onClick={() => { setRemoving(null); setRemoveConfirm(""); }} style={{ color: "var(--cream)" }}>✕</button>
             </div>
             <div className="px-4 py-4 space-y-4">
               <div className="flex items-start gap-3">
                 <span aria-hidden className="text-xl leading-none" style={{ color: "var(--oxide)" }}>⚠</span>
                 <div className="text-sm" style={{ color: "var(--charcoal)", lineHeight: 1.6 }}>
-                  Je staat op het punt om de admin-rol in te trekken van
-                  {" "}<strong>{removing.label}</strong>. Deze persoon verliest direct
-                  toegang tot alle admin-pagina's. Het account zelf en eventuele klantgegevens blijven bestaan.
+                  Je staat op het punt om <strong>{removing.label}</strong> volledig uit het systeem te verwijderen.
+                  Dit verwijdert: het volledige account (login), het profiel,
+                  alle admin-rollen en alle actieve sessies. Deze actie is
+                  <strong> definitief en onomkeerbaar</strong>.
+                  <div className="mt-2 text-[12px]" style={{ color: "var(--oxide)" }}>
+                    Veiligheid: als deze gebruiker ook projecten of offertes op
+                    naam heeft, weigert het systeem de verwijdering – ruim die
+                    dan eerst op.
+                  </div>
                 </div>
               </div>
               <label className="block">
@@ -307,7 +313,7 @@ function AdminInviteSection() {
                   className="btn-y-solid"
                   style={{ background: "var(--oxide)", borderColor: "var(--oxide)" }}
                 >
-                  {removeBusy ? "Bezig…" : "Intrekken"}
+                  {removeBusy ? "Bezig…" : "Definitief verwijderen"}
                 </button>
                 <button type="button" onClick={() => { setRemoving(null); setRemoveConfirm(""); }} className="btn-y-ghost">
                   Annuleren

@@ -164,7 +164,10 @@ export const listAdmins = createServerFn({ method: "POST" })
     return { admins: profiles ?? [], currentUserId: (context as { userId: string }).userId };
   });
 
-// Revoke admin role. Requires confirmation phrase. Cannot remove self or last admin.
+// Volledig verwijderen van een admin-account: rol, profiel, auth-user,
+// sessies en identities worden allemaal weggehaald (FK ON DELETE CASCADE
+// op profiles + user_roles vangt de rest). Vereist bevestigingszin.
+// Kan zichzelf of de laatste admin niet verwijderen.
 export const removeAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { userId: string; confirm: string }) => input)
@@ -182,9 +185,26 @@ export const removeAdmin = createServerFn({ method: "POST" })
       .from("user_roles").select("user_id").eq("role", "admin");
     if (le) throw le;
     if ((all ?? []).length <= 1) throw new Error("Er moet minstens één admin overblijven");
-    const { error } = await supabaseAdmin
-      .from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
-    if (error) throw error;
+
+    // Veiligheidsrem: weiger als deze admin ook klantdata (projecten of
+    // offertes) op zijn naam heeft staan – dat is dan geen pure teamaccount.
+    const { count: projectCount } = await supabaseAdmin
+      .from("projects").select("id", { count: "exact", head: true })
+      .eq("customer_id", data.userId);
+    if ((projectCount ?? 0) > 0) {
+      throw new Error("Deze gebruiker heeft projecten op zijn naam – verwijder die eerst");
+    }
+    const { count: quoteCount } = await supabaseAdmin
+      .from("quotes").select("id", { count: "exact", head: true })
+      .eq("customer_id", data.userId);
+    if ((quoteCount ?? 0) > 0) {
+      throw new Error("Deze gebruiker heeft offertes op zijn naam – verwijder die eerst");
+    }
+
+    // Harde verwijdering uit auth.users – cascade ruimt profiles, user_roles,
+    // sessions en identities automatisch op.
+    const { error: de } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (de) throw de;
     return { ok: true };
   });
 
