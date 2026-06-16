@@ -63,6 +63,7 @@ function Offertes() {
   );
 
   async function setStatus(id: string, status: Quote["status"]) {
+    if (busy === id) return;
     setBusy(id);
     const { error } = await supabase.from("quote_requests").update({ status }).eq("id", id);
     setBusy(null);

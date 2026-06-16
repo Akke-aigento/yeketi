@@ -308,6 +308,7 @@ function NewProjectModal({ onClose, onCreated }: { onClose: () => void; onCreate
   }, [allCustomers, custQuery]);
 
   async function submit() {
+    if (busy) return;
     setBusy(true);
     try {
       let cid = customerId;

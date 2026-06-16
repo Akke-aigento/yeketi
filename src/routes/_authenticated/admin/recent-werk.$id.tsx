@@ -87,6 +87,7 @@ function PublicationEditor() {
 
   async function saveAll() {
     if (!pub) return;
+    if (saving) return;
     setSaving(true);
     try {
       if (Object.keys(dirtyPub).length > 0) {
@@ -117,6 +118,7 @@ function PublicationEditor() {
 
   async function uploadCover(file: File) {
     if (!pub) return;
+    if (coverUploading) return;
     setCoverUploading(true);
     try {
       const blob = await compressImage(file, { aspectRatio: RECENT_WORK_ASPECT, maxEdge: 1920, quality: 0.8 });

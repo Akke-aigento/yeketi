@@ -72,6 +72,7 @@ function QuotesIndex() {
   );
 
   async function newQuote() {
+    if (busy) return;
     setBusy(true);
     try {
       const res = await createBlank({});

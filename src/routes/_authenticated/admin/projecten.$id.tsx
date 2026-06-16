@@ -204,6 +204,7 @@ function ProjectAdmin() {
   }
   async function confirmPublishToRecentWork() {
     if (!publishConsent) return;
+    if (publishing) return;
     setPublishing(true);
     try {
       const res = await publishToRecentWork({ data: { projectId: id, consent: true } });
