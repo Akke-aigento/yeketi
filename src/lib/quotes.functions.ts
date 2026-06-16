@@ -264,23 +264,18 @@ export const runQuoteReminders = createServerFn({ method: "POST" })
     for (const q of quotes ?? []) {
       if (!q.customer_id) continue;
       const { data: profile } = await supabaseAdmin
-        .from("profiles").select("email, full_name").eq("id", q.customer_id).maybeSingle();
+        .from("profiles").select("email, full_name, locale").eq("id", q.customer_id).maybeSingle();
       if (!profile?.email) continue;
       const first = profile.full_name ? String(profile.full_name).split(" ")[0] : null;
+      const locale = (profile as { locale?: string }).locale === "en" ? "en" : "nl";
       const portalUrl = `${PUBLIC_SITE_URL}/portaal/offerte/${q.id}`;
-      const layout = {
-        preheader: `Offerte ${q.quote_number} wacht nog op je antwoord`,
-        eyebrow: `Offerte ${q.quote_number}`,
-        headline: "Een vriendelijke herinnering",
-        intro: `${first ? `Hoi ${first}, ` : ""}we wilden even checken — je offerte voor ${q.title} staat nog open. Geen haast, maar mocht je vragen hebben of de offerte willen bespreken, antwoord gerust op deze mail.`,
-        cta: { label: "Bekijk je offerte", url: portalUrl },
-      };
+      const layout = quoteReminder(locale, { first, quoteNumber: q.quote_number, title: q.title, portalUrl });
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: FROM_EMAIL, to: [profile.email], reply_to: REPLY_TO,
-          subject: `Herinnering — offerte ${q.quote_number}`,
+          from: FROM_EMAIL, to: [profile.email], reply_to: adminReplyTo(),
+          subject: layout.subject,
           html: renderEmail(layout), text: renderPlainText(layout),
         }),
       });
