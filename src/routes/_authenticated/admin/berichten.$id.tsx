@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminShell, timeAgo } from "@/components/AdminShell";
@@ -17,7 +17,6 @@ type Msg = Loaded["messages"][number];
 
 function BerichtDetail() {
   const { id } = Route.useParams();
-  const nav = useNavigate();
   const get = useServerFn(getConversation);
   const reply = useServerFn(adminReply);
   const close = useServerFn(closeConversation);
@@ -86,7 +85,7 @@ function BerichtDetail() {
       customer_id: c.id, full_name: c.full_name ?? "", email: c.email ?? "", phone: c.phone ?? "",
       from_conversation: id,
     });
-    nav({ to: "/admin/projecten" as never, search: Object.fromEntries(params) as never });
+    window.location.href = `/admin/projecten?${params.toString()}`;
   }
 
   if (!data) {
