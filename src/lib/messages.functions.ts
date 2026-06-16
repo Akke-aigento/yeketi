@@ -176,6 +176,32 @@ export const linkQuoteRequestToConversation = createServerFn({ method: "POST" })
     return { ok: true, conversationId: convId } as const;
   });
 
+// Admin helper: given a quote_request id, return the conversation id for the
+// requester so the admin UI can jump straight to the in-portal thread instead
+// of opening a mailto: link. If no profile/conversation exists yet (legacy
+// requests submitted before the trigger was in place), one is created on the
+// fly using the same silent-profile flow as the public form.
+export const getConversationForQuoteRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { quoteRequestId: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: qr } = await supabaseAdmin
+      .from("quote_requests")
+      .select("id, email, naam, merk, model, bouwjaar, locale")
+      .eq("id", data.quoteRequestId)
+      .maybeSingle();
+    if (!qr) throw new Error("Aanvraag niet gevonden");
+    const email = (qr.email ?? "").toString().toLowerCase().trim();
+    if (!EMAIL_RE.test(email)) throw new Error("Aanvraag heeft geen geldig e-mailadres");
+    const qrLocale = (qr as { locale?: string }).locale === "en" ? "en" : "nl";
+    const { userId } = await findOrInviteUser(email, qr.naam ?? null, { skipInvite: true, locale: qrLocale });
+    const subject = [qr.merk, qr.model, qr.bouwjaar].filter(Boolean).join(" ") || "Offerteaanvraag";
+    const convId = await ensureConversation(userId, "quote_request", subject);
+    return { conversationId: convId } as const;
+  });
+
 // ──────────────────────────────────────────────────────────────────────────
 // Admin: inbox
 // ──────────────────────────────────────────────────────────────────────────
