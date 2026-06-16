@@ -2,11 +2,13 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminBottomNav } from "./AdminBottomNav";
+import { useAdminUnreadCounts } from "@/hooks/useAdminUnreadCounts";
 
-const tabs: { to: "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen"; label: string; exact?: boolean }[] = [
+type AdminTabTo = "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen";
+const tabs: { to: AdminTabTo; label: string; exact?: boolean; badgeKey?: "messages" | "requests" }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
-  { to: "/admin/berichten", label: "Berichten" },
-  { to: "/admin/offertes", label: "Aanvragen" },
+  { to: "/admin/berichten", label: "Berichten", badgeKey: "messages" },
+  { to: "/admin/offertes", label: "Aanvragen", badgeKey: "requests" },
   { to: "/admin/quotes", label: "Offertes" },
   { to: "/admin/projecten", label: "Projecten" },
   { to: "/admin/klanten", label: "Klanten" },
@@ -18,6 +20,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
+  const counts = useAdminUnreadCounts();
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
@@ -67,21 +70,45 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
           className="container-edit hidden lg:flex gap-1 flex-wrap"
           style={{ paddingBottom: "0.5rem" }}
         >
-          {tabs.map((t) => (
-            <Link
-              key={t.to}
-              to={t.to}
-              activeOptions={{ exact: t.exact }}
-              className="text-[11px] tracking-[0.2em] uppercase px-3 py-2 whitespace-nowrap"
-              style={{ color: "var(--cream)", opacity: 0.65 }}
-              activeProps={{
-                style: { color: "var(--gold)", opacity: 1, borderBottom: "1px solid var(--gold)" },
-                "data-active": "true",
-              } as never}
-            >
-              {t.label}
-            </Link>
-          ))}
+          {tabs.map((t) => {
+            const showBadge = t.badgeKey ? counts[t.badgeKey] > 0 : false;
+            return (
+              <Link
+                key={t.to}
+                to={t.to}
+                activeOptions={{ exact: t.exact }}
+                className="relative text-[11px] tracking-[0.2em] uppercase px-3 py-2 whitespace-nowrap inline-flex items-center gap-1.5"
+                style={{ color: "var(--cream)", opacity: 0.65 }}
+                activeProps={{
+                  style: { color: "var(--gold)", opacity: 1, borderBottom: "1px solid var(--gold)" },
+                  "data-active": "true",
+                } as never}
+              >
+                <span>{t.label}</span>
+                {showBadge && (
+                  <span
+                    aria-label={`${counts[t.badgeKey!]} ongelezen`}
+                    style={{
+                      display: "inline-block",
+                      minWidth: 16,
+                      height: 16,
+                      padding: "0 4px",
+                      borderRadius: 999,
+                      background: "#E11D2E",
+                      color: "#fff",
+                      fontSize: 10,
+                      lineHeight: "16px",
+                      textAlign: "center",
+                      fontWeight: 600,
+                      letterSpacing: 0,
+                    }}
+                  >
+                    {counts[t.badgeKey!]}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
       </header>
       <main className="flex-1 pb-20 lg:pb-0">

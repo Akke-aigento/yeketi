@@ -400,7 +400,36 @@ export const getMyConversation = createServerFn({ method: "POST" })
       .select("id, sender, author_id, body, created_at")
       .eq("conversation_id", conv.id)
       .order("created_at", { ascending: true });
+    // Mark seen by the customer (RLS: own conversation only).
+    await ctx.supabase
+      .from("conversations")
+      .update({ customer_last_seen_at: new Date().toISOString() })
+      .eq("id", conv.id);
     return { conversation: conv, messages: messages ?? [] };
+  });
+
+export const getMyUnreadMessagesCount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const ctx = context as unknown as AuthCtx;
+    const { data: conv } = await ctx.supabase
+      .from("conversations")
+      .select("id, last_message_at, customer_last_seen_at")
+      .eq("contact_profile_id", ctx.userId)
+      .maybeSingle();
+    if (!conv || !conv.last_message_at) return { unread: 0 };
+    const seen = conv.customer_last_seen_at ? new Date(conv.customer_last_seen_at).getTime() : 0;
+    if (new Date(conv.last_message_at).getTime() <= seen) return { unread: 0 };
+    // Only flag unread if the latest message is NOT from the customer.
+    const { data: last } = await ctx.supabase
+      .from("messages")
+      .select("sender")
+      .eq("conversation_id", conv.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!last || last.sender === "klant") return { unread: 0 };
+    return { unread: 1 };
   });
 
 export const sendCustomerMessage = createServerFn({ method: "POST" })
