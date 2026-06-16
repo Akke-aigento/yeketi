@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -28,7 +28,6 @@ type Item = {
 
 function PublicationEditor() {
   const { id } = Route.useParams();
-  const navigate = useNavigate();
   const deleteItem = useServerFn(deletePublicationItemFn);
   const [pub, setPub] = useState<Pub | null>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -368,8 +367,6 @@ function PublicationEditor() {
         }}
         onClose={() => setConfirmItemDel(null)}
       />
-      {/* Avoid TS "unused" on navigate */}
-      <span hidden aria-hidden onClick={() => navigate({ to: "/admin/recent-werk" })} />
     </AdminShell>
   );
 }
