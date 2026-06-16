@@ -100,6 +100,19 @@ async function sbFetch(path: string) {
   return r.json();
 }
 
+// Resolves Baram's personal alert address. Prefers the value stored in
+// app_settings (key='admin_notify_email'); falls back to ADMIN_NOTIFY_EMAIL.
+async function resolveAdminNotifyEmail(): Promise<string> {
+  try {
+    const rows = await sbFetch(`app_settings?key=eq.admin_notify_email&select=value`);
+    const v = rows?.[0]?.value;
+    if (typeof v === "string" && v.trim()) return v.trim();
+  } catch (e) {
+    console.warn("resolveAdminNotifyEmail fallback", (e as Error).message);
+  }
+  return ADMIN_NOTIFY_EMAIL;
+}
+
 // Persist a delivery failure so admins can see what didn't go out.
 // Best-effort — never throw from here, the trigger has already done its job.
 async function logFailure(eventType: string, payload: unknown, errorMessage: string) {
