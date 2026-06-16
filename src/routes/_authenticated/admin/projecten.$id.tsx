@@ -258,7 +258,7 @@ function ProjectAdmin() {
       },
     });
   }
-  async function addPhotosToUpdate(u: Update, files: FileList | null) {
+  async function addPhotosToUpdate(u: Update, files: File[]) {
     if (!files || files.length === 0) return;
     const existing = photos.filter((p) => p.update_id === u.id).length;
     let okCount = 0;
@@ -267,7 +267,7 @@ function ProjectAdmin() {
         const f = files[i];
         const blob = await compressImage(f);
         const safeIdx = String(existing + i).padStart(3, "0");
-        const path = `${id}/${u.id}/${Date.now()}-${safeIdx}.jpg`;
+        const path = `${id}/${u.id}/${Date.now()}-${safeIdx}-${i}.jpg`;
         const up = await supabase.storage.from("project-photos").upload(path, blob, {
           contentType: "image/jpeg", upsert: false,
         });
