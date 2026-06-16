@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Play } from "lucide-react";
+import { useT } from "@/lib/i18n";
 import mp4Asset from "@/assets/video/autogeen-lassen-720.mp4.asset.json";
 import webmAsset from "@/assets/video/autogeen-lassen-540.webm.asset.json";
 import posterAsset from "@/assets/video/autogeen-lassen-poster.jpg.asset.json";
@@ -17,6 +18,7 @@ type Props = {
 export function WeldingVideo({ caption, ariaLabel, className }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
+  const t = useT();
 
   function start() {
     const v = ref.current;
@@ -38,7 +40,7 @@ export function WeldingVideo({ caption, ariaLabel, className }: Props) {
           muted
           loop
           controls={playing}
-          aria-label={ariaLabel ?? "Autogeen-lassen in de werkplaats"}
+          aria-label={ariaLabel ?? t.weldingVideo.defaultAria}
           className="block w-full h-auto"
           style={{ aspectRatio: "16/9", objectFit: "cover" }}
           onClick={() => {
@@ -52,7 +54,7 @@ export function WeldingVideo({ caption, ariaLabel, className }: Props) {
           <button
             type="button"
             onClick={start}
-            aria-label="Speel de video — autogeen-lassen"
+            aria-label={t.weldingVideo.play}
             className="absolute inset-0 flex items-center justify-center"
             style={{ background: "rgba(20,20,20,0.18)" }}
           >

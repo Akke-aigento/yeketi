@@ -328,6 +328,10 @@ export const nl = {
     body: "De pagina die je zocht bestaat niet (meer). Keer terug naar de werkplaats.",
     cta: "Terug naar home",
   },
+  weldingVideo: {
+    defaultAria: "Autogeen-lassen in de werkplaats",
+    play: "Speel de video — autogeen-lassen",
+  },
 };
 
 export type Copy = typeof nl;
