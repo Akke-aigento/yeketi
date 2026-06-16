@@ -1,12 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { renderEmail, renderPlainText, escapeHtml } from "./email-template.server";
+import { quoteSent, quoteReminder } from "./email-copy.server";
 
 const PUBLIC_SITE_URL = "https://yeketimotorworks.com";
-const REPLY_TO = "info@yeketimotorworks.com";
+const REPLY_TO = "info@yeketimotorworks.com"; // legacy default
+function adminReplyTo() { return process.env.ADMIN_NOTIFY_EMAIL || REPLY_TO; }
 
-function eur(n: number) {
-  return new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(n);
+function eur(n: number, locale: "nl" | "en" = "nl") {
+  return new Intl.NumberFormat(locale === "en" ? "en-IE" : "nl-BE", { style: "currency", currency: "EUR" }).format(n);
 }
 
 type SupabaseLike = {
