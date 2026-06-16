@@ -318,6 +318,48 @@ function Dashboard() {
           </ul>
         )}
 
+        {/* Offerte-activiteit */}
+        {recentQuoteEvents.length > 0 && (
+          <>
+            <h2 className="mt-10" style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem" }}>
+              Offerte-activiteit
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {recentQuoteEvents.map((q) => {
+                const accepted = q.status === "akkoord";
+                const eur = new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(Number(q.total_amount));
+                return (
+                  <li key={q.id}>
+                    <Link to="/admin/quotes/$id" params={{ id: q.id }}
+                          className="flex items-center justify-between gap-3 px-3 py-3"
+                          style={{ border: "1px solid " + (accepted ? "var(--brass)" : "var(--cream-deep)"), background: accepted ? "var(--cream)" : "var(--cream-deep)" }}>
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: accepted ? "var(--brass)" : "var(--oxide)" }}>
+                          {accepted ? "Offerte geaccepteerd" : "Offerte afgewezen"} · {q.quote_number ?? ""}
+                        </div>
+                        <div className="truncate mt-1" style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
+                          {q.title}
+                        </div>
+                        {accepted && (
+                          <div className="text-[11px] mt-0.5" style={{ color: "var(--brass)" }}>
+                            Tijd om een project aan te maken →
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right whitespace-nowrap">
+                        <div style={{ fontFamily: "var(--font-display)", color: "var(--brass)" }}>{eur}</div>
+                        <div className="text-[11px]" style={{ color: "var(--charcoal-soft)" }}>
+                          {q.responded_at ? timeAgo(q.responded_at) : ""}
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+
         {/* Recente activiteit */}
         <h2 className="mt-10" style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem" }}>Recente activiteit</h2>
         {activity === null && (
