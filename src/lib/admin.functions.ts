@@ -218,46 +218,77 @@ export const removeAdmin = createServerFn({ method: "POST" })
 
 export const convertQuoteToProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { quoteId: string }) => input)
+  .inputValidator((input: { quoteRequestId?: string; quoteId?: string }) => input)
   .handler(async ({ data, context }) => {
     await assertAdmin(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: q, error: qe } = await supabaseAdmin
-      .from("quote_requests").select("*").eq("id", data.quoteId).maybeSingle();
-    if (qe || !q) throw qe ?? new Error("Aanvraag niet gevonden");
-
-    const email = (q.email as string).trim().toLowerCase();
-    // Profile already exists: created (and invited) when the customer submitted
-    // the public offerte form. Look it up; only fall back to a silent create
-    // if it's somehow missing — never send a second invite/reset here.
-    let { data: profile } = await supabaseAdmin
-      .from("profiles").select("id").eq("email", email).maybeSingle();
-    if (!profile) {
-      const { data: created, error: ce } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        email_confirm: false,
-        user_metadata: q.naam ? { full_name: q.naam as string } : undefined,
-      });
-      if (ce || !created.user) throw ce ?? new Error("Kon klant niet aanmaken");
-      profile = { id: created.user.id };
+    // Resolve to a quote_request when possible; fall back to the quote itself.
+    let requestId = data.quoteRequestId ?? null;
+    let quoteRow: { customer_id: string | null; vehicle_label: string | null; title: string | null } | null = null;
+    if (!requestId && data.quoteId) {
+      const { data: qq, error: qqe } = await supabaseAdmin
+        .from("quotes")
+        .select("quote_request_id, customer_id, vehicle_label, title")
+        .eq("id", data.quoteId).maybeSingle();
+      if (qqe || !qq) throw qqe ?? new Error("Offerte niet gevonden");
+      requestId = qq.quote_request_id;
+      quoteRow = qq;
     }
-    const userId = profile.id as string;
 
-    await supabaseAdmin.from("profiles").upsert({
-      id: userId,
-      full_name: q.naam,
-      phone: q.telefoon,
-      email,
-    });
+    type ReqRow = {
+      id: string; email: string; naam: string | null; telefoon: string | null;
+      merk: string | null; model: string | null; bouwjaar: string | null;
+      type_werk: string;
+    };
+    let q: ReqRow | null = null;
+    if (requestId) {
+      const { data: r, error: re } = await supabaseAdmin
+        .from("quote_requests").select("*").eq("id", requestId).maybeSingle();
+      if (re) throw re;
+      q = (r as ReqRow | null) ?? null;
+    }
+    if (!q && !quoteRow) throw new Error("Aanvraag niet gevonden");
 
-    const title = [q.merk, q.model, q.bouwjaar].filter(Boolean).join(" ") || (q.type_werk as string);
+    let userId: string;
+    if (q) {
+      const email = q.email.trim().toLowerCase();
+      let { data: profile } = await supabaseAdmin
+        .from("profiles").select("id").eq("email", email).maybeSingle();
+      if (!profile) {
+        const { data: created, error: ce } = await supabaseAdmin.auth.admin.createUser({
+          email, email_confirm: false,
+          user_metadata: q.naam ? { full_name: q.naam } : undefined,
+        });
+        if (ce || !created.user) throw ce ?? new Error("Kon klant niet aanmaken");
+        profile = { id: created.user.id };
+      }
+      userId = profile.id;
+      await supabaseAdmin.from("profiles").upsert({
+        id: userId, full_name: q.naam, phone: q.telefoon, email,
+      });
+    } else {
+      if (!quoteRow?.customer_id) throw new Error("Koppel eerst een klant aan de offerte");
+      userId = quoteRow.customer_id;
+    }
+
+    // 1:1 met klant — als er al een project is, ga er gewoon naartoe.
+    const { data: existingProj } = await supabaseAdmin
+      .from("projects").select("id").eq("customer_id", userId).maybeSingle();
+    if (existingProj) {
+      if (q) await supabaseAdmin.from("quote_requests").update({ status: "won" }).eq("id", q.id);
+      return { projectId: existingProj.id, existed: true as const };
+    }
+
+    const title = q
+      ? ([q.merk, q.model, q.bouwjaar].filter(Boolean).join(" ") || q.type_werk)
+      : (quoteRow?.vehicle_label || quoteRow?.title || "Project");
     const { data: project, error: pe } = await supabaseAdmin
       .from("projects").insert({
         customer_id: userId,
-        vehicle_make: q.merk,
-        vehicle_model: q.model,
-        vehicle_year: q.bouwjaar,
+        vehicle_make: q?.merk ?? null,
+        vehicle_model: q?.model ?? null,
+        vehicle_year: q?.bouwjaar ?? null,
         title,
         status: "intake",
       }).select("*").maybeSingle();
@@ -272,9 +303,10 @@ export const convertQuoteToProject = createServerFn({ method: "POST" })
     }));
     await supabaseAdmin.from("project_phases").insert(phaseRows);
 
-    await supabaseAdmin.from("quote_requests").update({ status: "won" }).eq("id", q.id);
-
-    return { projectId: project.id };
+    if (q) {
+      await supabaseAdmin.from("quote_requests").update({ status: "won" }).eq("id", q.id);
+    }
+    return { projectId: project.id, existed: false as const };
   });
 
 // ---------------------------------------------------------------------------
