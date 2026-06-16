@@ -1,6 +1,7 @@
 {
   "name": "Yeketi Motorworks",
   "short_name": "Yeketi",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
