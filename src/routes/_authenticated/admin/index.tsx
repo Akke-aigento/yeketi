@@ -31,6 +31,7 @@ function Dashboard() {
   const [stale, setStale] = useState<number | null>(null);
   const [notifyFailures, setNotifyFailures] = useState<{ count: number; recent: Array<{ id: string; event_type: string; error_message: string | null; created_at: string }> } | null>(null);
   const [activity, setActivity] = useState<ActivityItem[] | null>(null);
+  const [recentQuoteEvents, setRecentQuoteEvents] = useState<Array<{ id: string; quote_number: string | null; title: string; status: string; total_amount: number; responded_at: string | null }>>([]);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [updateSpark, setUpdateSpark] = useState<number[]>([]);
   const [now, setNow] = useState(() => new Date());
@@ -131,6 +132,15 @@ function Dashboard() {
       }));
       if (active) setActivity(activityItems);
 
+      // Recent quote responses (accepted / rejected) — newest first
+      const { data: qEvents } = await supabase
+        .from("quotes")
+        .select("id, quote_number, title, status, total_amount, responded_at")
+        .in("status", ["akkoord", "afgewezen"])
+        .order("responded_at", { ascending: false })
+        .limit(4);
+      if (active) setRecentQuoteEvents(qEvents ?? []);
+
       const { data: failRows, count: failCount } = await supabase
         .from("notify_event_failures")
         .select("id, event_type, error_message, created_at", { count: "exact" })
@@ -192,7 +202,7 @@ function Dashboard() {
           <Link to="/admin/projecten" search={{ neu: 1 } as never} className="btn-y-solid text-center">
             + Nieuw project
           </Link>
-          <Link to="/admin/offertes" className="btn-y text-center">
+          <Link to="/admin/quotes" className="btn-y text-center">
             + Nieuwe offerte
           </Link>
         </div>
@@ -209,7 +219,7 @@ function Dashboard() {
           />
           <StatTile
             to="/admin/offertes"
-            label="Nieuwe offertes"
+            label="Nieuwe aanvragen"
             value={newQuotes}
             emptyHint="Nog geen nieuwe aanvragen — deel je offertepagina."
             accent="var(--gold)"
@@ -306,6 +316,48 @@ function Dashboard() {
               );
             })}
           </ul>
+        )}
+
+        {/* Offerte-activiteit */}
+        {recentQuoteEvents.length > 0 && (
+          <>
+            <h2 className="mt-10" style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem" }}>
+              Offerte-activiteit
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {recentQuoteEvents.map((q) => {
+                const accepted = q.status === "akkoord";
+                const eur = new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(Number(q.total_amount));
+                return (
+                  <li key={q.id}>
+                    <Link to="/admin/quotes/$id" params={{ id: q.id }}
+                          className="flex items-center justify-between gap-3 px-3 py-3"
+                          style={{ border: "1px solid " + (accepted ? "var(--brass)" : "var(--cream-deep)"), background: accepted ? "var(--cream)" : "var(--cream-deep)" }}>
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: accepted ? "var(--brass)" : "var(--oxide)" }}>
+                          {accepted ? "Offerte geaccepteerd" : "Offerte afgewezen"} · {q.quote_number ?? ""}
+                        </div>
+                        <div className="truncate mt-1" style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
+                          {q.title}
+                        </div>
+                        {accepted && (
+                          <div className="text-[11px] mt-0.5" style={{ color: "var(--brass)" }}>
+                            Tijd om een project aan te maken →
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right whitespace-nowrap">
+                        <div style={{ fontFamily: "var(--font-display)", color: "var(--brass)" }}>{eur}</div>
+                        <div className="text-[11px]" style={{ color: "var(--charcoal-soft)" }}>
+                          {q.responded_at ? timeAgo(q.responded_at) : ""}
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
 
         {/* Recente activiteit */}

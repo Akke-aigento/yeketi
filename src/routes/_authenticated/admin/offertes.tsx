@@ -1,14 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AdminShell, statusBadge, timeAgo } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { convertQuoteToProject, deleteQuoteRequest, cleanupOrphanQuotePhotos } from "@/lib/admin.functions";
+import { createQuoteFromRequest } from "@/lib/quotes.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ConfirmModal } from "@/components/AdminModals";
 
 export const Route = createFileRoute("/_authenticated/admin/offertes")({
-  head: () => ({ meta: [{ title: "Offertes — Admin" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Aanvragen — Admin" }, { name: "robots", content: "noindex" }] }),
   component: Offertes,
 });
 
@@ -36,6 +37,7 @@ function waLink(phone: string | null, naam: string, voertuig: string) {
 }
 
 function Offertes() {
+  const navigate = useNavigate();
   const [quotes, setQuotes] = useState<Quote[] | null>(null);
   const [filter, setFilter] = useState<(typeof STATUSES)[number] | "all">("new");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -43,6 +45,7 @@ function Offertes() {
   const convert = useServerFn(convertQuoteToProject);
   const removeQuote = useServerFn(deleteQuoteRequest);
   const cleanupOrphans = useServerFn(cleanupOrphanQuotePhotos);
+  const makeQuote = useServerFn(createQuoteFromRequest);
   const [confirmState, setConfirmState] = useState<{ title: string; message: string; destructive?: boolean; onConfirm: () => void | Promise<void> } | null>(null);
 
   async function load() {
@@ -227,6 +230,22 @@ function Offertes() {
                       className="btn-y-solid w-full"
                     >
                       {busy === q.id ? "Bezig…" : "Maak project + nodig klant uit"}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setBusy(q.id);
+                        try {
+                          const res = await makeQuote({ data: { quoteRequestId: q.id } });
+                          toast.success("Offerte aangemaakt — vul aan en verstuur");
+                          navigate({ to: "/admin/quotes/$id", params: { id: res.quoteId } });
+                        } catch (e) {
+                          toast.error("Kon offerte niet aanmaken", { description: (e as Error).message });
+                        } finally { setBusy(null); }
+                      }}
+                      disabled={busy === q.id}
+                      className="btn-y w-full"
+                    >
+                      Maak offerte
                     </button>
                     <button
                       onClick={() => deleteNow(q)}

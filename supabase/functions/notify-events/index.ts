@@ -215,6 +215,50 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (body.table === "quotes" && body.type === "UPDATE" && body.record) {
+      const r = body.record as Record<string, unknown>;
+      const status = String(r.status ?? "");
+      const old = (body as { old_record?: Record<string, unknown> }).old_record ?? {};
+      const prevStatus = String(old.status ?? "");
+      const quoteNumber = String(r.quote_number ?? "");
+      const title = String(r.title ?? "");
+      const total = Number(r.total_amount ?? 0);
+      const totalStr = new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(total);
+      const portalUrl = `${PUBLIC_SITE_URL}/portaal/offerte/${r.id}`;
+      const adminUrl = `${PUBLIC_SITE_URL}/admin/quotes/${r.id}`;
+      try {
+        // Customer-facing "quote sent" is already covered by the in-app sendQuote
+        // server fn (sends with PDF attachment). Here we notify the ADMIN on
+        // customer responses (akkoord / afgewezen).
+        if (ADMIN_NOTIFY_EMAIL && prevStatus === "verstuurd" && (status === "akkoord" || status === "afgewezen")) {
+          const accepted = status === "akkoord";
+          const reason = String(r.response_reason ?? "").trim();
+          const tpl = {
+            headline: accepted
+              ? `Offerte ${quoteNumber} geaccepteerd`
+              : `Offerte ${quoteNumber} afgewezen`,
+            intro: accepted
+              ? `<strong>${title}</strong> (${totalStr}) is goedgekeurd door de klant. Tijd om een project aan te maken en de klant te bellen.`
+              : `<strong>${title}</strong> (${totalStr}) werd afgewezen.${reason ? `<br/><br/><em style="color:#4A453E;">"${reason.replace(/</g,"&lt;")}"</em>` : ""}`,
+            ctaLabel: "Open in admin",
+            ctaUrl: adminUrl,
+          };
+          await sendEmail({
+            to: ADMIN_NOTIFY_EMAIL,
+            subject: accepted ? `Offerte ${quoteNumber} geaccepteerd — ${title}` : `Offerte ${quoteNumber} afgewezen — ${title}`,
+            html: emailTemplate(tpl),
+            text: plainText(tpl),
+          });
+        }
+        // (Sending the quote itself happens from the in-app server function so
+        // that the PDF attachment is included; no email needed here for the
+        // 'verstuurd' transition.)
+        void portalUrl;
+      } catch (e) {
+        await logFailure("quotes", { id: r.id, status, prev: prevStatus }, (e as Error).message);
+      }
+    }
+
     return new Response("ok", { status: 200 });
   } catch (e) {
     console.error(e);
