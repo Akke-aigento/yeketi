@@ -1,8 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { RotateCw } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminBottomNav } from "./AdminBottomNav";
 import { useAdminUnreadCounts } from "@/hooks/useAdminUnreadCounts";
+import { triggerAdminRefresh } from "@/hooks/useAdminRefresh";
 
 type AdminTabTo = "/admin" | "/admin/projecten" | "/admin/offertes" | "/admin/quotes" | "/admin/berichten" | "/admin/klanten" | "/admin/recent-werk" | "/admin/instellingen";
 const tabs: { to: AdminTabTo; label: string; exact?: boolean; badgeKey?: "messages" | "requests" }[] = [
@@ -21,6 +24,7 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
   const [email, setEmail] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const counts = useAdminUnreadCounts();
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
@@ -32,6 +36,14 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
   async function logout() {
     await supabase.auth.signOut();
     navigate({ to: "/login" });
+  }
+
+  function handleRefresh() {
+    if (refreshing) return;
+    setRefreshing(true);
+    triggerAdminRefresh();
+    toast.success("Bijgewerkt", { duration: 1400 });
+    window.setTimeout(() => setRefreshing(false), 700);
   }
 
   return (
@@ -47,6 +59,24 @@ export function AdminShell({ children, title }: { children: ReactNode; title?: s
           </Link>
           <div className="flex items-center gap-3 sm:gap-5 min-w-0">
             <span className="hidden md:inline text-xs opacity-70 truncate max-w-[200px]">{email}</span>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              aria-label="Vernieuwen"
+              title="Vernieuwen"
+              className="shrink-0 inline-flex items-center justify-center rounded-full"
+              style={{
+                width: 30,
+                height: 30,
+                border: "1px solid var(--brass)",
+                background: "transparent",
+                color: "var(--gold)",
+                opacity: refreshing ? 0.7 : 1,
+              }}
+            >
+              <RotateCw size={14} strokeWidth={1.8} className={refreshing ? "yeketi-spin" : undefined} />
+            </button>
             <Link
               to="/"
               className="text-[11px] uppercase tracking-[0.2em] inline-flex items-center gap-1.5 hover:opacity-100 shrink-0"
