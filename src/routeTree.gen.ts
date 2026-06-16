@@ -26,7 +26,6 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedPortaalProjectIdRouteImport } from './routes/_authenticated/portaal.$projectId'
 import { Route as AuthenticatedAdminOffertesRouteImport } from './routes/_authenticated/admin/offertes'
 import { Route as AuthenticatedAdminKlantenRouteImport } from './routes/_authenticated/admin/klanten'
-import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
 import { Route as AuthenticatedAdminProjectenIdRouteImport } from './routes/_authenticated/admin/projecten.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -117,12 +116,6 @@ const AuthenticatedAdminKlantenRoute =
     path: '/klanten',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminProjectenIndexRoute =
-  AuthenticatedAdminProjectenIndexRouteImport.update({
-    id: '/projecten/',
-    path: '/projecten/',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
 const AuthenticatedAdminProjectenIdRoute =
   AuthenticatedAdminProjectenIdRouteImport.update({
     id: '/projecten/$id',
@@ -148,7 +141,6 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
-  '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -167,7 +159,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/portaal': typeof AuthenticatedPortaalIndexRoute
   '/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
-  '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -189,7 +180,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/portaal/': typeof AuthenticatedPortaalIndexRoute
   '/_authenticated/admin/projecten/$id': typeof AuthenticatedAdminProjectenIdRoute
-  '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -211,7 +201,6 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/portaal/'
     | '/admin/projecten/$id'
-    | '/admin/projecten/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -230,7 +219,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/portaal'
     | '/admin/projecten/$id'
-    | '/admin/projecten'
   id:
     | '__root__'
     | '/'
@@ -251,7 +239,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/portaal/'
     | '/_authenticated/admin/projecten/$id'
-    | '/_authenticated/admin/projecten/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -389,13 +376,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminKlantenRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/admin/projecten/': {
-      id: '/_authenticated/admin/projecten/'
-      path: '/projecten'
-      fullPath: '/admin/projecten/'
-      preLoaderRoute: typeof AuthenticatedAdminProjectenIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
     '/_authenticated/admin/projecten/$id': {
       id: '/_authenticated/admin/projecten/$id'
       path: '/projecten/$id'
@@ -411,7 +391,6 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminOffertesRoute: typeof AuthenticatedAdminOffertesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminProjectenIdRoute: typeof AuthenticatedAdminProjectenIdRoute
-  AuthenticatedAdminProjectenIndexRoute: typeof AuthenticatedAdminProjectenIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -420,8 +399,6 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminOffertesRoute: AuthenticatedAdminOffertesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminProjectenIdRoute: AuthenticatedAdminProjectenIdRoute,
-    AuthenticatedAdminProjectenIndexRoute:
-      AuthenticatedAdminProjectenIndexRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
