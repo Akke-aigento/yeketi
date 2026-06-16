@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminRecentWerkIndexRouteImport } from './routes/
 import { Route as AuthenticatedAdminQuotesIndexRouteImport } from './routes/_authenticated/admin/quotes.index'
 import { Route as AuthenticatedAdminProjectenIndexRouteImport } from './routes/_authenticated/admin/projecten.index'
 import { Route as AuthenticatedAdminBerichtenIndexRouteImport } from './routes/_authenticated/admin/berichten.index'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksQuoteRemindersRouteImport } from './routes/api/public/hooks/quote-reminders'
 import { Route as AuthenticatedPortaalOfferteIdRouteImport } from './routes/_authenticated/portaal.offerte.$id'
 import { Route as AuthenticatedPortaalBerichtenIdRouteImport } from './routes/_authenticated/portaal.berichten.$id'
@@ -176,6 +177,12 @@ const AuthenticatedAdminBerichtenIndexRoute =
     path: '/berichten/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksQuoteRemindersRoute =
   ApiPublicHooksQuoteRemindersRouteImport.update({
     id: '/api/public/hooks/quote-reminders',
@@ -247,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -279,6 +287,7 @@ export interface FileRoutesByTo {
   '/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/admin/berichten': typeof AuthenticatedAdminBerichtenIndexRoute
   '/admin/projecten': typeof AuthenticatedAdminProjectenIndexRoute
   '/admin/quotes': typeof AuthenticatedAdminQuotesIndexRoute
@@ -314,6 +323,7 @@ export interface FileRoutesById {
   '/_authenticated/portaal/berichten/$id': typeof AuthenticatedPortaalBerichtenIdRoute
   '/_authenticated/portaal/offerte/$id': typeof AuthenticatedPortaalOfferteIdRoute
   '/api/public/hooks/quote-reminders': typeof ApiPublicHooksQuoteRemindersRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/_authenticated/admin/berichten/': typeof AuthenticatedAdminBerichtenIndexRoute
   '/_authenticated/admin/projecten/': typeof AuthenticatedAdminProjectenIndexRoute
   '/_authenticated/admin/quotes/': typeof AuthenticatedAdminQuotesIndexRoute
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
     | '/api/public/hooks/quote-reminders'
+    | '/lovable/email/queue/process'
     | '/admin/berichten/'
     | '/admin/projecten/'
     | '/admin/quotes/'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/portaal/berichten/$id'
     | '/portaal/offerte/$id'
     | '/api/public/hooks/quote-reminders'
+    | '/lovable/email/queue/process'
     | '/admin/berichten'
     | '/admin/projecten'
     | '/admin/quotes'
@@ -415,6 +427,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portaal/berichten/$id'
     | '/_authenticated/portaal/offerte/$id'
     | '/api/public/hooks/quote-reminders'
+    | '/lovable/email/queue/process'
     | '/_authenticated/admin/berichten/'
     | '/_authenticated/admin/projecten/'
     | '/_authenticated/admin/quotes/'
@@ -436,6 +449,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   RestauratieVwT2Route: typeof RestauratieVwT2Route
   ApiPublicHooksQuoteRemindersRoute: typeof ApiPublicHooksQuoteRemindersRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -615,6 +629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBerichtenIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/quote-reminders': {
       id: '/api/public/hooks/quote-reminders'
       path: '/api/public/hooks/quote-reminders'
@@ -755,17 +776,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   RestauratieVwT2Route: RestauratieVwT2Route,
   ApiPublicHooksQuoteRemindersRoute: ApiPublicHooksQuoteRemindersRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
