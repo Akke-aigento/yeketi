@@ -239,6 +239,86 @@ export type Database = {
         }
         Relationships: []
       }
+      recent_work_items: {
+        Row: {
+          caption: string | null
+          created_at: string
+          date_label: string | null
+          id: string
+          photo_path: string
+          publication_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          date_label?: string | null
+          id?: string
+          photo_path: string
+          publication_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          date_label?: string | null
+          id?: string
+          photo_path?: string
+          publication_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recent_work_items_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "recent_work_publications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recent_work_publications: {
+        Row: {
+          cover_photo_path: string | null
+          created_at: string
+          id: string
+          sort_order: number
+          status: Database["public"]["Enums"]["recent_work_status"]
+          subtitle: string | null
+          title: string
+          updated_at: string
+          vehicle_label: string | null
+          year_label: string | null
+        }
+        Insert: {
+          cover_photo_path?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["recent_work_status"]
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          vehicle_label?: string | null
+          year_label?: string | null
+        }
+        Update: {
+          cover_photo_path?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["recent_work_status"]
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          vehicle_label?: string | null
+          year_label?: string | null
+        }
+        Relationships: []
+      }
       update_photos: {
         Row: {
           caption: string | null
@@ -322,6 +402,7 @@ export type Database = {
         | "delivered"
         | "archived"
       quote_status: "new" | "contacted" | "quoted" | "won" | "lost"
+      recent_work_status: "draft" | "published"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -460,6 +541,7 @@ export const Constants = {
         "archived",
       ],
       quote_status: ["new", "contacted", "quoted", "won", "lost"],
+      recent_work_status: ["draft", "published"],
     },
   },
 } as const
