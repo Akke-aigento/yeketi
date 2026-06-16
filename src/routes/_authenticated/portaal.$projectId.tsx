@@ -6,11 +6,14 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import {
   fetchProject,
   fetchProjectTimeline,
+  fetchReactionsByUpdate,
   signCoverUrl,
   type ProjectRow,
+  type ReactionView,
   type TimelinePhase,
 } from "@/lib/portal";
 import { t } from "@/lib/copy";
+import { ReactionThread } from "@/components/ReactionThread";
 
 export const Route = createFileRoute("/_authenticated/portaal/$projectId")({
   head: () => ({
@@ -31,6 +34,7 @@ function PortalProject() {
   const [project, setProject] = useState<ProjectRow | null>(null);
   const [cover, setCover] = useState<string | null>(null);
   const [phases, setPhases] = useState<TimelinePhase[] | null>(null);
+  const [reactions, setReactions] = useState<Map<string, ReactionView[]>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ urls: string[]; index: number } | null>(null);
 
@@ -46,6 +50,11 @@ function PortalProject() {
         const tl = await fetchProjectTimeline(projectId);
         if (!active) return;
         setPhases(tl);
+        const updateIds = tl.flatMap((p) => p.updates.map((u) => u.id));
+        if (updateIds.length > 0) {
+          const rmap = await fetchReactionsByUpdate(updateIds);
+          if (active) setReactions(rmap);
+        }
       } catch (e: unknown) {
         if (active) setError(e instanceof Error ? e.message : "Er ging iets mis.");
       }
@@ -178,6 +187,10 @@ function PortalProject() {
                                     ))}
                                   </div>
                                 )}
+                                <ReactionThread
+                                  updateId={u.id}
+                                  initial={reactions.get(u.id) ?? []}
+                                />
                               </article>
                             );
                           })}
