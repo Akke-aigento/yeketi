@@ -153,8 +153,8 @@ function InviteModal({ onClose, onSave, busy }: { onClose: () => void; onSave: (
   const [full_name, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
-      <div className="w-full sm:max-w-md" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+      <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
         <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--charcoal)", color: "var(--cream)" }}>
           <span style={{ fontFamily: "var(--font-display)" }}>Nieuwe klant</span>
           <button onClick={onClose} style={{ color: "var(--gold)" }}>✕</button>
@@ -191,8 +191,8 @@ function EditCustomerModal({ profile, onClose, onSave, busy }: {
   const [phone, setPhone] = useState(profile.phone ?? "");
   const [email, setEmail] = useState(profile.email ?? "");
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
-      <div className="w-full sm:max-w-md" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+      <div className="w-full sm:max-w-md max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
         <div className="px-4 py-3 flex items-center justify-between" style={{ background: "var(--charcoal)", color: "var(--cream)" }}>
           <span style={{ fontFamily: "var(--font-display)" }}>Klant bewerken</span>
           <button onClick={onClose} style={{ color: "var(--gold)" }}>✕</button>

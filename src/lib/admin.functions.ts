@@ -156,12 +156,36 @@ export const listAdmins = createServerFn({ method: "POST" })
       .eq("role", "admin");
     if (error) throw error;
     const ids = (roles ?? []).map((r) => r.user_id);
-    if (ids.length === 0) return { admins: [] as { id: string; email: string | null; full_name: string | null }[] };
+    if (ids.length === 0) return { admins: [] as { id: string; email: string | null; full_name: string | null }[], currentUserId: (context as { userId: string }).userId };
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
       .select("id, email, full_name")
       .in("id", ids);
-    return { admins: profiles ?? [] };
+    return { admins: profiles ?? [], currentUserId: (context as { userId: string }).userId };
+  });
+
+// Revoke admin role. Requires confirmation phrase. Cannot remove self or last admin.
+export const removeAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { userId: string; confirm: string }) => input)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as never);
+    if (data.confirm !== "VERWIJDER ADMIN") {
+      throw new Error("Bevestiging onjuist");
+    }
+    const ctx = context as { userId: string };
+    if (data.userId === ctx.userId) {
+      throw new Error("Je kunt jezelf niet als admin verwijderen");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: all, error: le } = await supabaseAdmin
+      .from("user_roles").select("user_id").eq("role", "admin");
+    if (le) throw le;
+    if ((all ?? []).length <= 1) throw new Error("Er moet minstens één admin overblijven");
+    const { error } = await supabaseAdmin
+      .from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
+    if (error) throw error;
+    return { ok: true };
   });
 
 export const convertQuoteToProject = createServerFn({ method: "POST" })

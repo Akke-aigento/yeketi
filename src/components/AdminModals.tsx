@@ -18,8 +18,8 @@ export function ConfirmModal({
   const [busy, setBusy] = useState(false);
   if (!open) return null;
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
-      <div className="w-full sm:max-w-sm" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+      <div className="w-full sm:max-w-sm max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
         <div className="px-4 py-3" style={{ background: "var(--charcoal)", color: "var(--cream)", fontFamily: "var(--font-display)" }}>
           {title}
         </div>
@@ -67,8 +67,8 @@ export function PromptModal({
   useEffect(() => { if (open) setValue(initial); }, [open, initial]);
   if (!open) return null;
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center" style={{ background: "rgba(34,31,27,0.6)" }}>
-      <div className="w-full sm:max-w-sm" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center pb-20 lg:pb-0 overflow-y-auto" style={{ background: "rgba(34,31,27,0.6)" }}>
+      <div className="w-full sm:max-w-sm max-h-[85vh] overflow-y-auto" style={{ background: "var(--cream)", border: "1px solid var(--charcoal)" }}>
         <div className="px-4 py-3" style={{ background: "var(--charcoal)", color: "var(--cream)", fontFamily: "var(--font-display)" }}>
           {title}
         </div>
