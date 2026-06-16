@@ -67,12 +67,28 @@ function Login() {
         return;
       }
       setStatus("sending");
-      const { error: err } = await supabase.auth.signInWithPassword({
-        email: trimmed,
-        password,
-      });
-      if (err) {
-        setError(t.portal.invalidCredentials);
+      try {
+        const { error: err } = await supabase.auth.signInWithPassword({
+          email: trimmed,
+          password,
+        });
+        if (err) {
+          const msg = (err.message ?? "").toLowerCase();
+          const code = (err as { status?: number }).status;
+          if (code === 429 || msg.includes("rate") || msg.includes("too many")) {
+            setError(t.portal.loginRateLimited);
+          } else if (msg.includes("not confirmed") || msg.includes("confirm")) {
+            setError(t.portal.emailNotConfirmed);
+          } else if (msg.includes("invalid") || msg.includes("credentials") || code === 400) {
+            setError(t.portal.invalidCredentials);
+          } else {
+            setError(`${t.portal.loginUnknownError} (${err.message})`);
+          }
+          setStatus("idle");
+          return;
+        }
+      } catch (e) {
+        setError(t.portal.networkError);
         setStatus("idle");
         return;
       }
@@ -204,11 +220,24 @@ function Login() {
                         </div>
                       </>
                     )}
-                    {error && (
-                      <p className="mt-4 text-sm" style={{ color: "var(--oxide)", lineHeight: 1.6 }}>
-                        {error}
-                      </p>
-                    )}
+            {error && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="mt-5"
+                style={{
+                  background: "color-mix(in srgb, var(--oxide) 10%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--oxide) 35%, transparent)",
+                  color: "var(--oxide)",
+                  padding: "0.85rem 1rem",
+                  borderRadius: "6px",
+                  fontSize: "0.9rem",
+                  lineHeight: 1.55,
+                }}
+              >
+                {error}
+              </div>
+            )}
                     <button
                       type="submit"
                       className="btn-y-solid mt-8 w-full"
