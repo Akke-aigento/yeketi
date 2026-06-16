@@ -78,7 +78,7 @@ function Klanten() {
             const pr = projects.filter((x) => x.customer_id === p.id);
             return (
               <li key={p.id} className="px-3 py-3" style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}>
-                <div className="flex justify-between gap-2 items-start">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-start sm:flex sm:justify-between">
                   <div className="min-w-0">
                     <div className="truncate" style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem" }}>
                       {p.full_name || p.email}
@@ -87,18 +87,18 @@ function Klanten() {
                       {p.email}{p.phone ? ` · ${p.phone}` : ""}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
+                  <div className="flex flex-wrap justify-end items-center gap-x-3 gap-y-1 shrink-0">
                     <button
                       onClick={() => onMessage(p)}
                       disabled={busy === `msg-${p.id}`}
-                      className="text-xs uppercase tracking-[0.18em] whitespace-nowrap"
+                      className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
                       style={{ color: "var(--charcoal)" }}
                     >
                       {busy === `msg-${p.id}` ? "…" : "Bericht sturen"}
                     </button>
                     <button
                       onClick={() => setEditing(p)}
-                      className="text-xs uppercase tracking-[0.18em] whitespace-nowrap"
+                      className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
                       style={{ color: "var(--charcoal-soft)" }}
                     >
                       Bewerken
@@ -107,7 +107,7 @@ function Klanten() {
                       <button
                         onClick={() => onResend(p.email!)}
                         disabled={busy === p.email}
-                        className="text-xs uppercase tracking-[0.18em] whitespace-nowrap"
+                        className="text-[11px] uppercase tracking-[0.18em] whitespace-nowrap"
                         style={{ color: "var(--brass)" }}
                       >
                         {busy === p.email ? "…" : "Stuur link"}
