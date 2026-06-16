@@ -65,6 +65,50 @@ function PortalIndex() {
             </p>
           </ScrollReveal>
 
+          {quotes && quotes.length > 0 && (
+            <div className="mt-12">
+              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem" }}>Offertes</h2>
+              <ul className="mt-4 space-y-2">
+                {quotes.map((q) => {
+                  const responded = q.status === "akkoord" || q.status === "afgewezen";
+                  const accent =
+                    q.status === "akkoord" ? "var(--brass)" :
+                    q.status === "afgewezen" ? "var(--oxide)" :
+                    "var(--gold)";
+                  return (
+                    <li key={q.id}>
+                      <Link
+                        to="/portaal/offerte/$id"
+                        params={{ id: q.id }}
+                        className="flex items-center justify-between gap-3 px-4 py-3"
+                        style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}
+                      >
+                        <div className="min-w-0">
+                          <div className="eyebrow" style={{ color: accent }}>
+                            {q.quote_number ?? "Offerte"} · {q.status === "verstuurd" ? "wacht op antwoord" : q.status === "akkoord" ? "akkoord" : "afgewezen"}
+                          </div>
+                          <div className="truncate mt-1" style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem" }}>
+                            {q.title}
+                          </div>
+                        </div>
+                        <div className="text-right whitespace-nowrap">
+                          <div style={{ fontFamily: "var(--font-display)", color: "var(--brass)", fontSize: "1.15rem" }}>
+                            {new Intl.NumberFormat("nl-BE", { style: "currency", currency: "EUR" }).format(Number(q.total_amount))}
+                          </div>
+                          {!responded && (
+                            <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--brass)" }}>
+                              Bekijk →
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           <div className="mt-14">
             {error && (
               <p style={{ color: "var(--oxide)" }}>{error}</p>
