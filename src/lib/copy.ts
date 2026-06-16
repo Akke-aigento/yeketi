@@ -66,6 +66,14 @@ export const nl = {
         d: "Eén aanspreekpunt, van eerste foto tot aflevering. Updates met beelden, in uw taal, op uw tempo.",
       },
     ],
+    proof: {
+      eyebrow: "Het bewijs",
+      body: "Geen MIG, geen kortere weg: een vlam, een staaf, en een hand die rustig blijft. Zo werd plaatstaal van een oldtimer ooit aan elkaar gezet — en zo doen wij het nog steeds.",
+    },
+    weldingVideo: {
+      caption: "Autogeen-lassen in de werkplaats — gas- en zuurstofvlam op klassiek plaatstaal.",
+      aria: "Korte video van autogeen-lassen op plaatstaal in de werkplaats",
+    },
   },
   recent: {
     eyebrow: "Recente restauratie",
