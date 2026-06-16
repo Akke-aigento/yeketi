@@ -60,7 +60,7 @@ export async function renderQuotePdf(q: PdfQuote): Promise<Uint8Array> {
   const helv = await doc.embedFont(StandardFonts.Helvetica);
   const helvB = await doc.embedFont(StandardFonts.HelveticaBold);
   const times = await doc.embedFont(StandardFonts.TimesRoman);   // Marcellus fallback
-  const timesI = await doc.embedFont(StandardFonts.TimesItalic);
+  const timesI = await doc.embedFont(StandardFonts.TimesRomanItalic);
 
   const A4 = { w: 595.28, h: 841.89 };
   const margin = 48;
