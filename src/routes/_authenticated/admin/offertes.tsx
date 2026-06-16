@@ -120,7 +120,7 @@ function Offertes() {
   }
 
   return (
-    <AdminShell title="Offertes">
+    <AdminShell title="Aanvragen">
       <section className="container-edit" style={{ paddingBottom: "3rem" }}>
         <div className="flex justify-end pt-2">
           <button onClick={runCleanup} className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "var(--charcoal-soft)" }}>
