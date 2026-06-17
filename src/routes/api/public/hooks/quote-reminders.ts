@@ -1,15 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { runQuoteReminders } from "@/lib/quotes.functions";
 
-// Cron-invoked endpoint that sends one gentle reminder per quote that has
-// been "verstuurd" for >= 7 days without a response.  Auth is handled by the
-// pg_cron call supplying the project's anon key as `apikey`; the handler
-// trusts the caller and does no destructive operation beyond updating
-// reminder_sent_at on quotes that successfully received a mail.
+// Cron-invoked endpoint. Authenticated via a shared secret sent in the
+// `x-cron-secret` header (configured on the pg_cron job). Constant-time
+// comparison; rejects with 401 on mismatch or missing secret.
+function timingSafeEqualStr(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 export const Route = createFileRoute("/api/public/hooks/quote-reminders")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        const expected = process.env.CRON_HOOK_SECRET;
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        if (!expected || !provided || !timingSafeEqualStr(provided, expected)) {
+          return new Response(JSON.stringify({ ok: false, error: "unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
         try {
           const result = await runQuoteReminders();
           return new Response(JSON.stringify({ ok: true, ...result }), {
