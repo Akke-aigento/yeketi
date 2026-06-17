@@ -606,7 +606,12 @@ export const sendCustomerMessage = createServerFn({ method: "POST" })
       body,
     });
     if (ins.error) {
-      throw new Error("Bericht kon niet verstuurd worden.");
+      console.error("sendCustomerMessage insert failed", {
+        userId: ctx.userId,
+        convId,
+        error: ins.error,
+      });
+      throw new Error(`Bericht kon niet verstuurd worden: ${ins.error.message}`);
     }
     return { ok: true, conversationId: convId } as const;
   });
