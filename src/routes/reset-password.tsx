@@ -204,6 +204,26 @@ function ResetPassword() {
                       {showPassword ? t.portal.hideShort : t.portal.showShort}
                     </button>
                   </div>
+                  <label
+                    htmlFor="confirm-password"
+                    className="eyebrow block mt-6"
+                    style={{ color: "var(--charcoal-soft)" }}
+                  >
+                    {t.portal.confirmPasswordLabel}
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      id="confirm-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      className="field-y"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={status === "saving" || !ready}
+                    />
+                  </div>
                   {error && (
                     <p className="mt-4 text-sm" style={{ color: "var(--oxide)", lineHeight: 1.6 }}>
                       {error}
