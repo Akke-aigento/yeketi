@@ -40,6 +40,7 @@ function ResetPassword() {
   const [ready, setReady] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(() => getResetLinkError());
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -97,12 +98,25 @@ function ResetPassword() {
       setError(t.portal.passwordTooShort);
       return;
     }
+    if (password !== confirmPassword) {
+      setError(t.portal.passwordsDoNotMatch);
+      return;
+    }
     setStatus("saving");
     const { error: err } = await supabase.auth.updateUser({ password });
     if (err) {
       setError(err.message || t.portal.sendError);
       setStatus("idle");
       return;
+    }
+    // Mark this account as having completed password setup so the
+    // authenticated guard stops redirecting them back to /reset-password.
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user) {
+      await supabase
+        .from("profiles")
+        .update({ password_set: true })
+        .eq("id", userData.user.id);
     }
     if (isInvite) {
       // Fire-and-forget welcome mail; never block redirect on email delivery.
@@ -189,6 +203,26 @@ function ResetPassword() {
                     >
                       {showPassword ? t.portal.hideShort : t.portal.showShort}
                     </button>
+                  </div>
+                  <label
+                    htmlFor="confirm-password"
+                    className="eyebrow block mt-6"
+                    style={{ color: "var(--charcoal-soft)" }}
+                  >
+                    {t.portal.confirmPasswordLabel}
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      id="confirm-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      className="field-y"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={status === "saving" || !ready}
+                    />
                   </div>
                   {error && (
                     <p className="mt-4 text-sm" style={{ color: "var(--oxide)", lineHeight: 1.6 }}>
