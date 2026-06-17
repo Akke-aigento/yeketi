@@ -7,7 +7,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { guardQuoteSubmission, linkQuoteRequestToConversation } from "@/lib/messages.functions";
+import { guardQuoteSubmission, submitQuoteRequest } from "@/lib/messages.functions";
 
 export const Route = createFileRoute("/offerte")({
   head: () => ({
@@ -37,7 +37,7 @@ const schema = z.object({
 function Offerte() {
   const t = useT();
   const guard = useServerFn(guardQuoteSubmission);
-  const link = useServerFn(linkQuoteRequestToConversation);
+  const submit = useServerFn(submitQuoteRequest);
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [photos, setPhotos] = useState<File[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -73,10 +73,12 @@ function Offerte() {
 
     setStatus("sending");
     try {
-      // Server-side honeypot + per-IP rate limit.
-      await guard({ data: { hp } });
-      const quoteRequestId = crypto.randomUUID();
-      const submissionPrefix = quoteRequestId;
+      // Server-side honeypot + per-IP rate limit. Returns a short-lived
+      // upload ticket whose UUID is the only prefix accepted by the
+      // quote-photos storage policy.
+      const guardRes = await guard({ data: { hp } });
+      const ticketId = (guardRes as { ticketId: string }).ticketId;
+      const submissionPrefix = ticketId;
       const foto_urls: string[] = [];
       for (const f of files) {
         if (!f.type.startsWith("image/")) {
@@ -96,20 +98,21 @@ function Offerte() {
         foto_urls.push(path);
       }
 
-      const { error } = await supabase.from("quote_requests").insert({
-        id: quoteRequestId,
-        ...parsed.data,
-        telefoon: parsed.data.telefoon || null,
-        merk: parsed.data.merk || null,
-        model: parsed.data.model || null,
-        bouwjaar: parsed.data.bouwjaar || null,
-        beschrijving: parsed.data.beschrijving || null,
-        foto_urls,
-        locale,
+      await submit({
+        data: {
+          ticketId,
+          naam: parsed.data.naam,
+          email: parsed.data.email,
+          telefoon: parsed.data.telefoon || null,
+          merk: parsed.data.merk || null,
+          model: parsed.data.model || null,
+          bouwjaar: parsed.data.bouwjaar || null,
+          type_werk: parsed.data.type_werk,
+          beschrijving: parsed.data.beschrijving || null,
+          foto_urls,
+          locale,
+        },
       });
-      if (error) throw error;
-      try { await link({ data: { quoteRequestId } }); }
-      catch (e) { console.warn("conversation link failed", e); }
       setStatus("ok");
       form.reset();
       setPhotos([]);
