@@ -256,6 +256,8 @@ export const nl = {
     inviteWelcomeTitle: "Welkom — stel je wachtwoord in",
     inviteWelcomeBody: "Kies een wachtwoord om je toegang tot het klantenportaal te activeren.",
     settingPasswordFor: "Je stelt een wachtwoord in voor",
+    confirmPasswordLabel: "Herhaal wachtwoord",
+    passwordsDoNotMatch: "De wachtwoorden komen niet overeen.",
     verifyingLink: "Recovery-link wordt geverifieerd…",
     linkExpiredAfterWait: "We konden je link niet verifiëren. Vraag een nieuwe link aan om verder te gaan.",
     notRegistered:
@@ -605,6 +607,8 @@ export const en: Copy = {
     inviteWelcomeTitle: "Welcome — set your password",
     inviteWelcomeBody: "Choose a password to activate your access to the client portal.",
     settingPasswordFor: "You're setting a password for",
+    confirmPasswordLabel: "Confirm password",
+    passwordsDoNotMatch: "The passwords don't match.",
     verifyingLink: "Verifying recovery link…",
     linkExpiredAfterWait: "We couldn't verify your link. Please request a new one to continue.",
     notRegistered:
