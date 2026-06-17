@@ -291,6 +291,7 @@ export type Database = {
           full_name: string | null
           id: string
           locale: Database["public"]["Enums"]["app_locale"]
+          password_set: boolean
           phone: string | null
           updated_at: string
         }
@@ -300,6 +301,7 @@ export type Database = {
           full_name?: string | null
           id: string
           locale?: Database["public"]["Enums"]["app_locale"]
+          password_set?: boolean
           phone?: string | null
           updated_at?: string
         }
@@ -309,6 +311,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           locale?: Database["public"]["Enums"]["app_locale"]
+          password_set?: boolean
           phone?: string | null
           updated_at?: string
         }
