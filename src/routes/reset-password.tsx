@@ -40,6 +40,7 @@ function ResetPassword() {
   const [ready, setReady] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(() => getResetLinkError());
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -97,12 +98,25 @@ function ResetPassword() {
       setError(t.portal.passwordTooShort);
       return;
     }
+    if (password !== confirmPassword) {
+      setError(t.portal.passwordsDoNotMatch);
+      return;
+    }
     setStatus("saving");
     const { error: err } = await supabase.auth.updateUser({ password });
     if (err) {
       setError(err.message || t.portal.sendError);
       setStatus("idle");
       return;
+    }
+    // Mark this account as having completed password setup so the
+    // authenticated guard stops redirecting them back to /reset-password.
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user) {
+      await supabase
+        .from("profiles")
+        .update({ password_set: true })
+        .eq("id", userData.user.id);
     }
     if (isInvite) {
       // Fire-and-forget welcome mail; never block redirect on email delivery.
