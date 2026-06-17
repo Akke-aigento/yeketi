@@ -31,7 +31,7 @@ export function SiteNav() {
     >
       <div
         className="container-edit grid grid-cols-[1fr_auto_1fr] items-center gap-6 lg:flex lg:justify-between"
-        style={{ paddingBlock: "1.25rem" }}
+        style={{ paddingBlock: "0.5rem" }}
       >
         <div className="lg:contents flex justify-center col-start-2">
           <SiteLogo />
