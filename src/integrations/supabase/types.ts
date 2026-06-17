@@ -515,6 +515,27 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_upload_tickets: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          id: string
+          ip: string | null
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          id: string
+          ip?: string | null
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+        }
+        Relationships: []
+      }
       quotes: {
         Row: {
           created_at: string

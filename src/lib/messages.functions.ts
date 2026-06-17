@@ -142,8 +142,119 @@ export const guardQuoteSubmission = createServerFn({ method: "POST" })
   .inputValidator((input: { hp?: string }) => input)
   .handler(async ({ data }) => {
     if (data.hp && data.hp.trim() !== "") throw new Error("Spam gedetecteerd.");
-    await rateLimitOrThrow("quote_request", clientIp(), 5, 30);
-    return { ok: true } as const;
+    const ip = clientIp();
+    await rateLimitOrThrow("quote_request", ip, 5, 30);
+    // Mint a short-lived upload ticket so anonymous photo uploads to
+    // quote-photos are tied to a server-validated submission.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ticketId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : ([1e7] as unknown as string);
+    const { error } = await supabaseAdmin
+      .from("quote_upload_tickets")
+      .insert({ id: ticketId, ip });
+    if (error) throw error;
+    return { ok: true, ticketId } as const;
+  });
+
+// Server-side insert for the public offerte form. Requires a valid ticket
+// minted by guardQuoteSubmission. Performs validation, inserts via the
+// admin client (RLS no longer allows anonymous direct inserts on
+// quote_requests), consumes the ticket, and links a conversation.
+export const submitQuoteRequest = createServerFn({ method: "POST" })
+  .inputValidator((input: {
+    ticketId: string;
+    naam: string;
+    email: string;
+    telefoon?: string | null;
+    merk?: string | null;
+    model?: string | null;
+    bouwjaar?: string | null;
+    type_werk: "plaatwerk" | "volledige_restauratie" | "advies";
+    beschrijving?: string | null;
+    foto_urls?: string[];
+    locale?: "nl" | "en";
+  }) => input)
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Ticket must exist, be recent (<1h), and unconsumed.
+    const { data: ticket, error: tErr } = await supabaseAdmin
+      .from("quote_upload_tickets")
+      .select("id, created_at, consumed_at")
+      .eq("id", data.ticketId)
+      .maybeSingle();
+    if (tErr) throw tErr;
+    if (!ticket) throw new Error("Ongeldige sessie — herlaad de pagina.");
+    if (ticket.consumed_at) throw new Error("Deze aanvraag is al verstuurd.");
+    if (new Date(ticket.created_at as string).getTime() < Date.now() - 60 * 60_000) {
+      throw new Error("Sessie verlopen — herlaad de pagina.");
+    }
+
+    const naam = sanitize(data.naam, 120);
+    const email = sanitize((data.email || "").toLowerCase(), 255);
+    if (!naam || !EMAIL_RE.test(email)) throw new Error("Vul naam en e-mail correct in.");
+    const type_werk = data.type_werk;
+    if (!["plaatwerk", "volledige_restauratie", "advies"].includes(type_werk)) {
+      throw new Error("Ongeldig type werk.");
+    }
+
+    // foto_urls must all live under the ticket prefix.
+    const photos = (data.foto_urls ?? []).slice(0, 5);
+    for (const p of photos) {
+      if (typeof p !== "string" || !p.startsWith(`${data.ticketId}/`)) {
+        throw new Error("Ongeldig fotopad.");
+      }
+    }
+
+    const locale: "nl" | "en" = data.locale === "en" ? "en" : "nl";
+
+    const { error: insErr } = await supabaseAdmin.from("quote_requests").insert({
+      id: data.ticketId,
+      naam,
+      email,
+      telefoon: data.telefoon ? sanitize(data.telefoon, 40) : null,
+      merk: data.merk ? sanitize(data.merk, 80) : null,
+      model: data.model ? sanitize(data.model, 80) : null,
+      bouwjaar: data.bouwjaar ? sanitize(data.bouwjaar, 8) : null,
+      type_werk,
+      beschrijving: data.beschrijving ? sanitize(data.beschrijving, 3000) : null,
+      foto_urls: photos,
+      locale,
+    });
+    if (insErr) throw insErr;
+
+    await supabaseAdmin
+      .from("quote_upload_tickets")
+      .update({ consumed_at: new Date().toISOString() })
+      .eq("id", data.ticketId);
+
+    // Link conversation / invite profile (best-effort).
+    try {
+      const { userId } = await findOrInviteUser(email, naam, { locale });
+      const subject =
+        [data.merk, data.model, data.bouwjaar].filter(Boolean).join(" ") || "Offerteaanvraag";
+      const convId = await ensureConversation(userId, "quote_request", subject);
+      const { count } = await supabaseAdmin
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_id", convId);
+      if ((count ?? 0) === 0) {
+        await supabaseAdmin.from("messages").insert({
+          conversation_id: convId,
+          author_id: null,
+          sender: "systeem",
+          body: `Nieuwe offerteaanvraag: ${subject}${
+            data.beschrijving ? `\n\n${data.beschrijving}` : ""
+          }`,
+        });
+      }
+    } catch (e) {
+      console.warn("conversation link failed", e);
+    }
+
+    return { ok: true, quoteRequestId: data.ticketId } as const;
   });
 
 // After an anon offerte insert succeeds, the client calls this to ensure a
