@@ -839,6 +839,7 @@ export type Database = {
         Args: { _project: string; _uid: string }
         Returns: boolean
       }
+      quote_upload_ticket_valid: { Args: { _id: string }; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
