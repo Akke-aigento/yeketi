@@ -727,7 +727,17 @@ function NewUpdateModal({
       previewUrl: URL.createObjectURL(file),
       status: "pending" as const,
     }));
-    setItems((prev) => [...prev, ...next]);
+    setItems((prev) => {
+      const merged = [...prev, ...next];
+      // If the update is already published, upload new files immediately.
+      if (updateId) {
+        void (async () => {
+          setBusy(true);
+          try { await runUploads(updateId, merged); } finally { setBusy(false); }
+        })();
+      }
+      return merged;
+    });
   }
 
   // Revoke object URLs on unmount to prevent leaks
@@ -894,13 +904,15 @@ function NewUpdateModal({
                          it.status === "uploading" ? "bezig" :
                          it.status === "done" ? "ok" : "fout"}
                       </div>
-                      {!published && (
-                        <button
-                          onClick={() => setItems((prev) => prev.filter((_, j) => j !== i))}
-                          className="absolute top-0 right-0 px-1 text-xs"
-                          style={{ background: "var(--charcoal)", color: "var(--gold)" }}
-                        >✕</button>
-                      )}
+                       {(!published || it.status !== "done") && (
+                         <button
+                           type="button"
+                           onClick={() => removeItem(i)}
+                           className="absolute top-0 right-0 px-1 text-xs"
+                           style={{ background: "var(--charcoal)", color: "var(--gold)" }}
+                           aria-label="Verwijder foto"
+                         >✕</button>
+                       )}
                     </div>
                   );
                 })}
