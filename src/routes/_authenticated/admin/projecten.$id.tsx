@@ -886,7 +886,7 @@ function NewUpdateModal({
                   return (
                     <div key={i} className="relative">
                       <img
-                        src={URL.createObjectURL(it.file)}
+                        src={it.previewUrl}
                         alt=""
                         className="w-full"
                         style={{
