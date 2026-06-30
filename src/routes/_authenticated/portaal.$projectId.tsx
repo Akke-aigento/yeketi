@@ -51,7 +51,8 @@ function PortalProject() {
   const [phases, setPhases] = useState<TimelinePhase[] | null>(null);
   const [reactions, setReactions] = useState<Map<string, ReactionView[]>>(new Map());
   const [error, setError] = useState<string | null>(null);
-  const [lightbox, setLightbox] = useState<{ urls: string[]; index: number } | null>(null);
+  type LightboxMedia = { kind: "image" | "video"; url: string; poster: string | null };
+  const [lightbox, setLightbox] = useState<{ items: LightboxMedia[]; index: number } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -175,29 +176,42 @@ function PortalProject() {
                         )}
                         <div className="mt-5 space-y-8">
                           {phase.updates.map((u) => {
-                            const photoUrls = u.photos.map((p) => p.signedUrl).filter((x): x is string => !!x);
+                            const media: LightboxMedia[] = u.photos
+                              .filter((p) => !!p.signedUrl)
+                              .map((p) => ({
+                                kind: (p as { media_type?: string }).media_type === "video" ? "video" : "image",
+                                url: p.signedUrl as string,
+                                poster: p.posterUrl,
+                              }));
                             return (
                               <article key={u.id} style={{ borderTop: "1px solid var(--charcoal)", paddingTop: "1.25rem" }}>
                                 <p className="eyebrow" style={{ color: "var(--charcoal-soft)" }}>
                                   {new Date(u.created_at).toLocaleDateString("nl-BE", { day: "numeric", month: "long", year: "numeric" })}
                                 </p>
                                 <p className="mt-3" style={{ lineHeight: 1.75, whiteSpace: "pre-wrap" }}>{u.body}</p>
-                                {photoUrls.length > 0 && (
+                                {media.length > 0 && (
                                   <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-2">
-                                    {photoUrls.map((url, i) => (
+                                    {media.map((m, i) => (
                                       <button
-                                        key={url}
+                                        key={`${m.url}-${i}`}
                                         type="button"
-                                        onClick={() => setLightbox({ urls: photoUrls, index: i })}
-                                        style={{ padding: 0, border: 0, cursor: "zoom-in" }}
+                                        onClick={() => setLightbox({ items: media, index: i })}
+                                        style={{ padding: 0, border: 0, cursor: "zoom-in", position: "relative", background: "transparent" }}
                                       >
                                         <img
-                                          src={url}
+                                          src={m.kind === "video" ? (m.poster ?? "") : m.url}
                                           alt={u.photos[i]?.caption ?? ""}
                                           loading="lazy"
                                           className="w-full block"
-                                          style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)" }}
+                                          style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)", background: "#000" }}
                                         />
+                                        {m.kind === "video" && (
+                                          <span aria-hidden style={{
+                                            position: "absolute", inset: 0, display: "grid", placeItems: "center",
+                                            color: "var(--cream)", fontSize: "2rem", textShadow: "0 2px 6px rgba(0,0,0,.6)",
+                                            pointerEvents: "none",
+                                          }}>▶</span>
+                                        )}
                                       </button>
                                     ))}
                                   </div>
@@ -238,8 +252,8 @@ function PortalProject() {
             setLightbox((lb) => lb && {
               ...lb,
               index: dx < 0
-                ? (lb.index + 1) % lb.urls.length
-                : (lb.index - 1 + lb.urls.length) % lb.urls.length,
+                ? (lb.index + 1) % lb.items.length
+                : (lb.index - 1 + lb.items.length) % lb.items.length,
             });
           }}
           style={{
@@ -253,22 +267,32 @@ function PortalProject() {
             padding: "2rem",
           }}
         >
-          <img
-            src={lightbox.urls[lightbox.index]}
-            alt=""
-            style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-            onClick={(e) => e.stopPropagation()}
-          />
-          {lightbox.urls.length > 1 && (
+          {lightbox.items[lightbox.index].kind === "video" ? (
+            <video
+              src={lightbox.items[lightbox.index].url}
+              poster={lightbox.items[lightbox.index].poster ?? undefined}
+              controls autoPlay playsInline
+              style={{ maxWidth: "100%", maxHeight: "100%", background: "#000" }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={lightbox.items[lightbox.index].url}
+              alt=""
+              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+          {lightbox.items.length > 1 && (
             <>
               <button
                 aria-label="Vorige"
-                onClick={(e) => { e.stopPropagation(); setLightbox((lb) => lb && { ...lb, index: (lb.index - 1 + lb.urls.length) % lb.urls.length }); }}
+                onClick={(e) => { e.stopPropagation(); setLightbox((lb) => lb && { ...lb, index: (lb.index - 1 + lb.items.length) % lb.items.length }); }}
                 style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "var(--cream)", background: "transparent", border: "1px solid var(--cream)", padding: "0.75rem 1rem" }}
               >‹</button>
               <button
                 aria-label="Volgende"
-                onClick={(e) => { e.stopPropagation(); setLightbox((lb) => lb && { ...lb, index: (lb.index + 1) % lb.urls.length }); }}
+                onClick={(e) => { e.stopPropagation(); setLightbox((lb) => lb && { ...lb, index: (lb.index + 1) % lb.items.length }); }}
                 style={{ position: "absolute", right: "1rem", top: "50%", transform: "translateY(-50%)", color: "var(--cream)", background: "transparent", border: "1px solid var(--cream)", padding: "0.75rem 1rem" }}
               >›</button>
             </>
