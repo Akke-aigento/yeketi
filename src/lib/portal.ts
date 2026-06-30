@@ -111,7 +111,7 @@ export async function fetchProject(id: string) {
   return data;
 }
 
-export type TimelinePhoto = PhotoRow & { signedUrl: string | null };
+export type TimelinePhoto = PhotoRow & { signedUrl: string | null; posterUrl: string | null };
 export type TimelineUpdate = UpdateRow & { photos: TimelinePhoto[] };
 export type TimelinePhase = PhaseRow & { updates: TimelineUpdate[] };
 
