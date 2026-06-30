@@ -452,20 +452,27 @@ function UploadQueueModal({
         </div>
         <div className="px-4 py-4 space-y-3">
           <p className="text-xs" style={{ color: "var(--charcoal-soft)" }}>
-            Alle foto's worden bijgesneden naar 4:5 (portret) zodat de wand uniform blijft.
-            Schuif om het brandpunt te kiezen.
+            Foto's worden bijgesneden naar 4:5 (portret) zodat de wand uniform blijft —
+            schuif om het brandpunt te kiezen. Video's (≤20s, ≤50 MB) worden ongewijzigd geplaatst.
           </p>
           <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {queue.map((c, i) => (
               <li key={i} style={{ border: "1px solid var(--charcoal)" }}>
                 <div className="relative" style={{ aspectRatio: `${RECENT_WORK_ASPECT}`, overflow: "hidden", background: "var(--charcoal)" }}>
-                  <img
-                    src={c.previewUrl} alt=""
-                    style={{
-                      position: "absolute", inset: 0, width: "100%", height: "100%",
-                      objectFit: "cover", objectPosition: `50% ${(c.focusY * 100).toFixed(0)}%`,
-                    }}
-                  />
+                  {c.kind === "video" ? (
+                    <video
+                      src={c.previewUrl} muted playsInline preload="metadata"
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <img
+                      src={c.previewUrl} alt=""
+                      style={{
+                        position: "absolute", inset: 0, width: "100%", height: "100%",
+                        objectFit: "cover", objectPosition: `50% ${(c.focusY * 100).toFixed(0)}%`,
+                      }}
+                    />
+                  )}
                   {c.status === "done" && (
                     <span className="absolute top-1 right-1 text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5"
                       style={{ background: "var(--brass)", color: "var(--cream)" }}>ok</span>
@@ -478,17 +485,27 @@ function UploadQueueModal({
                     <span className="absolute top-1 right-1 text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5"
                       style={{ background: "var(--oxide)", color: "var(--cream)" }}>fout</span>
                   )}
+                  {c.kind === "video" && (
+                    <span className="absolute top-1 left-1 text-[9px] uppercase tracking-[0.15em] px-1.5 py-0.5"
+                      style={{ background: "var(--charcoal)", color: "var(--gold)" }}>video</span>
+                  )}
                 </div>
                 <div className="px-2 py-2">
-                  <input
-                    type="range" min={0} max={100} step={1}
-                    value={Math.round(c.focusY * 100)}
-                    disabled={c.status === "done" || c.status === "uploading"}
-                    onChange={(e) => onUpdate(i, Number(e.target.value) / 100)}
-                    className="w-full" aria-label="Brandpunt verticaal"
-                  />
+                  {c.kind === "image" ? (
+                    <input
+                      type="range" min={0} max={100} step={1}
+                      value={Math.round(c.focusY * 100)}
+                      disabled={c.status === "done" || c.status === "uploading"}
+                      onChange={(e) => onUpdate(i, Number(e.target.value) / 100)}
+                      className="w-full" aria-label="Brandpunt verticaal"
+                    />
+                  ) : (
+                    <div style={{ height: "1rem" }} />
+                  )}
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-[10px]" style={{ color: "var(--charcoal-soft)" }}>↑ boven · onder ↓</span>
+                    <span className="text-[10px]" style={{ color: "var(--charcoal-soft)" }}>
+                      {c.kind === "image" ? "↑ boven · onder ↓" : c.file.name}
+                    </span>
                     <button
                       onClick={() => onRemove(i)}
                       disabled={c.status === "uploading"}
