@@ -613,7 +613,9 @@ export type Database = {
           created_at: string
           date_label: string | null
           id: string
+          media_type: string
           photo_path: string
+          poster_path: string | null
           publication_id: string
           sort_order: number
           updated_at: string
@@ -623,7 +625,9 @@ export type Database = {
           created_at?: string
           date_label?: string | null
           id?: string
+          media_type?: string
           photo_path: string
+          poster_path?: string | null
           publication_id: string
           sort_order?: number
           updated_at?: string
@@ -633,7 +637,9 @@ export type Database = {
           created_at?: string
           date_label?: string | null
           id?: string
+          media_type?: string
           photo_path?: string
+          poster_path?: string | null
           publication_id?: string
           sort_order?: number
           updated_at?: string
@@ -716,6 +722,8 @@ export type Database = {
           caption: string | null
           created_at: string
           id: string
+          media_type: string
+          poster_path: string | null
           sort_order: number
           storage_path: string
           update_id: string
@@ -724,6 +732,8 @@ export type Database = {
           caption?: string | null
           created_at?: string
           id?: string
+          media_type?: string
+          poster_path?: string | null
           sort_order?: number
           storage_path: string
           update_id: string
@@ -732,6 +742,8 @@ export type Database = {
           caption?: string | null
           created_at?: string
           id?: string
+          media_type?: string
+          poster_path?: string | null
           sort_order?: number
           storage_path?: string
           update_id?: string
