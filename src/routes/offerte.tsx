@@ -418,11 +418,18 @@ function PhotoUploader({
             >
               <div style={{ aspectRatio: "1 / 1", overflow: "hidden", background: "#000" }}>
                 {urls[i] && (
-                  <img
-                    src={urls[i]}
-                    alt={f.name}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
+                  f.type.startsWith("video/") ? (
+                    <video
+                      src={urls[i]} muted playsInline preload="metadata"
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  ) : (
+                    <img
+                      src={urls[i]}
+                      alt={f.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  )
                 )}
               </div>
               <div
