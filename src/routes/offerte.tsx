@@ -81,11 +81,18 @@ function Offerte() {
       const submissionPrefix = ticketId;
       const foto_urls: string[] = [];
       for (const f of files) {
-        if (!f.type.startsWith("image/")) {
+        const isVideo = f.type.startsWith("video/");
+        const isImage = f.type.startsWith("image/");
+        if (!isImage && !isVideo) {
           throw new Error(t.offerte.onlyImages);
         }
-        if (f.size > 8 * 1024 * 1024) {
+        if (isImage && f.size > 8 * 1024 * 1024) {
           throw new Error(t.offerte.photoTooLarge);
+        }
+        if (isVideo) {
+          const { validateVideo } = await import("@/lib/media");
+          const check = await validateVideo(f);
+          if (!check.ok) throw new Error(check.reason);
         }
         const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
         const path = `${submissionPrefix}/${Date.now()}-${safe}`;
@@ -125,7 +132,9 @@ function Offerte() {
 
   const addFiles = (incoming: FileList | File[] | null) => {
     if (!incoming) return;
-    const arr = Array.from(incoming).filter((f) => f.type.startsWith("image/"));
+    const arr = Array.from(incoming).filter(
+      (f) => f.type.startsWith("image/") || f.type.startsWith("video/"),
+    );
     setPhotos((prev) => {
       const merged = [...prev];
       for (const f of arr) {
@@ -389,7 +398,7 @@ function PhotoUploader({
         ref={inputRef}
         id="fotos"
         type="file"
-        accept="image/*"
+        accept="image/*,video/mp4,video/quicktime,video/webm"
         multiple
         onChange={(e) => { onAdd(e.target.files); e.target.value = ""; }}
         style={{ display: "none" }}
