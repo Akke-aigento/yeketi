@@ -765,6 +765,7 @@ function NewUpdateModal({
   const [body, setBody] = useState("");
   type FileItem = {
     file: File;
+    kind: "image" | "video";
     previewUrl: string;
     status: "pending" | "uploading" | "done" | "error";
     error?: string;
@@ -777,6 +778,7 @@ function NewUpdateModal({
     if (!list) return;
     const next = Array.from(list).map((file) => ({
       file,
+      kind: (detectKind(file) ?? "image") as "image" | "video",
       previewUrl: URL.createObjectURL(file),
       status: "pending" as const,
     }));
