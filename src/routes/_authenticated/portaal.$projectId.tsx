@@ -83,8 +83,8 @@ function PortalProject() {
     if (!lightbox) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setLightbox(null);
-      if (e.key === "ArrowRight") setLightbox((lb) => lb && { ...lb, index: (lb.index + 1) % lb.urls.length });
-      if (e.key === "ArrowLeft") setLightbox((lb) => lb && { ...lb, index: (lb.index - 1 + lb.urls.length) % lb.urls.length });
+      if (e.key === "ArrowRight") setLightbox((lb) => lb && { ...lb, index: (lb.index + 1) % lb.items.length });
+      if (e.key === "ArrowLeft") setLightbox((lb) => lb && { ...lb, index: (lb.index - 1 + lb.items.length) % lb.items.length });
     }
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
