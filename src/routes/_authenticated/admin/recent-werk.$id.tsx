@@ -326,7 +326,7 @@ function PublicationEditor() {
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem" }}>Foto's ({items.length})</h2>
           <label className="btn-y-solid cursor-pointer" style={{ paddingBlock: "0.5rem" }}>
             + Foto's toevoegen
-            <input type="file" accept="image/*" multiple className="hidden"
+            <input type="file" accept={ACCEPT_IMAGE_AND_VIDEO} multiple className="hidden"
               onChange={(e) => { queueUploads(e.target.files); e.target.value = ""; }} />
           </label>
         </div>
@@ -350,8 +350,17 @@ function PublicationEditor() {
             return (
               <li key={it.id} style={{ border: "1px solid var(--charcoal)", background: "var(--cream-deep)" }}>
                 {url ? (
-                  <img src={url} alt={draft.caption ?? ""}
-                    style={{ display: "block", width: "100%", aspectRatio: `${RECENT_WORK_ASPECT}`, objectFit: "cover" }} />
+                  it.media_type === "video" ? (
+                    <video
+                      src={url}
+                      poster={it.poster_path ? (resolvePath(it.poster_path) ?? undefined) : undefined}
+                      controls playsInline preload="metadata"
+                      style={{ display: "block", width: "100%", aspectRatio: `${RECENT_WORK_ASPECT}`, objectFit: "cover", background: "#000" }}
+                    />
+                  ) : (
+                    <img src={url} alt={draft.caption ?? ""}
+                      style={{ display: "block", width: "100%", aspectRatio: `${RECENT_WORK_ASPECT}`, objectFit: "cover" }} />
+                  )
                 ) : (
                   <div className="skeleton-y" style={{ aspectRatio: `${RECENT_WORK_ASPECT}` }} />
                 )}
