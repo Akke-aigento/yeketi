@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -27,6 +27,13 @@ function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [locale, setLocale] = useState<"nl" | "en">("nl");
+  const successRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (status === "ok" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,7 +74,7 @@ function Contact() {
 
           {status === "ok" ? (
             <ScrollReveal>
-              <div className="mt-12" style={{ border: "1px solid var(--brass)", padding: "2.5rem" }}>
+              <div ref={successRef} className="mt-12" style={{ border: "1px solid var(--brass)", padding: "2.5rem" }}>
                 <p className="italic-quote" style={{ color: "var(--brass)", fontSize: "1.35rem" }}>
                   {t.contact.successTitle}
                 </p>
