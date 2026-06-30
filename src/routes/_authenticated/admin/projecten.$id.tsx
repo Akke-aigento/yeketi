@@ -820,17 +820,44 @@ function NewUpdateModal({
 
   async function uploadOne(updId: string, item: FileItem, sortIndex: number): Promise<FileItem> {
     try {
-      const blob = await compressImage(item.file);
       const safeIdx = String(sortIndex).padStart(3, "0");
-      const path = `${projectId}/${updId}/${Date.now()}-${safeIdx}.jpg`;
-      const up = await supabase.storage.from("project-photos").upload(path, blob, {
-        contentType: "image/jpeg", upsert: false,
-      });
-      if (up.error) throw up.error;
-      const ins = await supabase.from("update_photos").insert({
-        update_id: updId, storage_path: path, sort_order: sortIndex,
-      });
-      if (ins.error) throw ins.error;
+      if (item.kind === "video") {
+        const check = await validateVideo(item.file);
+        if (!check.ok) throw new Error(check.reason);
+        const ext = videoExtensionFor(item.file);
+        const stamp = `${Date.now()}-${safeIdx}`;
+        const path = `${projectId}/${updId}/${stamp}.${ext}`;
+        const posterPath = `${projectId}/${updId}/${stamp}.poster.jpg`;
+        const up = await supabase.storage.from("project-photos").upload(path, item.file, {
+          contentType: item.file.type || "video/mp4", upsert: false,
+        });
+        if (up.error) throw up.error;
+        const poster = await generateVideoPoster(item.file);
+        let storedPoster: string | null = null;
+        if (poster) {
+          const pup = await supabase.storage.from("project-photos").upload(posterPath, poster, {
+            contentType: "image/jpeg", upsert: false,
+          });
+          if (!pup.error) storedPoster = posterPath;
+        }
+        const ins = await supabase.from("update_photos").insert({
+          update_id: updId, storage_path: path, sort_order: sortIndex,
+          media_type: "video", poster_path: storedPoster,
+        });
+        if (ins.error) throw ins.error;
+      } else {
+        const blob = await compressImage(item.file);
+        const path = `${projectId}/${updId}/${Date.now()}-${safeIdx}.jpg`;
+        const up = await supabase.storage.from("project-photos").upload(path, blob, {
+          contentType: "image/jpeg", upsert: false,
+        });
+        if (up.error) throw up.error;
+        const ins = await supabase.from("update_photos").insert({
+          update_id: updId, storage_path: path, sort_order: sortIndex,
+          media_type: "image",
+        });
+        if (ins.error) throw ins.error;
+      }
       return { ...item, status: "done" };
     } catch (e: unknown) {
       return { ...item, status: "error", error: e instanceof Error ? e.message : "Upload mislukt" };
@@ -914,19 +941,19 @@ function NewUpdateModal({
             />
           </label>
           <div>
-            <div className="text-[10px] uppercase tracking-[0.18em] mb-2" style={{ color: "var(--charcoal-soft)" }}>Foto's</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] mb-2" style={{ color: "var(--charcoal-soft)" }}>Foto's & video</div>
             <div className="grid grid-cols-2 gap-2">
               <label className="btn-y text-center cursor-pointer">
                 Camera
                 <input
-                  type="file" accept="image/*" capture="environment" multiple className="hidden"
+                  type="file" accept={ACCEPT_IMAGE_AND_VIDEO} capture="environment" multiple className="hidden"
                   onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
                 />
               </label>
               <label className="btn-y text-center cursor-pointer">
                 Galerij
                 <input
-                  type="file" accept="image/*" multiple className="hidden"
+                  type="file" accept={ACCEPT_IMAGE_AND_VIDEO} multiple className="hidden"
                   onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
                 />
               </label>
@@ -940,17 +967,32 @@ function NewUpdateModal({
                     it.status === "uploading" ? "var(--gold)" : "var(--charcoal)";
                   return (
                     <div key={i} className="relative">
-                      <img
-                        src={it.previewUrl}
-                        alt=""
-                        className="w-full"
-                        style={{
-                          aspectRatio: "1/1",
-                          objectFit: "cover",
-                          border: "2px solid " + ring,
-                          opacity: it.status === "done" ? 0.7 : 1,
-                        }}
-                      />
+                      {it.kind === "video" ? (
+                        <video
+                          src={it.previewUrl}
+                          muted playsInline preload="metadata"
+                          className="w-full"
+                          style={{
+                            aspectRatio: "1/1",
+                            objectFit: "cover",
+                            border: "2px solid " + ring,
+                            opacity: it.status === "done" ? 0.7 : 1,
+                            background: "#000",
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={it.previewUrl}
+                          alt=""
+                          className="w-full"
+                          style={{
+                            aspectRatio: "1/1",
+                            objectFit: "cover",
+                            border: "2px solid " + ring,
+                            opacity: it.status === "done" ? 0.7 : 1,
+                          }}
+                        />
+                      )}
                       <div
                         className="absolute bottom-0 left-0 right-0 text-[9px] tracking-[0.1em] uppercase text-center py-0.5"
                         style={{ background: "rgba(34,31,27,0.78)", color: ring }}
