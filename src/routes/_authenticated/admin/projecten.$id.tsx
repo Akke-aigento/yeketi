@@ -695,14 +695,24 @@ function SortablePhaseItem({
                           href={signedUrls[ph.storage_path]}
                           target="_blank"
                           rel="noreferrer"
-                          aria-label="Foto openen"
+                          aria-label={ph.media_type === "video" ? "Video openen" : "Foto openen"}
+                          style={{ display: "block", position: "relative" }}
                         >
                           <img
-                            src={signedUrls[ph.storage_path]}
+                            src={ph.media_type === "video"
+                              ? (ph.poster_path ? (signedUrls[ph.poster_path] ?? "") : "")
+                              : signedUrls[ph.storage_path]}
                             alt=""
                             className="w-full block"
-                            style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)", cursor: "zoom-in" }}
+                            style={{ aspectRatio: "1/1", objectFit: "cover", border: "1px solid var(--charcoal)", cursor: "zoom-in", background: "#000" }}
                           />
+                          {ph.media_type === "video" && (
+                            <span aria-hidden style={{
+                              position: "absolute", inset: 0, display: "grid", placeItems: "center",
+                              color: "var(--cream)", fontSize: "1.4rem", textShadow: "0 1px 4px rgba(0,0,0,.7)",
+                              pointerEvents: "none",
+                            }}>▶</span>
+                          )}
                         </a>
                         <button
                           type="button"
@@ -723,9 +733,9 @@ function SortablePhaseItem({
                   className="inline-block mt-2 text-[10px] uppercase tracking-[0.18em] px-2 py-1.5 cursor-pointer"
                   style={{ color: "var(--brass)", border: "1px solid var(--brass)" }}
                 >
-                  + Foto's toevoegen
+                  + Foto's of video toevoegen
                   <input
-                    type="file" accept="image/*" multiple className="hidden"
+                    type="file" accept={ACCEPT_IMAGE_AND_VIDEO} multiple className="hidden"
                     onChange={(e) => {
                       const picked = e.target.files ? Array.from(e.target.files) : [];
                       e.target.value = "";
