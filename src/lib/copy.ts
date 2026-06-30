@@ -87,7 +87,7 @@ export const nl = {
   footer: {
     columnsTitle: "Yeketi Motorworks",
     tagline: "unity in craftsmanship",
-    contact: "Vredeplein 23, 3010 Kessel-Lo (BE)",
+    contact: "Leuven (BE)",
     email: "info@yeketimotorworks.com",
     instagram: "Instagram",
     rights: "© 2026 Yeketi Motorworks",
@@ -438,7 +438,7 @@ export const en: Copy = {
   footer: {
     columnsTitle: "Yeketi Motorworks",
     tagline: "unity in craftsmanship",
-    contact: "Vredeplein 23, 3010 Kessel-Lo (BE)",
+    contact: "Leuven (BE)",
     email: "info@yeketimotorworks.com",
     instagram: "Instagram",
     rights: "© 2026 Yeketi Motorworks",
