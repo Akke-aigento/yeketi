@@ -119,13 +119,27 @@ function PublicationsList() {
                 {pubItems.map((it, i) => (
                   <ScrollReveal key={it.id} delay={(i % 3) * 80}>
                     <figure style={{ border: "1px solid var(--charcoal)" }}>
-                      <img
-                        src={photoUrl(it.photo_path)}
-                        alt={it.caption ?? pub.title}
-                        loading="lazy"
-                        className="w-full block"
-                        style={{ objectFit: "cover", aspectRatio: "4/5" }}
-                      />
+                      {(it as { media_type?: string }).media_type === "video" ? (
+                        <video
+                          src={photoUrl(it.photo_path)}
+                          poster={(it as { poster_path?: string | null }).poster_path
+                            ? photoUrl((it as { poster_path: string }).poster_path)
+                            : undefined}
+                          controls
+                          playsInline
+                          preload="metadata"
+                          className="w-full block"
+                          style={{ objectFit: "cover", aspectRatio: "4/5", background: "#000" }}
+                        />
+                      ) : (
+                        <img
+                          src={photoUrl(it.photo_path)}
+                          alt={it.caption ?? pub.title}
+                          loading="lazy"
+                          className="w-full block"
+                          style={{ objectFit: "cover", aspectRatio: "4/5" }}
+                        />
+                      )}
                       <figcaption
                         style={{
                           padding: "0.9rem 1rem 1rem",
