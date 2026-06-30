@@ -825,6 +825,7 @@ export type Database = {
         Returns: boolean
       }
       dispatch_notify_event: { Args: { _payload: Json }; Returns: undefined }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
