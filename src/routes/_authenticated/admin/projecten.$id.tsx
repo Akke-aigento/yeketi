@@ -263,7 +263,8 @@ function ProjectAdmin() {
       message: "Deze foto wordt definitief verwijderd uit de update.",
       destructive: true,
       onConfirm: async () => {
-        const rm = await supabase.storage.from("project-photos").remove([ph.storage_path]);
+        const paths = [ph.storage_path, ...(ph.poster_path ? [ph.poster_path] : [])];
+        const rm = await supabase.storage.from("project-photos").remove(paths);
         if (rm.error) { toast.error("Foto verwijderen mislukt", { description: rm.error.message }); return; }
         const { error } = await supabase.from("update_photos").delete().eq("id", ph.id);
         if (error) { toast.error("Foto verwijderen mislukt", { description: error.message }); return; }
@@ -279,20 +280,48 @@ function ProjectAdmin() {
     try {
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
-        const blob = await compressImage(f);
+        const kind = detectKind(f) ?? "image";
         const safeIdx = String(existing + i).padStart(3, "0");
-        const path = `${id}/${u.id}/${Date.now()}-${safeIdx}-${i}.jpg`;
-        const up = await supabase.storage.from("project-photos").upload(path, blob, {
-          contentType: "image/jpeg", upsert: false,
-        });
-        if (up.error) throw up.error;
-        const ins = await supabase.from("update_photos").insert({
-          update_id: u.id, storage_path: path, sort_order: existing + i,
-        });
-        if (ins.error) throw ins.error;
+        if (kind === "video") {
+          const check = await validateVideo(f);
+          if (!check.ok) throw new Error(check.reason);
+          const ext = videoExtensionFor(f);
+          const stamp = `${Date.now()}-${safeIdx}-${i}`;
+          const path = `${id}/${u.id}/${stamp}.${ext}`;
+          const posterPath = `${id}/${u.id}/${stamp}.poster.jpg`;
+          const up = await supabase.storage.from("project-photos").upload(path, f, {
+            contentType: f.type || "video/mp4", upsert: false,
+          });
+          if (up.error) throw up.error;
+          const poster = await generateVideoPoster(f);
+          let storedPoster: string | null = null;
+          if (poster) {
+            const pup = await supabase.storage.from("project-photos").upload(posterPath, poster, {
+              contentType: "image/jpeg", upsert: false,
+            });
+            if (!pup.error) storedPoster = posterPath;
+          }
+          const ins = await supabase.from("update_photos").insert({
+            update_id: u.id, storage_path: path, sort_order: existing + i,
+            media_type: "video", poster_path: storedPoster,
+          });
+          if (ins.error) throw ins.error;
+        } else {
+          const blob = await compressImage(f);
+          const path = `${id}/${u.id}/${Date.now()}-${safeIdx}-${i}.jpg`;
+          const up = await supabase.storage.from("project-photos").upload(path, blob, {
+            contentType: "image/jpeg", upsert: false,
+          });
+          if (up.error) throw up.error;
+          const ins = await supabase.from("update_photos").insert({
+            update_id: u.id, storage_path: path, sort_order: existing + i,
+            media_type: "image",
+          });
+          if (ins.error) throw ins.error;
+        }
         okCount++;
       }
-      toast.success(`${okCount} foto${okCount === 1 ? "" : "'s"} toegevoegd`);
+      toast.success(`${okCount} bestand${okCount === 1 ? "" : "en"} toegevoegd`);
       load();
     } catch (e) {
       toast.error("Toevoegen mislukt", { description: (e as Error).message });
