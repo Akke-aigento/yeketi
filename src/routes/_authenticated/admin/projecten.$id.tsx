@@ -5,6 +5,13 @@ import { toast } from "sonner";
 import { AdminShell } from "@/components/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/image-compress";
+import {
+  ACCEPT_IMAGE_AND_VIDEO,
+  detectKind,
+  generateVideoPoster,
+  validateVideo,
+  videoExtensionFor,
+} from "@/lib/media";
 import { t } from "@/lib/copy";
 import { deletePhase as deletePhaseFn, deleteProject as deleteProjectFn } from "@/lib/admin.functions";
 import { ConfirmModal, PromptModal } from "@/components/AdminModals";
@@ -120,11 +127,15 @@ function ProjectAdmin() {
           const photosData = (ph2 as Photo[] | null) ?? [];
           setPhotos(photosData);
           if (photosData.length > 0) {
+            const allPaths = Array.from(new Set([
+              ...photosData.map((x) => x.storage_path),
+              ...photosData.map((x) => x.poster_path).filter((p): p is string => !!p),
+            ]));
             const { data: signed } = await supabase.storage
               .from("project-photos")
-              .createSignedUrls(photosData.map((x) => x.storage_path), 3600);
+              .createSignedUrls(allPaths, 3600);
             const map: Record<string, string> = {};
-            (signed ?? []).forEach((s, i) => { if (s.signedUrl) map[photosData[i].storage_path] = s.signedUrl; });
+            (signed ?? []).forEach((s, i) => { if (s.signedUrl) map[allPaths[i]] = s.signedUrl; });
             setSignedUrls(map);
           }
           const rmap = await fetchReactionsByUpdate(upd.map((u) => u.id));
