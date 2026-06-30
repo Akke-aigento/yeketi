@@ -420,7 +420,7 @@ function PublicationEditor() {
 // ---------------------------------------------------------------------------
 
 type UploadCandidate = {
-  file: File; previewUrl: string; focusY: number;
+  file: File; kind: MediaKind; previewUrl: string; focusY: number;
   status: "pending" | "uploading" | "done" | "error"; error?: string;
 };
 
