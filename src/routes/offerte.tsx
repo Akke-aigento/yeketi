@@ -42,6 +42,13 @@ function Offerte() {
   const [photos, setPhotos] = useState<File[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [locale, setLocale] = useState<"nl" | "en">("nl");
+  const successRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (status === "ok" && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [status]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -167,7 +174,7 @@ function Offerte() {
 
           {status === "ok" ? (
             <ScrollReveal>
-              <div className="mt-14" style={{ border: "1px solid var(--brass)", padding: "3rem" }}>
+              <div ref={successRef} className="mt-14" style={{ border: "1px solid var(--brass)", padding: "3rem" }}>
                 <p className="italic-quote" style={{ color: "var(--brass)", fontSize: "1.4rem" }}>
                   {t.offerte.success.title}
                 </p>
