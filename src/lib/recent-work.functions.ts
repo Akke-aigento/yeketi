@@ -30,7 +30,7 @@ export const getPublishedRecentWork = createServerFn({ method: "GET" }).handler(
   const { data: itemsRaw } = ids.length
     ? await supabaseAdmin
         .from("recent_work_items")
-        .select("id, publication_id, photo_path, date_label, caption, sort_order")
+        .select("id, publication_id, photo_path, date_label, caption, sort_order, media_type, poster_path")
         .in("publication_id", ids)
         .order("sort_order")
     : { data: [] };
@@ -39,6 +39,7 @@ export const getPublishedRecentWork = createServerFn({ method: "GET" }).handler(
   const storagePaths = Array.from(new Set([
     ...publications.map((p) => p.cover_photo_path).filter((x): x is string => !!x && !isExternalPhoto(x)),
     ...items.map((i) => i.photo_path).filter((p) => !isExternalPhoto(p)),
+    ...items.map((i) => (i as { poster_path: string | null }).poster_path).filter((p): p is string => !!p && !isExternalPhoto(p)),
   ]));
   const urls: Record<string, string> = {};
   if (storagePaths.length) {

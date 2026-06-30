@@ -111,7 +111,7 @@ export async function fetchProject(id: string) {
   return data;
 }
 
-export type TimelinePhoto = PhotoRow & { signedUrl: string | null };
+export type TimelinePhoto = PhotoRow & { signedUrl: string | null; posterUrl: string | null };
 export type TimelineUpdate = UpdateRow & { photos: TimelinePhoto[] };
 export type TimelinePhase = PhaseRow & { updates: TimelineUpdate[] };
 
@@ -144,8 +144,13 @@ export async function fetchProjectTimeline(projectId: string): Promise<TimelineP
     photos = ph ?? [];
   }
 
-  // Sign URLs in one batch per bucket
-  const paths = photos.map((p) => p.storage_path);
+  // Sign URLs in one batch per bucket (include video posters when present).
+  const paths = Array.from(new Set([
+    ...photos.map((p) => p.storage_path),
+    ...photos
+      .map((p) => (p as PhotoRow & { poster_path: string | null }).poster_path)
+      .filter((x): x is string => !!x),
+  ]));
   const signed: Record<string, string | null> = {};
   if (paths.length > 0) {
     const { data: signedData } = await supabase.storage
@@ -164,7 +169,14 @@ export async function fetchProjectTimeline(projectId: string): Promise<TimelineP
         ...u,
         photos: photos
           .filter((p) => p.update_id === u.id)
-          .map((p) => ({ ...p, signedUrl: signed[p.storage_path] ?? null })),
+          .map((p) => {
+            const withPoster = p as PhotoRow & { poster_path: string | null };
+            return {
+              ...p,
+              signedUrl: signed[p.storage_path] ?? null,
+              posterUrl: withPoster.poster_path ? (signed[withPoster.poster_path] ?? null) : null,
+            };
+          }),
       })),
   }));
 }
