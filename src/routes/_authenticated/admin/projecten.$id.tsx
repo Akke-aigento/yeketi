@@ -46,7 +46,10 @@ type Phase = {
   status: "pending" | "active" | "done"; started_at: string | null; completed_at: string | null;
 };
 type Update = { id: string; phase_id: string; body: string; created_at: string };
-type Photo = { id: string; update_id: string; storage_path: string; sort_order: number };
+type Photo = {
+  id: string; update_id: string; storage_path: string; sort_order: number;
+  media_type: "image" | "video"; poster_path: string | null;
+};
 type Customer = { id: string; full_name: string | null; email: string | null; phone: string | null };
 
 function ProjectAdmin() {
