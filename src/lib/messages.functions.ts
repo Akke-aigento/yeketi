@@ -28,11 +28,66 @@ function clientIp(): string {
 }
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
+
+// ── Server-side i18n for public form validation errors ────────────────────
+type ServerMsgKey =
+  | "nameRequired"
+  | "invalidEmail"
+  | "messageTooShort"
+  | "rateLimited"
+  | "invalidSession"
+  | "alreadySubmitted"
+  | "sessionExpired"
+  | "nameEmailRequired"
+  | "invalidWorkType"
+  | "invalidPhotoPath";
+
+const SERVER_MSG: Record<"nl" | "en", Record<ServerMsgKey, string>> = {
+  nl: {
+    nameRequired: "Vul je naam in.",
+    invalidEmail: "Ongeldig e-mailadres.",
+    messageTooShort: "Bericht is te kort.",
+    rateLimited: "Te veel verzoeken — probeer het later opnieuw.",
+    invalidSession: "Ongeldige sessie — herlaad de pagina.",
+    alreadySubmitted: "Deze aanvraag is al verstuurd.",
+    sessionExpired: "Sessie verlopen — herlaad de pagina.",
+    nameEmailRequired: "Vul naam en e-mail correct in.",
+    invalidWorkType: "Ongeldig type werk.",
+    invalidPhotoPath: "Ongeldig fotopad.",
+  },
+  en: {
+    nameRequired: "Please enter your name.",
+    invalidEmail: "Invalid email address.",
+    messageTooShort: "Your message is too short.",
+    rateLimited: "Too many requests — please try again later.",
+    invalidSession: "Invalid session — please reload the page.",
+    alreadySubmitted: "This request has already been submitted.",
+    sessionExpired: "Session expired — please reload the page.",
+    nameEmailRequired: "Please enter a valid name and email address.",
+    invalidWorkType: "Invalid type of work.",
+    invalidPhotoPath: "Invalid photo path.",
+  },
+};
+
+function msg(locale: "nl" | "en" | undefined, key: ServerMsgKey): string {
+  return SERVER_MSG[locale === "en" ? "en" : "nl"][key];
+}
+
+// Best-effort honeypot logging: never blocks or fails the response.
+async function logHoneypot(kind: "honeypot_contact" | "honeypot_quote") {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("public_form_submissions").insert({ ip: clientIp(), kind });
+  } catch (e) {
+    console.warn("honeypot log failed", e);
+  }
+}
+
 function sanitize(s: string, max = 4000): string {
   return s.replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "").trim().slice(0, max);
 }
 
-async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMinutes: number) {
+async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMinutes: number, locale?: "nl" | "en") {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const since = new Date(Date.now() - windowMinutes * 60_000).toISOString();
   const { count } = await supabaseAdmin
@@ -42,7 +97,7 @@ async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMin
     .eq("kind", kind)
     .gte("created_at", since);
   if ((count ?? 0) >= max) {
-    throw new Error("Te veel verzoeken — probeer het later opnieuw.");
+    throw new Error(msg(locale, "rateLimited"));
   }
   await supabaseAdmin.from("public_form_submissions").insert({ ip, kind });
 }
