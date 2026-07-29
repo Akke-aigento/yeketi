@@ -47,7 +47,7 @@ function Contact() {
           naam: String(fd.get("naam") ?? ""),
           email: String(fd.get("email") ?? ""),
           bericht: String(fd.get("bericht") ?? ""),
-          hp: String(fd.get("website") ?? ""),
+          hp: String(fd.get("y_hp_field") ?? ""),
           locale,
         },
       });
@@ -120,8 +120,8 @@ function Contact() {
               </div>
               {/* Honeypot */}
               <div style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
-                <label htmlFor="website">Website</label>
-                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+                <label htmlFor="y_hp_field">Laat dit veld leeg</label>
+                <input id="y_hp_field" name="y_hp_field" type="text" tabIndex={-1} autoComplete="off" />
               </div>
               {errorMsg && <p style={{ color: "var(--oxide)" }}>{errorMsg}</p>}
               <div>

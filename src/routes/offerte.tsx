@@ -56,7 +56,7 @@ function Offerte() {
     setErrorMsg(null);
     const form = e.currentTarget;
     const fd = new FormData(form);
-    const hp = String(fd.get("website") ?? "");
+    const hp = String(fd.get("y_hp_field") ?? "");
     const files = photos;
     if (files.length > 5) {
       setErrorMsg(t.offerte.photoTooMany);
@@ -83,8 +83,15 @@ function Offerte() {
       // Server-side honeypot + per-IP rate limit. Returns a short-lived
       // upload ticket whose UUID is the only prefix accepted by the
       // quote-photos storage policy.
-      const guardRes = await guard({ data: { hp } });
-      const ticketId = (guardRes as { ticketId: string }).ticketId;
+      const guardRes = await guard({ data: { hp, locale } });
+      const ticketId = (guardRes as { ticketId: string | null }).ticketId;
+      if (!ticketId) {
+        // Honeypot tripped — behave exactly like a successful submission.
+        setStatus("ok");
+        form.reset();
+        setPhotos([]);
+        return;
+      }
       const submissionPrefix = ticketId;
       const foto_urls: string[] = [];
       for (const f of files) {
@@ -270,8 +277,8 @@ function Offerte() {
 
               {/* Honeypot — leave empty */}
               <div className="md:col-span-2" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }} aria-hidden="true">
-                <label htmlFor="website">Website</label>
-                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+                <label htmlFor="y_hp_field">Laat dit veld leeg</label>
+                <input id="y_hp_field" name="y_hp_field" type="text" tabIndex={-1} autoComplete="off" />
               </div>
 
               <div className="md:col-span-2 mt-4">

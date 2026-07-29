@@ -12,7 +12,8 @@ import {
   type ReactionView,
   type TimelinePhase,
 } from "@/lib/portal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
+import type { Copy } from "@/lib/copy";
 import { ReactionThread } from "@/components/ReactionThread";
 
 export const Route = createFileRoute("/_authenticated/portaal/$projectId")({
@@ -25,11 +26,11 @@ export const Route = createFileRoute("/_authenticated/portaal/$projectId")({
   component: PortalProject,
 });
 
-function statusLabel(s: ProjectRow["status"]) {
+function statusLabel(t: Copy, s: ProjectRow["status"]) {
   return t.portal.statusLabels[s] ?? s;
 }
 
-function derivedStatusLabel(project: ProjectRow, phases: TimelinePhase[] | null): string {
+function derivedStatusLabel(t: Copy, project: ProjectRow, phases: TimelinePhase[] | null): string {
   if (phases && phases.length > 0) {
     const active = phases.find((p) => p.status === "active");
     if (active) return active.name;
@@ -41,10 +42,11 @@ function derivedStatusLabel(project: ProjectRow, phases: TimelinePhase[] | null)
       if (next) return next.name;
     }
   }
-  return statusLabel(project.status);
+  return statusLabel(t, project.status);
 }
 
 function PortalProject() {
+  const t = useT();
   const { projectId } = Route.useParams();
   const [project, setProject] = useState<ProjectRow | null>(null);
   const [cover, setCover] = useState<string | null>(null);
@@ -110,7 +112,7 @@ function PortalProject() {
         {project && (
           <header className="container-edit" style={{ paddingBlock: "clamp(2.5rem,5vw,4rem)" }}>
             <ScrollReveal>
-              <p className="eyebrow" style={{ color: "var(--brass)" }}>{derivedStatusLabel(project, phases)}</p>
+              <p className="eyebrow" style={{ color: "var(--brass)" }}>{derivedStatusLabel(t, project, phases)}</p>
               <h1 className="mt-5" style={{ fontSize: "clamp(2.2rem,5vw,3.8rem)" }}>{project.title}</h1>
               <p className="mt-3" style={{ color: "var(--charcoal-soft)", fontSize: "1.05rem" }}>
                 {[project.vehicle_year, project.vehicle_make, project.vehicle_model].filter(Boolean).join(" · ")}

@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteLogo } from "./SiteLogo";
 import { supabase } from "@/integrations/supabase/client";
-import { t } from "@/lib/copy";
+import { useLang } from "@/lib/i18n";
 import { getMyUnreadMessagesCount } from "@/lib/messages.functions";
 
 export function PortalHeader() {
   const navigate = useNavigate();
+  const { lang, setLang, t } = useLang();
   const [email, setEmail] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -18,6 +19,16 @@ export function PortalHeader() {
     supabase.auth.getUser().then(async ({ data }) => {
       setEmail(data.user?.email ?? null);
       if (data.user) {
+        // Portal language follows the customer's profile preference.
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("locale")
+          .eq("id", data.user.id)
+          .maybeSingle();
+        const profileLocale = profile?.locale;
+        if ((profileLocale === "nl" || profileLocale === "en") && profileLocale !== lang) {
+          setLang(profileLocale);
+        }
         const { data: isAdminRpc } = await supabase.rpc("has_role", {
           _user_id: data.user.id,
           _role: "admin",

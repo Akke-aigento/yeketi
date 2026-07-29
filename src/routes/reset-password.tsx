@@ -5,12 +5,14 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useT } from "@/lib/i18n";
-import { t as nlCopy } from "@/lib/copy";
+import type { Copy } from "@/lib/copy";
 import logoHorizontalLight from "@/assets/yeketi-logo-horizontal-light.svg.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { sendWelcomeAfterInvite } from "@/lib/email.functions";
 
-function getResetLinkError() {
+const RESET_REDIRECT = "https://yeketimotorworks.com/reset-password";
+
+function getResetLinkError(t: Copy) {
   if (typeof window === "undefined") return null;
   const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
   const searchParams = new URLSearchParams(window.location.search);
@@ -19,8 +21,8 @@ function getResetLinkError() {
 
   if (!authError) return null;
   return authError === "otp_expired"
-    ? nlCopy.portal.resetLinkExpired
-    : authDescription?.replace(/\+/g, " ") || nlCopy.portal.resetLinkInvalid;
+    ? t.portal.resetLinkExpired
+    : authDescription?.replace(/\+/g, " ") || t.portal.resetLinkInvalid;
 }
 
 export const Route = createFileRoute("/reset-password")({
@@ -38,7 +40,10 @@ function ResetPassword() {
   const navigate = useNavigate();
   const sendWelcome = useServerFn(sendWelcomeAfterInvite);
   const [ready, setReady] = useState(false);
-  const [linkError, setLinkError] = useState<string | null>(() => getResetLinkError());
+  const [linkError, setLinkError] = useState<string | null>(() => getResetLinkError(t));
+  const [newLinkEmail, setNewLinkEmail] = useState("");
+  const [newLinkStatus, setNewLinkStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [newLinkError, setNewLinkError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -54,7 +59,7 @@ function ResetPassword() {
   }, []);
 
   useEffect(() => {
-    const initialLinkError = getResetLinkError();
+    const initialLinkError = getResetLinkError(t);
     if (initialLinkError) {
       setLinkError(initialLinkError);
       setReady(false);
@@ -90,6 +95,29 @@ function ResetPassword() {
       window.clearTimeout(timeout);
     };
   }, []);
+
+  async function requestNewLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (newLinkStatus === "sending") return;
+    setNewLinkError(null);
+    const mail = newLinkEmail.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(mail)) {
+      setNewLinkError(t.portal.invalidEmail);
+      setNewLinkStatus("error");
+      return;
+    }
+    setNewLinkStatus("sending");
+    const { error: err } = await supabase.auth.resetPasswordForEmail(mail, {
+      redirectTo: RESET_REDIRECT,
+    });
+    if (err) {
+      const rate = /rate|too many/i.test(err.message);
+      setNewLinkError(rate ? t.portal.rateLimited : t.portal.sendError);
+      setNewLinkStatus("error");
+      return;
+    }
+    setNewLinkStatus("sent");
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -161,9 +189,39 @@ function ResetPassword() {
               ) : linkError ? (
                 <div className="mt-10 text-center">
                   <p style={{ color: "var(--oxide)", lineHeight: 1.7 }}>{linkError}</p>
-                  <Link to="/login" className="btn-y-solid mt-8 w-full">
-                    {t.portal.requestNewResetLink}
-                  </Link>
+                  {newLinkStatus === "sent" ? (
+                    <p className="mt-8" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
+                      {t.portal.newLinkSent}
+                    </p>
+                  ) : (
+                    <form onSubmit={requestNewLink} className="mt-8 text-left">
+                      <label htmlFor="new-link-email" className="eyebrow block" style={{ color: "var(--charcoal-soft)" }}>
+                        {t.portal.newLinkEmailLabel}
+                      </label>
+                      <input
+                        id="new-link-email"
+                        type="email"
+                        inputMode="email"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        autoComplete="email"
+                        required
+                        className="field-y mt-2"
+                        value={newLinkEmail}
+                        onChange={(e) => setNewLinkEmail(e.target.value)}
+                        disabled={newLinkStatus === "sending"}
+                      />
+                      {newLinkError && (
+                        <p className="mt-3 text-sm" style={{ color: "var(--oxide)", lineHeight: 1.6 }}>
+                          {newLinkError}
+                        </p>
+                      )}
+                      <button type="submit" className="btn-y-solid mt-5 w-full" disabled={newLinkStatus === "sending"}>
+                        {newLinkStatus === "sending" ? t.portal.newLinkSending : t.portal.newLinkSend}
+                      </button>
+                    </form>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={onSubmit} className="mt-10">

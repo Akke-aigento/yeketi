@@ -28,11 +28,66 @@ function clientIp(): string {
 }
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
+
+// ── Server-side i18n for public form validation errors ────────────────────
+type ServerMsgKey =
+  | "nameRequired"
+  | "invalidEmail"
+  | "messageTooShort"
+  | "rateLimited"
+  | "invalidSession"
+  | "alreadySubmitted"
+  | "sessionExpired"
+  | "nameEmailRequired"
+  | "invalidWorkType"
+  | "invalidPhotoPath";
+
+const SERVER_MSG: Record<"nl" | "en", Record<ServerMsgKey, string>> = {
+  nl: {
+    nameRequired: "Vul je naam in.",
+    invalidEmail: "Ongeldig e-mailadres.",
+    messageTooShort: "Bericht is te kort.",
+    rateLimited: "Te veel verzoeken — probeer het later opnieuw.",
+    invalidSession: "Ongeldige sessie — herlaad de pagina.",
+    alreadySubmitted: "Deze aanvraag is al verstuurd.",
+    sessionExpired: "Sessie verlopen — herlaad de pagina.",
+    nameEmailRequired: "Vul naam en e-mail correct in.",
+    invalidWorkType: "Ongeldig type werk.",
+    invalidPhotoPath: "Ongeldig fotopad.",
+  },
+  en: {
+    nameRequired: "Please enter your name.",
+    invalidEmail: "Invalid email address.",
+    messageTooShort: "Your message is too short.",
+    rateLimited: "Too many requests — please try again later.",
+    invalidSession: "Invalid session — please reload the page.",
+    alreadySubmitted: "This request has already been submitted.",
+    sessionExpired: "Session expired — please reload the page.",
+    nameEmailRequired: "Please enter a valid name and email address.",
+    invalidWorkType: "Invalid type of work.",
+    invalidPhotoPath: "Invalid photo path.",
+  },
+};
+
+function msg(locale: "nl" | "en" | undefined, key: ServerMsgKey): string {
+  return SERVER_MSG[locale === "en" ? "en" : "nl"][key];
+}
+
+// Best-effort honeypot logging: never blocks or fails the response.
+async function logHoneypot(kind: "honeypot_contact" | "honeypot_quote") {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("public_form_submissions").insert({ ip: clientIp(), kind });
+  } catch (e) {
+    console.warn("honeypot log failed", e);
+  }
+}
+
 function sanitize(s: string, max = 4000): string {
   return s.replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "").trim().slice(0, max);
 }
 
-async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMinutes: number) {
+async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMinutes: number, locale?: "nl" | "en") {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const since = new Date(Date.now() - windowMinutes * 60_000).toISOString();
   const { count } = await supabaseAdmin
@@ -42,7 +97,7 @@ async function rateLimitOrThrow(kind: string, ip: string, max: number, windowMin
     .eq("kind", kind)
     .gte("created_at", since);
   if ((count ?? 0) >= max) {
-    throw new Error("Te veel verzoeken — probeer het later opnieuw.");
+    throw new Error(msg(locale, "rateLimited"));
   }
   await supabaseAdmin.from("public_form_submissions").insert({ ip, kind });
 }
@@ -83,7 +138,10 @@ async function findOrInviteUser(email: string, fullName?: string | null, opts?: 
   }
 
   const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-    data: fullName ? { full_name: fullName } : undefined,
+    data: {
+      ...(fullName ? { full_name: fullName } : {}),
+      ...(opts?.locale ? { locale: opts.locale } : {}),
+    },
     redirectTo: RESET_REDIRECT,
   });
   if (inv.error || !inv.data.user) throw new Error(inv.error?.message || "Kon uitnodiging niet versturen");
@@ -111,18 +169,22 @@ async function ensureConversation(profileId: string, source: "contact_form" | "q
 export const submitContactForm = createServerFn({ method: "POST" })
   .inputValidator((input: { naam: string; email: string; bericht: string; hp?: string; locale?: "nl" | "en" }) => input)
   .handler(async ({ data }) => {
-    // Honeypot: if filled, silently succeed.
-    if (data.hp && data.hp.trim() !== "") return { ok: true } as const;
+    const locale0: "nl" | "en" = data.locale === "en" ? "en" : "nl";
+    // Honeypot: log (best-effort) then silently succeed.
+    if (data.hp && data.hp.trim() !== "") {
+      await logHoneypot("honeypot_contact");
+      return { ok: true } as const;
+    }
 
     const naam = sanitize(data.naam ?? "", 120);
     const email = sanitize((data.email ?? "").toLowerCase(), 255);
     const bericht = sanitize(data.bericht ?? "", 3000);
-    const locale: "nl" | "en" = data.locale === "en" ? "en" : "nl";
-    if (naam.length < 2) throw new Error("Vul je naam in.");
-    if (!EMAIL_RE.test(email)) throw new Error("Ongeldig e-mailadres.");
-    if (bericht.length < 5) throw new Error("Bericht is te kort.");
+    const locale: "nl" | "en" = locale0;
+    if (naam.length < 2) throw new Error(msg(locale, "nameRequired"));
+    if (!EMAIL_RE.test(email)) throw new Error(msg(locale, "invalidEmail"));
+    if (bericht.length < 5) throw new Error(msg(locale, "messageTooShort"));
 
-    await rateLimitOrThrow("contact_form", clientIp(), 5, 10);
+    await rateLimitOrThrow("contact_form", clientIp(), 5, 10, locale);
 
     const { userId } = await findOrInviteUser(email, naam, { locale });
     const convId = await ensureConversation(userId, "contact_form", bericht.slice(0, 80));
@@ -139,11 +201,17 @@ export const submitContactForm = createServerFn({ method: "POST" })
 // ──────────────────────────────────────────────────────────────────────────
 
 export const guardQuoteSubmission = createServerFn({ method: "POST" })
-  .inputValidator((input: { hp?: string }) => input)
+  .inputValidator((input: { hp?: string; locale?: "nl" | "en" }) => input)
   .handler(async ({ data }) => {
-    if (data.hp && data.hp.trim() !== "") throw new Error("Spam gedetecteerd.");
     const ip = clientIp();
-    await rateLimitOrThrow("quote_request", ip, 5, 30);
+    // Honeypot: log (best-effort) then behave like a successful submission
+    // so bots get no feedback. A ticket is still minted but never used
+    // meaningfully by a bot without a valid follow-up submission.
+    if (data.hp && data.hp.trim() !== "") {
+      await logHoneypot("honeypot_quote");
+      return { ok: true, ticketId: null } as const;
+    }
+    await rateLimitOrThrow("quote_request", ip, 5, 30, data.locale);
     // Mint a short-lived upload ticket so anonymous photo uploads to
     // quote-photos are tied to a server-validated submission.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -178,6 +246,7 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
   }) => input)
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const lang: "nl" | "en" = data.locale === "en" ? "en" : "nl";
 
     // Ticket must exist, be recent (<1h), and unconsumed.
     const { data: ticket, error: tErr } = await supabaseAdmin
@@ -186,29 +255,29 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
       .eq("id", data.ticketId)
       .maybeSingle();
     if (tErr) throw tErr;
-    if (!ticket) throw new Error("Ongeldige sessie — herlaad de pagina.");
-    if (ticket.consumed_at) throw new Error("Deze aanvraag is al verstuurd.");
+    if (!ticket) throw new Error(msg(lang, "invalidSession"));
+    if (ticket.consumed_at) throw new Error(msg(lang, "alreadySubmitted"));
     if (new Date(ticket.created_at as string).getTime() < Date.now() - 60 * 60_000) {
-      throw new Error("Sessie verlopen — herlaad de pagina.");
+      throw new Error(msg(lang, "sessionExpired"));
     }
 
     const naam = sanitize(data.naam, 120);
     const email = sanitize((data.email || "").toLowerCase(), 255);
-    if (!naam || !EMAIL_RE.test(email)) throw new Error("Vul naam en e-mail correct in.");
+    if (!naam || !EMAIL_RE.test(email)) throw new Error(msg(lang, "nameEmailRequired"));
     const type_werk = data.type_werk;
     if (!["plaatwerk", "volledige_restauratie", "advies"].includes(type_werk)) {
-      throw new Error("Ongeldig type werk.");
+      throw new Error(msg(lang, "invalidWorkType"));
     }
 
     // foto_urls must all live under the ticket prefix.
     const photos = (data.foto_urls ?? []).slice(0, 5);
     for (const p of photos) {
       if (typeof p !== "string" || !p.startsWith(`${data.ticketId}/`)) {
-        throw new Error("Ongeldig fotopad.");
+        throw new Error(msg(lang, "invalidPhotoPath"));
       }
     }
 
-    const locale: "nl" | "en" = data.locale === "en" ? "en" : "nl";
+    const locale: "nl" | "en" = lang;
 
     const { error: insErr } = await supabaseAdmin.from("quote_requests").insert({
       id: data.ticketId,
