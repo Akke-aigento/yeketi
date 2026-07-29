@@ -4,7 +4,8 @@ import { PortalHeader } from "@/components/PortalHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { fetchMyProjects, signCoverUrl, type ProjectRow } from "@/lib/portal";
-import { t } from "@/lib/copy";
+import { useT } from "@/lib/i18n";
+import type { Copy } from "@/lib/copy";
 
 export const Route = createFileRoute("/_authenticated/portaal/")({
   head: () => ({
@@ -16,11 +17,12 @@ export const Route = createFileRoute("/_authenticated/portaal/")({
   component: PortalIndex,
 });
 
-function statusLabel(s: ProjectRow["status"]) {
+function statusLabel(t: Copy, s: ProjectRow["status"]) {
   return t.portal.statusLabels[s] ?? s;
 }
 
 function PortalIndex() {
+  const t = useT();
   const [projects, setProjects] = useState<ProjectRow[] | null>(null);
   const [covers, setCovers] = useState<Record<string, string | null>>({});
   const [error, setError] = useState<string | null>(null);
@@ -160,7 +162,7 @@ function PortalIndex() {
                     <div className="p-5">
                       <div className="flex items-center justify-between gap-3">
                         <span className="eyebrow" style={{ color: "var(--brass)" }}>
-                          {statusLabel(p.status)}
+                          {statusLabel(t, p.status)}
                         </span>
                         {p.vehicle_year && (
                           <span className="text-xs" style={{ color: "var(--charcoal-soft)" }}>
