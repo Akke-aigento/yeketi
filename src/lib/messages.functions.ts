@@ -138,7 +138,10 @@ async function findOrInviteUser(email: string, fullName?: string | null, opts?: 
   }
 
   const inv = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-    data: fullName ? { full_name: fullName } : undefined,
+    data: {
+      ...(fullName ? { full_name: fullName } : {}),
+      ...(opts?.locale ? { locale: opts.locale } : {}),
+    },
     redirectTo: RESET_REDIRECT,
   });
   if (inv.error || !inv.data.user) throw new Error(inv.error?.message || "Kon uitnodiging niet versturen");
@@ -166,18 +169,22 @@ async function ensureConversation(profileId: string, source: "contact_form" | "q
 export const submitContactForm = createServerFn({ method: "POST" })
   .inputValidator((input: { naam: string; email: string; bericht: string; hp?: string; locale?: "nl" | "en" }) => input)
   .handler(async ({ data }) => {
-    // Honeypot: if filled, silently succeed.
-    if (data.hp && data.hp.trim() !== "") return { ok: true } as const;
+    const locale0: "nl" | "en" = data.locale === "en" ? "en" : "nl";
+    // Honeypot: log (best-effort) then silently succeed.
+    if (data.hp && data.hp.trim() !== "") {
+      await logHoneypot("honeypot_contact");
+      return { ok: true } as const;
+    }
 
     const naam = sanitize(data.naam ?? "", 120);
     const email = sanitize((data.email ?? "").toLowerCase(), 255);
     const bericht = sanitize(data.bericht ?? "", 3000);
-    const locale: "nl" | "en" = data.locale === "en" ? "en" : "nl";
-    if (naam.length < 2) throw new Error("Vul je naam in.");
-    if (!EMAIL_RE.test(email)) throw new Error("Ongeldig e-mailadres.");
-    if (bericht.length < 5) throw new Error("Bericht is te kort.");
+    const locale: "nl" | "en" = locale0;
+    if (naam.length < 2) throw new Error(msg(locale, "nameRequired"));
+    if (!EMAIL_RE.test(email)) throw new Error(msg(locale, "invalidEmail"));
+    if (bericht.length < 5) throw new Error(msg(locale, "messageTooShort"));
 
-    await rateLimitOrThrow("contact_form", clientIp(), 5, 10);
+    await rateLimitOrThrow("contact_form", clientIp(), 5, 10, locale);
 
     const { userId } = await findOrInviteUser(email, naam, { locale });
     const convId = await ensureConversation(userId, "contact_form", bericht.slice(0, 80));
@@ -194,11 +201,17 @@ export const submitContactForm = createServerFn({ method: "POST" })
 // ──────────────────────────────────────────────────────────────────────────
 
 export const guardQuoteSubmission = createServerFn({ method: "POST" })
-  .inputValidator((input: { hp?: string }) => input)
+  .inputValidator((input: { hp?: string; locale?: "nl" | "en" }) => input)
   .handler(async ({ data }) => {
-    if (data.hp && data.hp.trim() !== "") throw new Error("Spam gedetecteerd.");
     const ip = clientIp();
-    await rateLimitOrThrow("quote_request", ip, 5, 30);
+    // Honeypot: log (best-effort) then behave like a successful submission
+    // so bots get no feedback. A ticket is still minted but never used
+    // meaningfully by a bot without a valid follow-up submission.
+    if (data.hp && data.hp.trim() !== "") {
+      await logHoneypot("honeypot_quote");
+      return { ok: true, ticketId: null } as const;
+    }
+    await rateLimitOrThrow("quote_request", ip, 5, 30, data.locale);
     // Mint a short-lived upload ticket so anonymous photo uploads to
     // quote-photos are tied to a server-validated submission.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
