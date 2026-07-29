@@ -189,9 +189,39 @@ function ResetPassword() {
               ) : linkError ? (
                 <div className="mt-10 text-center">
                   <p style={{ color: "var(--oxide)", lineHeight: 1.7 }}>{linkError}</p>
-                  <Link to="/login" className="btn-y-solid mt-8 w-full">
-                    {t.portal.requestNewResetLink}
-                  </Link>
+                  {newLinkStatus === "sent" ? (
+                    <p className="mt-8" style={{ color: "var(--charcoal-soft)", lineHeight: 1.7 }}>
+                      {t.portal.newLinkSent}
+                    </p>
+                  ) : (
+                    <form onSubmit={requestNewLink} className="mt-8 text-left">
+                      <label htmlFor="new-link-email" className="eyebrow block" style={{ color: "var(--charcoal-soft)" }}>
+                        {t.portal.newLinkEmailLabel}
+                      </label>
+                      <input
+                        id="new-link-email"
+                        type="email"
+                        inputMode="email"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        autoComplete="email"
+                        required
+                        className="field-y mt-2"
+                        value={newLinkEmail}
+                        onChange={(e) => setNewLinkEmail(e.target.value)}
+                        disabled={newLinkStatus === "sending"}
+                      />
+                      {newLinkError && (
+                        <p className="mt-3 text-sm" style={{ color: "var(--oxide)", lineHeight: 1.6 }}>
+                          {newLinkError}
+                        </p>
+                      )}
+                      <button type="submit" className="btn-y-solid mt-5 w-full" disabled={newLinkStatus === "sending"}>
+                        {newLinkStatus === "sending" ? t.portal.newLinkSending : t.portal.newLinkSend}
+                      </button>
+                    </form>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={onSubmit} className="mt-10">
