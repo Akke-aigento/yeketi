@@ -246,6 +246,7 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
   }) => input)
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const lang: "nl" | "en" = data.locale === "en" ? "en" : "nl";
 
     // Ticket must exist, be recent (<1h), and unconsumed.
     const { data: ticket, error: tErr } = await supabaseAdmin
@@ -254,29 +255,29 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
       .eq("id", data.ticketId)
       .maybeSingle();
     if (tErr) throw tErr;
-    if (!ticket) throw new Error("Ongeldige sessie — herlaad de pagina.");
-    if (ticket.consumed_at) throw new Error("Deze aanvraag is al verstuurd.");
+    if (!ticket) throw new Error(msg(lang, "invalidSession"));
+    if (ticket.consumed_at) throw new Error(msg(lang, "alreadySubmitted"));
     if (new Date(ticket.created_at as string).getTime() < Date.now() - 60 * 60_000) {
-      throw new Error("Sessie verlopen — herlaad de pagina.");
+      throw new Error(msg(lang, "sessionExpired"));
     }
 
     const naam = sanitize(data.naam, 120);
     const email = sanitize((data.email || "").toLowerCase(), 255);
-    if (!naam || !EMAIL_RE.test(email)) throw new Error("Vul naam en e-mail correct in.");
+    if (!naam || !EMAIL_RE.test(email)) throw new Error(msg(lang, "nameEmailRequired"));
     const type_werk = data.type_werk;
     if (!["plaatwerk", "volledige_restauratie", "advies"].includes(type_werk)) {
-      throw new Error("Ongeldig type werk.");
+      throw new Error(msg(lang, "invalidWorkType"));
     }
 
     // foto_urls must all live under the ticket prefix.
     const photos = (data.foto_urls ?? []).slice(0, 5);
     for (const p of photos) {
       if (typeof p !== "string" || !p.startsWith(`${data.ticketId}/`)) {
-        throw new Error("Ongeldig fotopad.");
+        throw new Error(msg(lang, "invalidPhotoPath"));
       }
     }
 
-    const locale: "nl" | "en" = data.locale === "en" ? "en" : "nl";
+    const locale: "nl" | "en" = lang;
 
     const { error: insErr } = await supabaseAdmin.from("quote_requests").insert({
       id: data.ticketId,
