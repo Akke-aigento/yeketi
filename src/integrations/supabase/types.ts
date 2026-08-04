@@ -830,6 +830,14 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_health_token: { Args: never; Returns: string }
+      get_last_cron_run: {
+        Args: { p_jobname: string }
+        Returns: {
+          start_time: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
