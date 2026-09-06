@@ -27,13 +27,12 @@ export const nl = {
   },
   story: {
     eyebrow: "Het verhaal",
-    title: "Een ambacht dat een tweede thuis vond.",
+    title: "Het begon met één oude Volkswagen.",
     body: [
-      "Yeketi begon met één eenvoudige vaststelling: de klassiekers die wij in Europa koesteren, worden steeds zeldzamer hersteld. Niet door gebrek aan liefde, maar door gebrek aan tijd, aan handen, aan ruimte in de werkplaats.",
-      "In de bergen van Koerdistan, in Iraq, werken nog steeds meester-ambachtslieden die het métier in de vingers hebben. Plaatwerkers, lassers, schilders — opgeleid in een traditie waar elke deuk met de hand wordt uitgeklopt. Wij brengen Europese auto's naar hen toe, en de auto die terugkomt is meer dan hersteld. Hij is opnieuw verteld.",
+      "In 2024 kocht oprichter Baram een VW T2 uit 1978, met de droom ermee van België naar Koerdistan te rijden. De bus had carrosseriewerk nodig — en dus liet hij dat níet in Europa doen, maar bij de meester-ambachtslieden van Koerdistan.",
+      "Uit die reis groeide Yekêtî, Koerdisch voor eenheid: een brug tussen Europese oldtimerliefhebbers en een levende traditie van vakmanschap. Een auto die daar wordt hersteld, komt niet alleen terug — hij komt opnieuw verteld terug.",
     ],
-    pullQuote:
-      "Een auto bewaart de adem van de mensen die hem maken. Daarom kiezen wij onze handen met zorg.",
+    pullQuote: "Wat begon met één oude Volkswagen, verbindt nu twee thuislanden.",
     pullAttribution: "— Baram Maro, oprichter",
   },
   process: {
@@ -165,16 +164,17 @@ export const nl = {
     weldingVideoAria: "Korte video van autogeen-lassen op plaatstaal",
   },
   over: {
-    eyebrow: "Over Yeketi",
-    title: "Yeketi betekent eenheid. Eenheid in vakmanschap.",
+    eyebrow: "Ons verhaal",
+    title: "Yekêtî ontstond niet aan een tekentafel, maar onderweg.",
     body: [
-      "Yeketi is een Koerdisch woord voor eenheid. Het kiezen van die naam was geen marketingbeslissing — het was een principe. Wij brengen twee werelden samen: Europese eigenaars die hun klassieker willen koesteren, en een netwerk van Koerdische meester-ambachtslieden die het oude métier nog in de vingers hebben.",
-      "De werkplaats ligt in de buurt van Erbil, in de Koerdistan-regio van Iraq. Het is een rustige plek, ver van de massaproductie, waar men nog tijd neemt om naar metaal te luisteren. De ambachtslieden — sommigen al dertig jaar in het vak — werken met de geduldige nauwkeurigheid die deze auto's verdienen.",
-      "Vanuit België coördineren wij elk project persoonlijk. Wij komen langs voor de inspectie, regelen het transport, en zijn uw enige aanspreekpunt zolang de wagen weg is. U hoort van ons in het Nederlands. U krijgt foto's per week, en een eerlijk antwoord wanneer u erom vraagt.",
+      "In 2024 kocht oprichter Baram een Volkswagen T2 uit 1978, met de droom om er ooit van België naar Koerdistan mee te rijden. Toen bleek dat de bus grondig carrosseriewerk nodig had, ontstond een idee: laat die restauratie niet in België gebeuren, maar in Koerdistan. Baram liet de T2 hier mechanisch in orde brengen, reed ermee naar Koerdistan, liet het carrosseriewerk daar uitvoeren en bracht de bus nadien zelf terug naar België.",
+      "Die reis legde iets bloot: twee werelden die elk iets hebben wat de andere nodig heeft. In Europa is gespecialiseerde oldtimerrestauratie schaars, duur en vaak verbonden aan lange wachttijden. In Koerdistan bestaat een levende traditie van vakmanschap en carrosseriewerk — maar die markt is nauwelijks verbonden met de Europese oldtimerliefhebber. Daaruit groeide Yekêtî, Koerdisch voor eenheid: een brug tussen beide werelden.",
+      "Maar het verhaal gaat verder terug. Baram werkte jarenlang als conflictjournalist in Koerdistan. Aan het front in de strijd tegen IS ontmoette hij een Koerdische generaal met de bijnaam Wasta — letterlijk 'meester-carrossier'. Voor hij de bergen introk en zich bij het Koerdische verzet aansloot, werkte Wasta zelf aan auto's als carrossier. Jaren later werd zijn familie ook Barams familie.",
+      "Nu kruisen hun wegen opnieuw, maar in omgekeerde richting: Wasta ging van carrosserie naar oorlog. Baram gaat van oorlog naar klassieke auto's. Met Yekêtî komt die cirkel rond. Wat begon met één oude Volkswagen en een reis tussen twee thuislanden, groeit uit tot een onderneming die vakmanschap, mensen, auto's en verhalen tussen België en Koerdistan met elkaar verbindt."
     ],
     founderName: "Baram Maro — oprichter",
     founderQuote:
-      "Ik wil dat mijn klanten hun wagen op een dag aan hun kleinkinderen kunnen doorgeven. Dat is de enige reden dat dit bestaat.",
+      "Wasta ging van carrosserie naar oorlog. Ik ga van oorlog naar klassieke auto's. Met Yekêtî komt die cirkel rond.",
   },
   offerte: {
     eyebrow: "Offerte aanvragen",
@@ -394,13 +394,12 @@ export const en: Copy = {
   },
   story: {
     eyebrow: "The story",
-    title: "A craft that found a second home.",
+    title: "It began with one old Volkswagen.",
     body: [
-      "Yeketi began with one simple observation: the classic cars we cherish in Europe are restored less and less. Not for lack of love, but for lack of time, of hands, of room in the workshop.",
-      "In the mountains of Kurdistan, in Iraq, master craftsmen still work who carry the trade in their fingers. Panel beaters, welders, painters — trained in a tradition where every dent is tapped out by hand. We bring European cars to them, and the car that comes back is more than restored. It is retold.",
+      "In 2024, founder Baram bought a 1978 VW T2, dreaming of driving it from Belgium to Kurdistan. The bus needed bodywork — so he had it done not in Europe, but by the master craftsmen of Kurdistan.",
+      "From that journey grew Yekêtî — Kurdish for unity: a bridge between European classic-car enthusiasts and a living tradition of craftsmanship. A car restored there doesn't just come back — it comes back retold.",
     ],
-    pullQuote:
-      "A car carries the breath of the people who built it. That is why we choose our hands with care.",
+    pullQuote: "What began with one old Volkswagen now connects two homelands.",
     pullAttribution: "— Baram Maro, founder",
   },
   process: {
@@ -520,16 +519,17 @@ export const en: Copy = {
     weldingVideoAria: "Short video of gas-welding sheet metal",
   },
   over: {
-    eyebrow: "About Yeketi",
-    title: "Yeketi means unity. Unity in craftsmanship.",
+    eyebrow: "Our story",
+    title: "Yekêtî wasn't born at a drawing board, but on the road.",
     body: [
-      "Yeketi is a Kurdish word for unity. Choosing that name was not a marketing decision — it was a principle. We bring two worlds together: European owners who want to cherish their classic car, and a network of Kurdish master craftsmen who still carry the old trade in their hands.",
-      "The workshop is located near Erbil, in the Kurdistan region of Iraq. It is a quiet place, far from mass production, where people still take the time to listen to metal. The craftsmen — some with thirty years in the trade — work with the patient precision these cars deserve.",
-      "From Belgium we coordinate every project personally. We come by for the inspection, arrange transport, and are your only point of contact while the car is away. You hear from us in English or Dutch. You get photos every week, and an honest answer when you ask for one.",
+      "In 2024, founder Baram bought a 1978 Volkswagen T2, with the dream of one day driving it from Belgium to Kurdistan. When the bus turned out to need serious bodywork, an idea took shape: don't have the restoration done in Belgium, but in Kurdistan. Baram had the T2 made mechanically sound here, drove it to Kurdistan, had the bodywork carried out there, and then brought the bus back to Belgium himself.",
+      "That journey revealed something: two worlds, each holding what the other needs. In Europe, specialised classic-car restoration is scarce, expensive and often tied to long waiting lists. In Kurdistan there is a living tradition of craftsmanship and bodywork — but that market is barely connected to the European classic-car enthusiast. From that, Yekêtî grew — Kurdish for unity: a bridge between the two worlds.",
+      "But the story reaches further back. Baram worked for years as a conflict journalist in Kurdistan. On the front line in the fight against IS, he met a Kurdish general nicknamed Wasta — literally 'master bodyworker'. Before he took to the mountains and joined the Kurdish resistance, Wasta himself had worked on cars as a bodyworker. Years later, his family became Baram's family too.",
+      "Now their paths cross again, but in the opposite direction: Wasta went from bodywork to war. Baram goes from war to classic cars. With Yekêtî, that circle closes. What began with one old Volkswagen and a journey between two homelands is growing into a company that connects craftsmanship, people, cars and stories between Belgium and Kurdistan."
     ],
     founderName: "Baram Maro — founder",
     founderQuote:
-      "I want my clients to be able to hand their car down to their grandchildren one day. That is the only reason this exists.",
+      "Wasta went from bodywork to war. I go from war to classic cars. With Yekêtî, the circle closes.",
   },
   offerte: {
     eyebrow: "Request a quote",

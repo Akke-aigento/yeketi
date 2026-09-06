@@ -10,9 +10,9 @@ export const Route = createFileRoute("/over")({
   head: () => ({
     meta: [
       { title: "Over ons — Yeketi Motorworks" },
-      { name: "description", content: "Yeketi betekent eenheid. Wij brengen Europese eigenaars en Koerdische meester-ambachtslieden samen." },
-      { property: "og:title", content: "Over Yeketi Motorworks" },
-      { property: "og:description", content: "Het verhaal van Baram, het netwerk van ambachtslieden, en de betekenis van Yeketi." },
+      { name: "description", content: "Het verhaal van Yekêtî: hoe een VW T2 uit 1978 en een reis tussen België en Koerdistan uitgroeiden tot een brug tussen twee werelden van vakmanschap." },
+      { property: "og:title", content: "Ons verhaal — Yeketi Motorworks" },
+      { property: "og:description", content: "Van een oude Volkswagen tot een onderneming die België en Koerdistan verbindt. Het verhaal van Baram, Wasta en de betekenis van Yekêtî." },
       { property: "og:url", content: "https://yeketimotorworks.com/over" },
     ],
     links: [{ rel: "canonical", href: "https://yeketimotorworks.com/over" }],
