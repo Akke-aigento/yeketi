@@ -14,7 +14,6 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CookieBanner } from "../components/CookieBanner";
 import { LangProvider, useT } from "../lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
-import { InstallAppHint } from "../components/InstallAppHint";
 import { registerPwa } from "../lib/pwa-register";
 
 function NotFoundComponent() {
@@ -184,7 +183,6 @@ function RootComponent() {
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <CookieBanner />
-        <InstallAppHint />
         <Toaster />
       </LangProvider>
     </QueryClientProvider>
