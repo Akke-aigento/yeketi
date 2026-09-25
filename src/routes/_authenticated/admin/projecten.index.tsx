@@ -11,7 +11,7 @@ import { useAdminRefreshKey } from "@/hooks/useAdminRefresh";
 
 export const Route = createFileRoute("/_authenticated/admin/projecten/")({
   head: () => ({ meta: [{ title: "Projecten — Admin" }, { name: "robots", content: "noindex" }] }),
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>): { neu?: 1 } => ({
     neu: search.neu === 1 || search.neu === "1" ? 1 : undefined,
   }),
   component: ProjectenIndex,
@@ -52,7 +52,7 @@ function ProjectenIndex() {
   useEffect(() => {
     if (routeSearch.neu === 1) {
       setShowNew(true);
-      navigate({ to: "/admin/projecten", search: {}, replace: true });
+      navigate({ to: "/admin/projecten", search: { neu: undefined }, replace: true });
     }
   }, [routeSearch.neu, navigate]);
 
