@@ -124,6 +124,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       {
+        src: "https://insights.studioakke.com/t.js",
+        defer: true,
+        "data-site": "ibhn1skx09z5",
+        "data-exclude": "/admin*,/login*,/auth*",
+      },
+      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",

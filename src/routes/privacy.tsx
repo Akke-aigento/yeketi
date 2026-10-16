@@ -62,6 +62,7 @@ function Privacy() {
             <ScrollReveal>
               <h2 style={{ fontSize: "1.5rem", color: "var(--charcoal)" }}>{s.cookiesTitle}</h2>
               <p className="mt-3">{s.cookiesBody}</p>
+              <p className="mt-3" style={{ fontSize: "0.95rem" }}>{s.insights}</p>
             </ScrollReveal>
 
             <ScrollReveal>
