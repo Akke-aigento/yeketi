@@ -328,6 +328,8 @@ export const nl = {
       cookiesTitle: "Cookies",
       cookiesBody:
         "Wij gebruiken alleen functionele cookies die noodzakelijk zijn voor het inloggen op het klantenportaal. Geen tracking, geen advertentiecookies, geen analytics van derden.",
+      insights:
+        "We meten bezoeken anoniem met Akke Insights: geen cookies, en er worden geen IP-adressen of persoonlijke gegevens opgeslagen. Dit vertelt ons alleen welke pagina's gebruikt worden.",
       retentionTitle: "Bewaartermijn",
       retentionBody:
         "Offerteaanvragen worden 24 maanden bewaard. Project- en restauratiedossiers worden zolang bewaard als de wettelijke administratieplicht vereist (7 jaar).",
@@ -683,6 +685,8 @@ export const en: Copy = {
       cookiesTitle: "Cookies",
       cookiesBody:
         "We only use functional cookies needed to sign in to the client portal. No tracking, no advertising cookies, no third-party analytics.",
+      insights:
+        "We measure visits anonymously with Akke Insights: no cookies, and no IP addresses or personal data are stored. This only tells us which pages are used.",
       retentionTitle: "Retention",
       retentionBody:
         "Quote requests are kept for 24 months. Project and restoration files are kept for as long as the legal record-keeping obligation requires (7 years).",
